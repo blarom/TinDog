@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">TinDog</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_map">Map</string>
+    <string name="tindog_logo">Tindog Logo</string>
+    <string name="give_a_pup_a_chance">Give a pup a chance!</string>
+    <string name="what_do_you_want_to_do">What do you want to do?</string>
+    <string name="update_the_local_map_with_my_knowledge">Update the local map with my knowledge</string>
+    <string name="offer_dog_care_services">Offer dog-care services</string>
+    <string name="offer_advice_on_fostering_adopting">Offer advice on fostering/adopting</string>
+    <string name="help_organize_adoption_events">Help organize adoption events</string>
+    <string name="find_a_dog_family_foundation">Find a dog/family/foundation</string>
+    <string name="dog_main_image">Dog main image</string>
+    <string name="dog_s_name">Dog\'s name</string>
+    <string name="interactions">Interactions:</string>
+    <string name="history">History:</string>
+    <string name="behavior">Behavior:</string>
+    <string name="gender">Gender:</string>
+    <string name="size">Size:</string>
+    <string name="age">Age:</string>
+    <string name="videos">Videos:</string>
+    <string name="no_videos_available">No videos available</string>
+    <string name="default_age">2.5 years old</string>
+    <string name="default_size">Chihuahua-sized</string>
+    <string name="default_gender">Male</string>
+    <string name="default_behavior">Quiet</string>
+    <string name="default_interactions">Loves children</string>
+    <string name="default_history">No history available</string>
+    <string name="pictures">Pictures:</string>
+    <string name="default_pictures">No pictures available</string>
+    <string name="our_experience_with_dogs">Our experience with dogs:</string>
+    <string name="how_we_want_to_help">How we want to help:</string>
+    <string name="family_s_pseudonym">Family\'s pseudonym</string>
+    <string name="default_experience">No experience yet...</string>
+    <string name="default_address">Street, City, Country</string>
+</resources>
