@@ -75,6 +75,27 @@
     <string name="edit_my_user_profile">Edit my user profile</string>
     <string name="edit_my_preferences">Edit my preferences</string>
     <string name="edit">edit</string>
+    <string name="please_enter_your_name">Please enter your name.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="device_version_too_low">Your device\'s Android version is too low.</string>
+    <string name="please_enter_your_email">Please enter your email.</string>
+    <string name="please_enter_your_password">Please enter your password</string>
+    <string name="current_name">Current name</string>
+    <string name="new_name">New name</string>
+    <string name="current_email">Current email</string>
+    <string name="current_password">Please enter your current password</string>
+    <string name="new_password">New Password</string>
+    <string name="wrong_password">Wrong Password, please try again.</string>
+    <string name="sent_password_reset_email">We just sent you a password reset link at your registered email.</string>
+    <string name="successfully_updated_password">Successfully updated password.</string>
+    <string name="failed_to_update_password">Failed to update password.</string>
+    <string name="error_accessing_user_info">Error accessing user information.</string>
+    <string name="successfully_updated_email">Successfully updated email.</string>
+    <string name="failed_to_update_email">Failed to update password.</string>
+    <string name="successfully_updated_name">Successfully updated name.</string>
+    <string name="failed_to_update_name">Failed to update name.</string>
+    <string name="authentication_failed">Authentication failed.</string>
     <string-array name="dog_age">
         <item>Newborn pup</item>
         <item>Young troublemaker (1–3 yrs old)</item>

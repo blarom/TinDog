@@ -1,17 +1,24 @@
 package com.tindog;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +27,7 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Dog;
 import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
@@ -46,6 +54,9 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     @BindView(R.id.preferences_skip) Button mButtonSkipDogPrefsSetting;
     @BindView(R.id.preferences_name_value) TextView mTextViewUserName;
     @BindView(R.id.preferences_email_value) TextView mTextViewUserEmail;
+    @BindView(R.id.preferences_change_name) ImageView mImageViewChangeName;
+    @BindView(R.id.preferences_change_email) ImageView mImageViewChangeEmail;
+    @BindView(R.id.preferences_change_password) ImageView mImageViewChangePassword;
     private TinDogUser mUser;
     private FirebaseDao mFirebaseDao;
     private FirebaseAuth mFirebaseAuth;
@@ -61,8 +72,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     private ArrayAdapter<CharSequence> mSpinnerAdapterRace;
     private ArrayAdapter<CharSequence> mSpinnerAdapterBehavior;
     private ArrayAdapter<CharSequence> mSpinnerAdapterInteractions;
-
-    //TODO setup name/email/password edit options for Firebase
 
     //Lifecycle methods
     @Override protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +127,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         return super.onOptionsItemSelected(item);
     }
 
+
     //Structural methods
     private void initializeParameters() {
         ButterKnife.bind(this);
@@ -155,6 +165,24 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         mSpinnerInteractions.setAdapter(mSpinnerAdapterInteractions);
         mSpinnerInteractions.setOnItemSelectedListener(this);
 
+        mImageViewChangeName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showUserInfoUpdateDialog("name");
+            }
+        });
+        mImageViewChangeEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showUserInfoUpdateDialog("email");
+            }
+        });
+        mImageViewChangePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showUserInfoUpdateDialog("password");
+            }
+        });
     }
     private void updateProfileFields() {
         mTextViewUserName.setText(mNameFromFirebase);
@@ -230,6 +258,84 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     }
     private void cleanUpListeners() {
         if (mFirebaseAuth!=null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    }
+    private void showUserInfoUpdateDialog(final String infoType) {
+
+        //Get the dialog view
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_enter_information, null);
+        final EditText inputTextOld = dialogView.findViewById(R.id.input_text_old);
+        final EditText inputTextNew = dialogView.findViewById(R.id.input_text_new);
+        final TextInputLayout inputTextOldParent = dialogView.findViewById(R.id.dialog_input_text_old_parent);
+        final TextInputLayout inputTextNewParent = dialogView.findViewById(R.id.dialog_input_text_new_parent);
+
+        //Building the dialog
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+
+        switch (infoType) {
+            case "name":
+                builder.setTitle(R.string.please_enter_your_name);
+                inputTextOld.setText("");
+                inputTextOld.setEnabled(true);
+                inputTextOldParent.setHint(getString(R.string.current_password));
+                inputTextNewParent.setHint("Enter new name (current: " + mNameFromFirebase + ")");
+                break;
+            case "email":
+                builder.setTitle(R.string.please_enter_your_email);
+                inputTextOld.setText("");
+                inputTextOld.setEnabled(true);
+                inputTextOldParent.setHint(getString(R.string.current_password));
+                inputTextNewParent.setHint("Enter new email (current: " + mEmailFromFirebase + ")");
+                break;
+            case "password":
+                builder.setTitle(R.string.please_enter_your_password);
+                inputTextOld.setText("");
+                inputTextOld.setEnabled(true);
+                inputTextOldParent.setHint(getString(R.string.current_password));
+                inputTextNewParent.setHint(getString(R.string.new_password));
+                break;
+        }
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                String currentPassword = inputTextOld.getText().toString();
+                final String newInfo = inputTextNew.getText().toString();
+
+                switch (infoType) {
+                    case "name":
+                        if (mCurrentFirebaseUser!=null) {
+                            DatabaseUtilities.updateFirebaseUserName(getApplicationContext(), mCurrentFirebaseUser, currentPassword, newInfo);
+                            mTextViewUserName.setText(newInfo);
+                        }
+                        break;
+                    case "email":
+                        if (mCurrentFirebaseUser!=null) {
+                            DatabaseUtilities.updateFirebaseUserEmail(getApplicationContext(), mCurrentFirebaseUser, currentPassword, newInfo);
+                            mTextViewUserEmail.setText(newInfo);
+                        }
+                        break;
+                    case "password":
+                        if (mCurrentFirebaseUser!=null) {
+                            DatabaseUtilities.updateFirebaseUserPassword(getApplicationContext(), mCurrentFirebaseUser, currentPassword, newInfo);
+                        }
+                        break;
+                }
+
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) builder.setView(dialogView);
+        else builder.setMessage(R.string.device_version_too_low);
+
+        android.app.AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     //Communication with other activities/fragments:
