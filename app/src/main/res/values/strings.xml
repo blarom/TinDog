@@ -16,10 +16,10 @@
     <string name="dog_s_name">Dog\'s name</string>
     <string name="interactions">Interactions:</string>
     <string name="history">History:</string>
-    <string name="behavior">Behavior:</string>
-    <string name="gender">Gender:</string>
-    <string name="size">Size:</string>
-    <string name="age">Age:</string>
+    <string name="behaviorPref">Behavior:</string>
+    <string name="genderPref">Gender:</string>
+    <string name="sizePref">Size:</string>
+    <string name="agePref">Age:</string>
     <string name="videos">Videos:</string>
     <string name="no_videos_available">No videos available</string>
     <string name="default_age">2.5 years old</string>
@@ -32,7 +32,87 @@
     <string name="default_pictures">No pictures available</string>
     <string name="our_experience_with_dogs">Our experience with dogs:</string>
     <string name="how_we_want_to_help">How we want to help:</string>
-    <string name="family_s_pseudonym">Family\'s pseudonym</string>
+    <string name="family_s_pseudonym">Family\'s name</string>
     <string name="default_experience">No experience yet...</string>
     <string name="default_address">Street, City, Country</string>
+    <string name="magnifying_glass">Magnifying glass</string>
+    <string name="dogs">Dogs</string>
+    <string name="families">Families</string>
+    <string name="foundations">Foundations</string>
+    <string name="profile_image">Profile image</string>
+    <string name="no_name_available">No name available</string>
+    <string name="foundation_profile">foundation_profile</string>
+    <string name="family_profile">family_profile</string>
+    <string name="dog_profile">dog_profile</string>
+    <string name="selected_profile_index">selected_profile_index</string>
+    <string name="my_family_s_pseudonym">My family\'s pseudonym (shown to others)</string>
+    <string name="my_cell_number_not_shown_to_others">My cell number (not shown to others)</string>
+    <string name="my_email_not_shown_to_others">My email (not shown to others)</string>
+    <string name="country_where_i_live">Country where I live</string>
+    <string name="city_where_i_live">City where I live</string>
+    <string name="street_where_i_live">Street where I live</string>
+    <string name="my_experience_with_fostering_adoption">My experience with fostering/adoption</string>
+    <string name="upload_pics_of_my_current_pets">Upload pics of my current pets!</string>
+    <string name="choose_my_family_page_picture">Choose my family page picture!</string>
+    <string name="done">DONE</string>
+    <string name="no_details_available">No details available</string>
+    <string name="family_main_image">Family main image</string>
+    <string name="mainImage">mainImage</string>
+    <string name="image0">image0</string>
+    <string name="image1">image1</string>
+    <string name="image2">image2</string>
+    <string name="image3">image3</string>
+    <string name="image4">image4</string>
+    <string name="image">Image</string>
+    <string name="action_update_profile">Update profile</string>
+    <string name="action_search_profiles">Search for profiles</string>
+    <string name="login_state">login state</string>
+    <string name="edit_my_family_profile">Edit my family profile</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="sign_in">Sign In</string>
+    <string name="my_name">My name (not shown to others)</string>
+    <string name="action_done">Done</string>
+    <string name="edit_my_user_profile">Edit my user profile</string>
+    <string name="edit_my_preferences">Edit my preferences</string>
+    <string name="edit">edit</string>
+    <string-array name="dog_age">
+        <item>Newborn pup</item>
+        <item>Young troublemaker (1–3 yrs old)</item>
+        <item>Experienced pupper (3–6 yrs old)</item>
+        <item>Senior doggo (6–10 yrs old)</item>
+        <item>Old geyser (10+ yrs old)</item>
+    </string-array>
+    <string-array name="dog_size">
+        <item>Chihuaha-sized (in your purse!)</item>
+        <item>Weiner-sized (easy on kids)</item>
+        <item>Comfortable (trolley-sized)</item>
+        <item>Huggable (big pillow)</item>
+        <item>Grizzly-huggable (45+ kilos of love)</item>
+    </string-array>
+    <string-array name="dog_gender">
+        <item>Male (Who\'s a good boy!)</item>
+        <item>Female (The true boss of the house)</item>
+    </string-array>
+    <string-array name="dog_race">
+        <item>Mixed (it\'s the heart that matters)</item>
+        <item>Cross-bred (the best of both worlds)</item>
+        <item>Pure-bred (beauty before brawn)</item>
+    </string-array>
+    <string-array name="dog_behavior">
+        <item>Playful (mess is life)</item>
+        <item>Gentle</item>
+        <item>Calm</item>
+        <item>Trained</item>
+        <item>Smart</item>
+        <item>Special needs</item>
+    </string-array>
+    <string-array name="dog_interactions">
+        <item>Playful with other doggos</item>
+        <item>Calm with other doggos</item>
+        <item>Kitty-tolerant</item>
+        <item>The Buddha of the Animal Kingdom</item>
+        <item>Kid-friendly (+3 patience perk)</item>
+        <item>Adult-friendy (I fear no man!)</item>
+        <item>All of the above</item>
+    </string-array>
 </resources>

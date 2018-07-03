@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    android:id="@+id/preferences_size_title"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PreferencesActivity">
+
+
+    <TextView
+        android:id="@+id/preferences_interactions_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Interactions:"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_interactions_spinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preferences_interactions_spinner"/>
+
+    <TextView
+        android:id="@+id/preferences_behavior_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Behavior:"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_behavior_spinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preferences_behavior_spinner"/>
+
+
+    <TextView
+        android:id="@+id/preferences_race_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Race:"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_race_spinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preferences_race_spinner"/>
+
+    <TextView
+        android:id="@+id/preferences_gender_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Gender:"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_gender_spinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preferences_gender_spinner"/>
+
+    <TextView
+        android:id="@+id/dog_preferences_title4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Size:"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_size_spinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preferences_size_spinner"/>
+
+    <TextView
+        android:id="@+id/preferences_age_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Age:"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_age_spinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preferences_age_spinner"/>
+
+    <TextView
+        android:id="@+id/preferences_password_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Password:"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_change_password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preferences_change_password"/>
+
+    <TextView
+        android:id="@+id/preferences_email_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Email:"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_change_email"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preferences_change_email"/>
+
+    <TextView
+        android:id="@+id/preferences_email_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:gravity="start"
+        android:text="No email available"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_change_email"
+        app:layout_constraintEnd_toStartOf="@+id/preferences_change_email"
+        app:layout_constraintStart_toEndOf="@+id/preferences_password_title"
+        app:layout_constraintTop_toTopOf="@+id/preferences_change_email"/>
+
+    <TextView
+        android:id="@+id/preferences_password_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:gravity="start"
+        android:text="********"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_change_password"
+        app:layout_constraintEnd_toStartOf="@+id/preferences_change_password"
+        app:layout_constraintStart_toEndOf="@+id/preferences_password_title"
+        app:layout_constraintTop_toTopOf="@+id/preferences_change_password"/>
+
+    <TextView
+        android:id="@+id/preferences_name_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:gravity="start"
+        android:text="@string/no_name_available"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_change_name"
+        app:layout_constraintEnd_toStartOf="@+id/preferences_change_name"
+        app:layout_constraintStart_toEndOf="@+id/preferences_password_title"
+        app:layout_constraintTop_toTopOf="@+id/preferences_change_name"/>
+
+    <TextView
+        android:id="@+id/preferences_name_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Name:"
+        app:layout_constraintBottom_toBottomOf="@+id/preferences_change_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preferences_change_name"/>
+
+    <TextView
+        android:id="@+id/preferences_title_who_am_i"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Who I am"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/preferences_title_want_doggy_be"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="I want my doggy to be..."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_change_password"/>
+
+    <Spinner
+        android:id="@+id/preferences_age_spinner"
+        android:layout_width="0dp"
+        android:layout_height="26dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.955"
+        app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_title_want_doggy_be"/>
+
+    <Spinner
+        android:id="@+id/preferences_size_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_age_spinner"/>
+
+    <Spinner
+        android:id="@+id/preferences_gender_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_size_spinner"/>
+
+    <Spinner
+        android:id="@+id/preferences_race_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_gender_spinner"/>
+
+    <Spinner
+        android:id="@+id/preferences_behavior_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.955"
+        app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_race_spinner"/>
+
+    <Spinner
+        android:id="@+id/preferences_interactions_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_behavior_spinner"/>
+
+    <Button
+        android:id="@+id/preferences_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Skip this step (leave defaults)"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_find"/>
+
+    <Button
+        android:id="@+id/preferences_find"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Find my perfect friend!"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_interactions_spinner"/>
+
+    <ImageView
+        android:id="@+id/preferences_change_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="24dp"
+        app:srcCompat="@drawable/ic_edit_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_title_who_am_i"
+        android:contentDescription="@string/edit"/>
+
+    <ImageView
+        android:id="@+id/preferences_change_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="16dp"
+        app:srcCompat="@drawable/ic_edit_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_change_name"
+        android:contentDescription="@string/edit"/>
+
+    <ImageView
+        android:id="@+id/preferences_change_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="16dp"
+        app:srcCompat="@drawable/ic_edit_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/preferences_change_email"
+        android:contentDescription="@string/edit"/>
+
+</android.support.constraint.ConstraintLayout>

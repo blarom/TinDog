@@ -16,10 +16,11 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:src="@drawable/ic_image_not_available"
+        app:srcCompat="@drawable/ic_image_not_available"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/magnifying_glass"/>
 
     <Button
         android:id="@+id/button"
@@ -61,15 +62,14 @@
         app:layout_constraintTop_toBottomOf="@+id/button"/>
 
     <android.support.design.widget.TabLayout
-        android:layout_width="368dp"
-        android:layout_height="298dp"
-        android:layout_marginBottom="8dp"
+        android:id="@+id/search_screen_list_selection_tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinner">
@@ -77,17 +77,25 @@
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Left"/>
+            android:text="@string/dogs"/>
 
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Center"/>
+            android:text="@string/families"/>
 
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Right"/>
+            android:text="@string/foundations"/>
     </android.support.design.widget.TabLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/search_screen_profile_selection_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_screen_list_selection_tab_layout"
+        />
 
 </android.support.constraint.ConstraintLayout>

@@ -8,12 +8,15 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.tindog"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
+
+        buildConfigField("String", "firebaseEmail", firebaseEmail)
+        buildConfigField("String", "firebasePass", firebasePass)
     }
     buildTypes {
         release {
@@ -37,6 +40,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:16.0.1'
     implementation 'com.google.firebase:firebase-storage:16.0.1'
     implementation 'com.google.firebase:firebase-auth:16.0.2'
+    implementation 'com.firebaseui:firebase-ui-auth:4.0.0'
 
     //Test dependencies
     testImplementation 'junit:junit:4.12'
@@ -49,6 +53,7 @@ dependencies {
     implementation 'com.jakewharton:butterknife:8.8.1'
     implementation 'com.google.android.exoplayer:exoplayer:2.8.1'
     implementation 'com.github.santalu:aspect-ratio-imageview:1.0.4'
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.+'
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation 'com.android.support:design:27.1.1'

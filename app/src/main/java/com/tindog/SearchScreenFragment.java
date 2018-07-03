@@ -1,108 +1,150 @@
 package com.tindog;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.tindog.adapters.DogsListRecycleViewAdapter;
+import com.tindog.adapters.FamiliesListRecycleViewAdapter;
+import com.tindog.adapters.FoundationsListRecycleViewAdapter;
+import com.tindog.data.Dog;
+import com.tindog.data.Family;
+import com.tindog.data.FirebaseDao;
+import com.tindog.data.Foundation;
+import com.tindog.data.TinDogUser;
+
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link SearchScreenFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link SearchScreenFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class SearchScreenFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+public class SearchScreenFragment extends Fragment implements DogsListRecycleViewAdapter.DogsListItemClickHandler, FamiliesListRecycleViewAdapter.FamiliesListItemClickHandler, FoundationsListRecycleViewAdapter.FoundationsListItemClickHandler, FirebaseDao.FirebaseOperationsHandler {
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    @BindView(R.id.search_screen_magnifying_glass_image) ImageView mImageViewMagnifyingGlass;
+    @BindView(R.id.search_screen_profile_selection_recycler_view) RecyclerView mRecyclerViewProfileSelection;
+    @BindView(R.id.search_screen_list_selection_tab_layout) TabLayout mTabLayoutListSelection;
 
-    private OnFragmentInteractionListener mListener;
+    private DogsListRecycleViewAdapter mDogsListRecycleViewAdapter;
+    private FamiliesListRecycleViewAdapter mFamiliesListRecycleViewAdapter;
+    private FoundationsListRecycleViewAdapter mFoundationsListRecycleViewAdapter;
+    private DatabaseReference mFirebaseDbReference;
 
     public SearchScreenFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchScreenFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SearchScreenFragment newInstance(String param1, String param2) {
-        SearchScreenFragment fragment = new SearchScreenFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    //Lifecyle methods
+    @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search_screen, container, false);
+        FirebaseDatabase firebaseDb = FirebaseDatabase.getInstance();
+        mFirebaseDbReference = firebaseDb.getReference();
     }
+    @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_search_screen, container, false);
+        ButterKnife.bind(this, rootView);
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+        setupLists();
+
+        return rootView;
     }
-
-    @Override
-    public void onAttach(Context context) {
+    @Override public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+        onProfileSelectedListener = (OnProfileSelectedListener) context;
     }
-
-    @Override
-    public void onDetach() {
+    @Override public void onDetach() {
         super.onDetach();
-        mListener = null;
+        onProfileSelectedListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+    //Functionality methods
+    private void setupLists() {
+
+        //Setting up the item lists (results are received through the FirebaseDao interface, see methods below)
+        FirebaseDao firebaseDao = new FirebaseDao(getContext(), this);
+        firebaseDao.getFullObjectsListFromFirebase(new Dog());
+        firebaseDao.getFullObjectsListFromFirebase(new Family());
+        firebaseDao.getFullObjectsListFromFirebase(new Foundation());
+
+        //Setting up the RecyclerView adapters
+        mRecyclerViewProfileSelection.setLayoutManager(new LinearLayoutManager(getContext()));
+        if (mDogsListRecycleViewAdapter==null) mDogsListRecycleViewAdapter = new DogsListRecycleViewAdapter(getContext(), this, null);
+        if (mFamiliesListRecycleViewAdapter==null) mFamiliesListRecycleViewAdapter = new FamiliesListRecycleViewAdapter(getContext(), this, null);
+        if (mFoundationsListRecycleViewAdapter==null) mFoundationsListRecycleViewAdapter = new FoundationsListRecycleViewAdapter(getContext(), this, null);
+        mRecyclerViewProfileSelection.setAdapter(mDogsListRecycleViewAdapter);
+
+        mTabLayoutListSelection.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch (tab.getPosition()) {
+                    case 0:
+                        mRecyclerViewProfileSelection.setAdapter(mDogsListRecycleViewAdapter);
+                        break;
+                    case 1:
+                        mRecyclerViewProfileSelection.setAdapter(mFamiliesListRecycleViewAdapter);
+                        break;
+                    case 2:
+                        mRecyclerViewProfileSelection.setAdapter(mFoundationsListRecycleViewAdapter);
+                        break;
+                    default:
+                        mRecyclerViewProfileSelection.setAdapter(mDogsListRecycleViewAdapter);
+                        break;
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+    }
+
+    //Communication with other activities/fragments:
+
+    //Communication with RecyclerView adapters
+    private OnProfileSelectedListener onProfileSelectedListener;
+    public interface OnProfileSelectedListener {
+        void onProfileSelected(String profile, int clickedItemIndex);
+    }
+    @Override public void onDogsListItemClick(int clickedItemIndex) {
+        onProfileSelectedListener.onProfileSelected(getString(R.string.dog_profile), clickedItemIndex);
+    }
+    @Override public void onFamiliesListItemClick(int clickedItemIndex) {
+        onProfileSelectedListener.onProfileSelected(getString(R.string.family_profile), clickedItemIndex);
+    }
+    @Override public void onFoundationsListItemClick(int clickedItemIndex) {
+        onProfileSelectedListener.onProfileSelected(getString(R.string.foundation_profile), clickedItemIndex);
+    }
+
+    //Communication with Firebase Dao handler
+    @Override public void onDogsListFound(List<Dog> dogsList) {
+        mDogsListRecycleViewAdapter.setContents(dogsList);
+    }
+    @Override public void onFamiliesListFound(List<Family> familiesList) {
+        mFamiliesListRecycleViewAdapter.setContents(familiesList);
+    }
+    @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
+        mFoundationsListRecycleViewAdapter.setContents(foundationsList);
+    }
+    @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
+
+    }
+    @Override public void onImageAvailable(android.net.Uri imageUri, String imageName) {
+
     }
 }

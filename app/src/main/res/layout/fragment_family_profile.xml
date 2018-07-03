@@ -23,30 +23,37 @@
             tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="201dp">
 
-            <TextView
-                android:id="@+id/family_profile_title_experience"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:text="@string/our_experience_with_dogs"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="392dp"/>
+
 
             <TextView
                 android:id="@+id/family_profile_value_pictures"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/default_pictures"
                 app:layout_constraintEnd_toEndOf="parent"
-                tools:layout_editor_absoluteY="365dp"/>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/family_profile_address"/>
+
+            <TextView
+                android:id="@+id/family_profile_title_experience"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="@string/our_experience_with_dogs"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/family_profile_value_pictures"/>
 
             <TextView
                 android:id="@+id/family_profile_title_experience2"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
@@ -94,7 +101,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/default_experience"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
