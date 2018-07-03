@@ -9,6 +9,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -277,6 +278,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 builder.setTitle(R.string.please_enter_your_name);
                 inputTextOld.setText("");
                 inputTextOld.setEnabled(true);
+                inputTextNew.setInputType(InputType.TYPE_CLASS_TEXT);
                 inputTextOldParent.setHint(getString(R.string.current_password));
                 inputTextNewParent.setHint("Enter new name (current: " + mNameFromFirebase + ")");
                 break;
@@ -284,6 +286,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 builder.setTitle(R.string.please_enter_your_email);
                 inputTextOld.setText("");
                 inputTextOld.setEnabled(true);
+                inputTextNew.setInputType(InputType.TYPE_CLASS_TEXT);
                 inputTextOldParent.setHint(getString(R.string.current_password));
                 inputTextNewParent.setHint("Enter new email (current: " + mEmailFromFirebase + ")");
                 break;
@@ -291,6 +294,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 builder.setTitle(R.string.please_enter_your_password);
                 inputTextOld.setText("");
                 inputTextOld.setEnabled(true);
+                inputTextNew.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                 inputTextOldParent.setHint(getString(R.string.current_password));
                 inputTextNewParent.setHint(getString(R.string.new_password));
                 break;
