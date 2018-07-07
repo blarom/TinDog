@@ -12,7 +12,6 @@
     <string name="find_a_dog_family_foundation">Find a dog/family/foundation</string>
     <string name="dog_main_image">Dog main image</string>
     <string name="dog_s_name">Dog\'s name</string>
-    <string name="interactions">Interactions:</string>
     <string name="history">History:</string>
     <string name="behaviorPref">Behavior:</string>
     <string name="genderPref">Gender:</string>
@@ -114,6 +113,20 @@
     <string name="search_dogs_empty_search_to_see_all_dogs">Search dogs (empty search to see all dogs)</string>
     <string name="edit_my_foundation_profile">Edit my foundation profile</string>
     <string name="edit_my_foundation_dogs">Edit my foundation dogs</string>
+    <string name="interactions">Interactions:</string>
+    <string name="behavior">Behavior:</string>
+    <string name="race">Race:</string>
+    <string name="gender">Gender:</string>
+    <string name="size">Size:</string>
+    <string name="age">Age:</string>
+    <string name="password">Password:</string>
+    <string name="email">Email:</string>
+    <string name="no_email_available">No email available</string>
+    <string name="hidden_password">********</string>
+    <string name="name">Name:</string>
+    <string name="who_i_am">Who I am</string>
+    <string name="i_want_my_doggy_to_be">I want my doggy to be...</string>
+    <string name="find_my_perfect_friend">Find my perfect friend!</string>
     <string-array name="dog_age">
         <item>Newborn pup</item>
         <item>Young troublemaker (1–3 yrs old)</item>

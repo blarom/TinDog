@@ -85,7 +85,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginStart="8dp"
-                    android:text="Interactions:"
+                    android:text="@string/interactions"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_interactions_spinner"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/update_dog_interactions_spinner"/>
@@ -96,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginStart="8dp"
-                    android:text="Behavior:"
+                    android:text="@string/behavior"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_behavior_spinner"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/update_dog_behavior_spinner"/>
@@ -107,7 +107,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginStart="8dp"
-                    android:text="Race:"
+                    android:text="@string/race"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_race_spinner"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/update_dog_race_spinner"/>
@@ -118,7 +118,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginStart="8dp"
-                    android:text="Gender:"
+                    android:text="@string/gender"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_gender_spinner"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/update_dog_gender_spinner"/>
@@ -129,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginStart="8dp"
-                    android:text="Size:"
+                    android:text="@string/size"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_size_spinner"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/update_dog_size_spinner"/>
@@ -140,7 +140,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginStart="8dp"
-                    android:text="Age:"
+                    android:text="@string/age"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_age_spinner"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/update_dog_age_spinner"/>
