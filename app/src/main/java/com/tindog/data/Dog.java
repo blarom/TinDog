@@ -1,11 +1,16 @@
 package com.tindog.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Dog {
 
     public Dog() {}
+
+    public Dog(String ownerfirebaseUid) {
+        this.ownerfirebaseUid = ownerfirebaseUid;
+    }
 
     Dog(String name, String gender, String race, String city, String country, String age) {
         this.name = name;
@@ -61,20 +66,20 @@ public class Dog {
         uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
     }
 
-    private String associatedFamilyUniqueId = "";
-    public String getAssociatedFamilyUniqueId() {
-        return associatedFamilyUniqueId;
-    }
-    public void setAssociatedFamilyUniqueId(String associatedFamilyUniqueId) {
-        this.associatedFamilyUniqueId = associatedFamilyUniqueId;
-    }
-
     private String associatedFoundationUniqueId = "";
     public String getAssociatedFoundationUniqueId() {
         return associatedFoundationUniqueId;
     }
     public void setAssociatedFoundationUniqueId(String associatedFoundationUniqueId) {
         this.associatedFoundationUniqueId = associatedFoundationUniqueId;
+    }
+
+    private String associatedFoundationName = "";
+    public String getAssociatedFoundationName() {
+        return associatedFoundationName;
+    }
+    public void setAssociatedFoundationName(String associatedFoundationName) {
+        this.associatedFoundationName = associatedFoundationName;
     }
 
     private String country;
@@ -92,22 +97,21 @@ public class Dog {
     public void setCity(String city) {
         this.city = city;
     }
-
-    private String mainImageUrl = "No main image available";
-    public String getMainImageUrl() {
-        return mainImageUrl;
-    }
-    public void setMainImageUrl(String mainImageUrl) {
-        this.mainImageUrl = mainImageUrl;
-    }
-
-    private List<String> imageUrls = new ArrayList<>();
-    public List<String> getImageUrls() {
-        return imageUrls;
-    }
-    public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
-    }
+//
+//    private List<String> imageUris = initializeImageUris();
+//    private List<String> initializeImageUris() {
+//        List<String> uris = new ArrayList<>();
+//        for (int i=0; i<6; i++) {
+//            uris.add("");
+//        }
+//        return uris;
+//    }
+//    public List<String> getImageUris() {
+//        return imageUris;
+//    }
+//    public void setImageUris(List<String> imageUris) {
+//        this.imageUris = imageUris;
+//    }
 
     private List<String> videoUrls = new ArrayList<>();
     public List<String> getVideoUrls() {
@@ -173,5 +177,12 @@ public class Dog {
         this.history = history;
     }
 
+    private List<String> imageUploadTimes = Arrays.asList("","","","","","");
+    public List<String> getImageUploadTimes() {
+        return imageUploadTimes;
+    }
+    public void setImageUploadTimes(List<String> imageUploadTimes) {
+        this.imageUploadTimes = imageUploadTimes;
+    }
 
 }

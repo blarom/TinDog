@@ -1,33 +1,29 @@
 package com.tindog;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
@@ -38,43 +34,45 @@ import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
 import com.tindog.resources.SharedMethods;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class UpdateMyFamilyActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler, ImagesRecycleViewAdapter.ImageClickHandler {
+public class UpdateDogActivity extends AppCompatActivity implements
+        FirebaseDao.FirebaseOperationsHandler,
+        ImagesRecycleViewAdapter.ImageClickHandler,
+        AdapterView.OnItemSelectedListener {
 
     //region Parameters
-    private static final String DEBUG_TAG = "TinDog UpdateMyFamily";
-    @BindView(R.id.update_my_family_button_choose_main_pic) Button mButtonChooseMainPic;
-    @BindView(R.id.update_my_family_button_upload_pics) Button mButtonUploadPics;
-    @BindView(R.id.update_my_family_button_done) Button mButtonDone;
-    @BindView(R.id.update_my_family_value_username) TextInputEditText mEditTextUsername;
-    @BindView(R.id.update_my_family_value_pseudonym) TextInputEditText mEditTextPseudonym;
-    @BindView(R.id.update_my_family_value_cell) TextInputEditText mEditTextCell;
-    @BindView(R.id.update_my_family_value_email) TextInputEditText mEditTextEmail;
-    @BindView(R.id.update_my_family_value_country) TextInputEditText mEditTextCountry;
-    @BindView(R.id.update_my_family_value_city) TextInputEditText mEditTextCity;
-    @BindView(R.id.update_my_family_value_street) TextInputEditText mEditTextStreet;
-    @BindView(R.id.update_my_family_value_history) TextInputEditText mEditTextExperience;
-    @BindView(R.id.update_my_family_checkbox_foster) CheckBox mCheckBoxFoster;
-    @BindView(R.id.update_my_family_checkbox_adopt) CheckBox mCheckBoxAdopt;
-    @BindView(R.id.update_my_family_checkbox_foster_and_adopt) CheckBox mCheckBoxFosterAndAdopt;
-    @BindView(R.id.update_my_family_checkbox_help_organize) CheckBox mCheckBoxHelpOrganize;
-    @BindView(R.id.update_my_family_checkbox_dogwalking) CheckBox mCheckBoxDogWalking;
-    @BindView(R.id.update_my_family_image_main) ImageView mImageViewMain;
-    @BindView(R.id.update_my_family_recyclerview_pet_images) RecyclerView mRecyclerViewPetImages;
-    private Family mFamily;
+    private static final String DEBUG_TAG = "TinDog Update";
+    @BindView(R.id.update_dog_button_choose_main_pic) Button mButtonChooseMainPic;
+    @BindView(R.id.update_dog_button_upload_pics) Button mButtonUploadPics;
+    @BindView(R.id.update_dog_value_name) TextInputEditText mEditTextName;
+    @BindView(R.id.update_dog_value_foundation) TextInputEditText mEditTextFoundation;
+    @BindView(R.id.update_dog_value_country) TextInputEditText mEditTextCountry;
+    @BindView(R.id.update_dog_value_city) TextInputEditText mEditTextCity;
+    @BindView(R.id.update_dog_value_history) TextInputEditText mEditTextHistory;
+    @BindView(R.id.update_dog_image_main) ImageView mImageViewMain;
+    @BindView(R.id.update_dog_recyclerview_images) RecyclerView mRecyclerViewDogImages;
+    @BindView(R.id.update_dog_age_spinner) Spinner mSpinnerAge;
+    @BindView(R.id.update_dog_size_spinner) Spinner mSpinnerSize;
+    @BindView(R.id.update_dog_gender_spinner) Spinner mSpinnerGender;
+    @BindView(R.id.update_dog_race_spinner) Spinner mSpinnerRace;
+    @BindView(R.id.update_dog_behavior_spinner) Spinner mSpinnerBehavior;
+    @BindView(R.id.update_dog_interactions_spinner) Spinner mSpinnerInteractions;
+    private ArrayAdapter<CharSequence> mSpinnerAdapterAge;
+    private ArrayAdapter<CharSequence> mSpinnerAdapterSize;
+    private ArrayAdapter<CharSequence> mSpinnerAdapterGender;
+    private ArrayAdapter<CharSequence> mSpinnerAdapterRace;
+    private ArrayAdapter<CharSequence> mSpinnerAdapterBehavior;
+    private ArrayAdapter<CharSequence> mSpinnerAdapterInteractions;
+    private Dog mDog;
     private FirebaseDao mFirebaseDao;
-    private ImagesRecycleViewAdapter mPetImagesRecycleViewAdapter;
+    private ImagesRecycleViewAdapter mDogImagesRecycleViewAdapter;
     private String mImageName = "mainImage";
-    private int mStoredPetImagesRecyclerViewPosition;
+    private int mStoredDogImagesRecyclerViewPosition;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mCurrentFirebaseUser;
     private String mNameFromFirebase;
@@ -83,23 +81,24 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private String mChosenAction;
     private String mFirebaseUid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private String mFamilyImagesDirectory;
+    private String mDogImagesDirectory;
     //endregion
 
 
     //Lifecycle methods
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_my_family);
+        setContentView(R.layout.activity_update_my_foundation);
 
         getExtras();
         initializeParameters();
-        getFamilyProfileFromFirebase();
+        getDogProfileFromFirebase();
         updateProfileFieldsOnScreen();
-        setupPetImagesRecyclerView();
-        SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mFamilyImagesDirectory, mImageViewMain);
-        SharedMethods.refreshImagesListShownToUser(mFamilyImagesDirectory, mPetImagesRecycleViewAdapter);
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mFamily, mFirebaseDao);
+        setupDogImagesRecyclerView();
+        SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mDogImagesDirectory, mImageViewMain);
+        SharedMethods.refreshImagesListShownToUser(mDogImagesDirectory, mDogImagesRecycleViewAdapter);
+        SharedMethods.updateImagesFromFirebaseIfRelevant(mDog, mFirebaseDao);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -118,9 +117,9 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 SharedMethods.shrinkImageWithUri(croppedImageTempUri, 300, 300);
 
                 Uri copiedImageUri = SharedMethods.updateImageInLocalDirectoryAndShowIt(getApplicationContext(),
-                        croppedImageTempUri, mFamilyImagesDirectory, mImageName, mImageViewMain, mPetImagesRecycleViewAdapter);
+                        croppedImageTempUri, mDogImagesDirectory, mImageName, mImageViewMain, mDogImagesRecycleViewAdapter);
 
-                if (copiedImageUri !=null) mFirebaseDao.putImageInFirebaseStorage(mFamily, copiedImageUri, mImageName);
+                if (copiedImageUri !=null) mFirebaseDao.putImageInFirebaseStorage(mDog, copiedImageUri, mImageName);
             }
             else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
@@ -132,7 +131,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                getFamilyProfileFromFirebase();
+                getDogProfileFromFirebase();
                 // ...
             } else {
                 // Sign in failed. If response is null the user canceled the
@@ -143,7 +142,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         }
     }
     @Override public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.update_my_family_menu, menu);
+        getMenuInflater().inflate(R.menu.update_my_foundation_menu, menu);
         return true;
     }
     @Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -151,7 +150,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
 
         switch (itemThatWasClickedId) {
             case R.id.action_done:
-                updateFamilyWithUserInput();
+                updateDogWithUserInput();
                 finish();
                 return true;
             case R.id.action_edit_preferences:
@@ -163,8 +162,8 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         return super.onOptionsItemSelected(item);
     }
     @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        mStoredPetImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewPetImages);
-        outState.putInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION, mStoredPetImagesRecyclerViewPosition);
+        mStoredDogImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewDogImages);
+        outState.putInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION, mStoredDogImagesRecyclerViewPosition);
         outState.putString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME, mImageName);
         super.onSaveInstanceState(outState, outPersistentState);
 
@@ -172,8 +171,8 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-            mStoredPetImagesRecyclerViewPosition = savedInstanceState.getInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION);
-            mRecyclerViewPetImages.scrollToPosition(mStoredPetImagesRecyclerViewPosition);
+            mStoredDogImagesRecyclerViewPosition = savedInstanceState.getInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION);
+            mRecyclerViewDogImages.scrollToPosition(mStoredDogImagesRecyclerViewPosition);
             mImageName = savedInstanceState.getString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME);
         }
     }
@@ -189,12 +188,42 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private void initializeParameters() {
         if (getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ButterKnife.bind(this);
-        mFamily = new Family();
+        mDog = new Dog();
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mFirebaseAuth = FirebaseAuth.getInstance();
+
+        mSpinnerAdapterAge = ArrayAdapter.createFromResource(this, R.array.dog_age, android.R.layout.simple_spinner_item);
+        mSpinnerAdapterAge.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerAge.setAdapter(mSpinnerAdapterAge);
+        mSpinnerAge.setOnItemSelectedListener(this);
+
+        mSpinnerAdapterSize = ArrayAdapter.createFromResource(this, R.array.dog_size, android.R.layout.simple_spinner_item);
+        mSpinnerAdapterSize.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerSize.setAdapter(mSpinnerAdapterSize);
+        mSpinnerSize.setOnItemSelectedListener(this);
+
+        mSpinnerAdapterGender = ArrayAdapter.createFromResource(this, R.array.dog_gender, android.R.layout.simple_spinner_item);
+        mSpinnerAdapterGender.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerGender.setAdapter(mSpinnerAdapterGender);
+        mSpinnerGender.setOnItemSelectedListener(this);
+
+        mSpinnerAdapterRace = ArrayAdapter.createFromResource(this, R.array.dog_race, android.R.layout.simple_spinner_item);
+        mSpinnerAdapterRace.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerRace.setAdapter(mSpinnerAdapterRace);
+        mSpinnerRace.setOnItemSelectedListener(this);
+
+        mSpinnerAdapterBehavior = ArrayAdapter.createFromResource(this, R.array.dog_behavior, android.R.layout.simple_spinner_item);
+        mSpinnerAdapterBehavior.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerBehavior.setAdapter(mSpinnerAdapterBehavior);
+        mSpinnerBehavior.setOnItemSelectedListener(this);
+
+        mSpinnerAdapterInteractions = ArrayAdapter.createFromResource(this, R.array.dog_interactions, android.R.layout.simple_spinner_item);
+        mSpinnerAdapterInteractions.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerInteractions.setAdapter(mSpinnerAdapterInteractions);
+        mSpinnerInteractions.setOnItemSelectedListener(this);
     }
-    private void getFamilyProfileFromFirebase() {
+    private void getDogProfileFromFirebase() {
         if (mCurrentFirebaseUser != null) {
             // Name, email address, and profile photo Url
             mNameFromFirebase = mCurrentFirebaseUser.getDisplayName();
@@ -206,59 +235,30 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
 
             //Setting the requested Family's id
             mFirebaseUid = mCurrentFirebaseUser.getUid();
-            mFamily.setOwnerfirebaseUid(mFirebaseUid);
+            mDog.setOwnerfirebaseUid(mFirebaseUid);
 
             //Initializing the local parameters that depend on this family, used in the rest of the activity
-            mFamilyImagesDirectory = getFilesDir()+"/families/"+mFamily.getUniqueIdentifier()+"/images/";
+            mDogImagesDirectory = getFilesDir()+"/foundations/"+ mDog.getUniqueIdentifier()+"/images/";
             mImageName = "mainImage";
 
             //Getting the rest of the family's parameters
-            mFirebaseDao.getUniqueObjectFromFirebaseDb(mFamily);
+            mFirebaseDao.getUniqueObjectFromFirebaseDb(mDog);
         }
     }
     private void updateProfileFieldsOnScreen() {
-        mEditTextUsername.setText(mNameFromFirebase);
-        mEditTextUsername.setEnabled(false);
-        mEditTextPseudonym.setText(mFamily.getPseudonym());
-        mEditTextCell.setText(mFamily.getCell());
-        mEditTextEmail.setText(mEmailFromFirebase);
-        mEditTextEmail.setEnabled(false);
-        mEditTextCountry.setText(mFamily.getCountry());
-        mEditTextCity.setText(mFamily.getCity());
-        mEditTextStreet.setText(mFamily.getStreet());
-        mEditTextExperience.setText(mFamily.getExperience());
-        mCheckBoxFoster.setChecked(false);
-        mCheckBoxAdopt.setChecked(false);
-        mCheckBoxFosterAndAdopt.setChecked(false);
-        mCheckBoxHelpOrganize.setChecked(false);
-        mCheckBoxDogWalking.setChecked(false);
+        mEditTextFoundation.setText(mDog.getAssociatedFoundationName());
+        mEditTextName.setText(mDog.getName());
+        mEditTextCountry.setText(mDog.getCountry());
+        mEditTextCity.setText(mDog.getCity());
+        mEditTextHistory.setText(mDog.getHistory());
     }
-    private void setupPetImagesRecyclerView() {
-        mRecyclerViewPetImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
-        mRecyclerViewPetImages.setNestedScrollingEnabled(true);
-        mPetImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getExistingImageUris(mFamilyImagesDirectory));
-        mRecyclerViewPetImages.setAdapter(mPetImagesRecycleViewAdapter);
+    private void setupDogImagesRecyclerView() {
+        mRecyclerViewDogImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
+        mRecyclerViewDogImages.setNestedScrollingEnabled(true);
+        mDogImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getExistingImageUris(mDogImagesDirectory));
+        mRecyclerViewDogImages.setAdapter(mDogImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
-        mButtonDone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                updateFamilyWithUserInput();
-
-                if (!TextUtils.isEmpty(mChosenAction)) {
-                    if (mChosenAction.equals(getString(R.string.action_search_profiles))) {
-                        Intent intent = new Intent(getApplicationContext(), SearchResultsActivity.class);
-                        startActivity(intent);
-                    }
-                    else if (mChosenAction.equals(getString(R.string.action_update_profile))) {
-                        Intent intent = new Intent(getApplicationContext(), TaskSelectionActivity.class);
-                        startActivity(intent);
-                    }
-                }
-            }
-        });
-
         mButtonChooseMainPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -266,16 +266,15 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 performImageCaptureAndCrop();
             }
         });
-
         mButtonUploadPics.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (SharedMethods.getExistingImageUris(mFamilyImagesDirectory).size() == 5) {
+                if (SharedMethods.getExistingImageUris(mDogImagesDirectory).size() == 5) {
                     Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mFamilyImagesDirectory);
+                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mDogImagesDirectory);
                     performImageCaptureAndCrop();
                 }
             }
@@ -296,7 +295,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
-                    getFamilyProfileFromFirebase();
+                    getDogProfileFromFirebase();
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
@@ -319,17 +318,21 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private void cleanUpListeners() {
         if (mFirebaseAuth!=null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
-    private void updateFamilyWithUserInput() {
-        mFamily.setOwnerfirebaseUid(mFirebaseUid);
-        mFamily.setPseudonym(mEditTextPseudonym.getText().toString());
-        mFamily.setCell(mEditTextCell.getText().toString());
-        mFamily.setEmail(mEditTextEmail.getText().toString());
-        mFamily.setCountry(mEditTextCountry.getText().toString());
-        mFamily.setCity(mEditTextCity.getText().toString());
-        mFamily.setStreet(mEditTextStreet.getText().toString());
-        mFamily.setExperience(mEditTextExperience.getText().toString());
+    private void updateDogWithUserInput() {
+        mDog.setOwnerfirebaseUid(mFirebaseUid);
+        mDog.setName(mEditTextName.getText().toString());
+        mDog.setCountry(mEditTextCountry.getText().toString());
+        mDog.setCity(mEditTextCity.getText().toString());
+        mDog.setHistory(mEditTextHistory.getText().toString());
 
-        mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
+        mDog.setAge(mSpinnerAge.getSelectedItem().toString());
+        mDog.setSize(mSpinnerSize.getSelectedItem().toString());
+        mDog.setGender(mSpinnerGender.getSelectedItem().toString());
+        mDog.setRace(mSpinnerAge.getSelectedItem().toString());
+        mDog.setBehavior(mSpinnerBehavior.getSelectedItem().toString());
+        mDog.setInteractions(mSpinnerInteractions.getSelectedItem().toString());
+
+        mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mDog);
     }
 
 
@@ -349,26 +352,24 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
 
     //Communication with Firebase Dao handler
     @Override public void onDogsListFound(List<Dog> dogsList) {
-
-    }
-    @Override public void onFamiliesListFound(List<Family> familiesList) {
-        if (familiesList.size()==1) {
-            if (familiesList.get(0) != null) mFamily = familiesList.get(0);
+        if (dogsList.size()==1) {
+            if (dogsList.get(0) != null) mDog = dogsList.get(0);
         }
-        else if (familiesList.size()>1) {
-            mFamily = familiesList.get(0);
-            Toast.makeText(getBaseContext(), "Warning! Multiple users found for your entered email.", Toast.LENGTH_SHORT).show();
+        else if (dogsList.size()>1) {
+            mDog = dogsList.get(0);
+            Toast.makeText(getBaseContext(), "Warning! Multiple dogs found with the same characteristics.", Toast.LENGTH_SHORT).show();
         }
         else {
-            mFamily = new Family(mFirebaseUid);
-            Toast.makeText(getBaseContext(), "No user found for your entered email, press DONE to create a new user.", Toast.LENGTH_SHORT).show();
+            mDog = new Dog(mFirebaseUid);
+            Toast.makeText(getBaseContext(), "No dog found for your foundation, press DONE to create a new dog.", Toast.LENGTH_SHORT).show();
         }
 
         updateProfileFieldsOnScreen();
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mFamily, mFirebaseDao);
+        SharedMethods.updateImagesFromFirebaseIfRelevant(mDog, mFirebaseDao);
+    }
+    @Override public void onFamiliesListFound(List<Family> familiesList) {
     }
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
-
     }
     @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
 
@@ -376,8 +377,33 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
 
         SharedMethods.synchronizeImageOnAllDevices(getApplicationContext(),
-                mFamily, mFirebaseDao, mFamilyImagesDirectory, imageName, downloadedImageUri, mImageViewMain, mPetImagesRecycleViewAdapter);
+                mDog, mFirebaseDao, mDogImagesDirectory, imageName, downloadedImageUri, mImageViewMain, mDogImagesRecycleViewAdapter);
+    }
+    
+    //Communication with spinner adapters
+    @Override public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+        switch (adapterView.getId()) {
+            case R.id.update_dog_age_spinner:
+                mDog.setAge((String) adapterView.getItemAtPosition(pos));
+                break;
+            case R.id.update_dog_size_spinner:
+                mDog.setSize((String) adapterView.getItemAtPosition(pos));
+                break;
+            case R.id.update_dog_gender_spinner:
+                mDog.setGender((String) adapterView.getItemAtPosition(pos));
+                break;
+            case R.id.update_dog_race_spinner:
+                mDog.setRace((String) adapterView.getItemAtPosition(pos));
+                break;
+            case R.id.update_dog_behavior_spinner:
+                mDog.setBehavior((String) adapterView.getItemAtPosition(pos));
+                break;
+            case R.id.update_dog_interactions_spinner:
+                mDog.setInteractions((String) adapterView.getItemAtPosition(pos));
+                break;
+        }
+    }
+    @Override public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
-
 }

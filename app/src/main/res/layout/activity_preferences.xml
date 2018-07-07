@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
-    android:id="@+id/preferences_size_title"
+    android:id="@+id/activity_preferences"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -55,7 +55,7 @@
         app:layout_constraintTop_toTopOf="@+id/preferences_gender_spinner"/>
 
     <TextView
-        android:id="@+id/dog_preferences_title4"
+        android:id="@+id/preferences_size_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"

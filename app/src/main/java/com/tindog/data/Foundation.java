@@ -2,7 +2,7 @@ package com.tindog.data;
 
 import android.text.TextUtils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Foundation {
@@ -13,6 +13,11 @@ public class Foundation {
         this.name = name;
         this.city = city;
         this.country = country;
+    }
+
+    public Foundation(String ownerfirebaseUid) {
+        this.ownerfirebaseUid = ownerfirebaseUid;
+        setUniqueIdentifierFromDetails();
     }
 
     private String name = "No name available";
@@ -29,6 +34,7 @@ public class Foundation {
     }
     public void setOwnerfirebaseUid(String ownerfirebaseUid) {
         this.ownerfirebaseUid = ownerfirebaseUid;
+        setUniqueIdentifierFromDetails();
     }
 
     private String uniqueIdentifier = "";
@@ -42,6 +48,14 @@ public class Foundation {
         if (TextUtils.isEmpty(ownerfirebaseUid)) uniqueIdentifier = name + "-" + city + "-" + country;
         else uniqueIdentifier = ownerfirebaseUid;
         uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+    }
+
+    private String website = "www.google.com";
+    public String getWebsite() {
+        return website;
+    }
+    public void setWebsite(String name) {
+        this.website = website;
     }
 
     private String country = "No country available";
@@ -60,35 +74,44 @@ public class Foundation {
         this.city = city;
     }
 
-    private String mainImageUrl = "No main image available";
-    public String getMainImageUrl() {
-        return mainImageUrl;
+    private String street = "No street available";
+    public String getStreet() {
+        return street;
     }
-    public void setMainImageUrl(String mainImageUrl) {
-        this.mainImageUrl = mainImageUrl;
-    }
-
-    private String address = "No address available";
-    public String getAddress() {
-        return address;
-    }
-    public void setAddress(String address) {
-        this.address = address;
+    public void setStreet(String street) {
+        this.street = street;
     }
 
-    private String contactDetails = "No contact details available";
-    public String getContactDetails() {
-        return contactDetails;
+    private String streetNumber = "No street number available";
+    public String getStreetNumber() {
+        return streetNumber;
     }
-    public void setContactDetails(String contactDetails) {
-        this.contactDetails = contactDetails;
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
     }
 
-    private List<String> imageUrls = new ArrayList<>();
-    public List<String> getImageUrls() {
-        return imageUrls;
+    private String contactPhone = "No contact phone available";
+    public String getContactPhone() {
+        return contactPhone;
     }
-    public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
     }
+
+    private String contactEmail = "No contact email available";
+    public String getContactEmail() {
+        return contactEmail;
+    }
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    private List<String> imageUploadTimes = Arrays.asList("","","","","","");
+    public List<String> getImageUploadTimes() {
+        return imageUploadTimes;
+    }
+    public void setImageUploadTimes(List<String> imageUploadTimes) {
+        this.imageUploadTimes = imageUploadTimes;
+    }
+
 }

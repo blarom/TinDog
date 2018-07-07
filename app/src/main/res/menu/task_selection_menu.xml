@@ -3,16 +3,28 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_edit_my_profile"
+        android:id="@+id/action_edit_preferences"
+        android:orderInCategory="1"
+        app:showAsAction="never"
+        android:title="@string/edit_my_preferences"/>
+    <item
+        android:id="@+id/action_edit_my_family_profile"
         android:icon="@drawable/ic_edit_black_24dp"
-        android:orderInCategory="95"
+        android:orderInCategory="2"
         app:showAsAction="never"
         android:title="@string/edit_my_family_profile"/>
     <item
-        android:id="@+id/action_edit_preferences"
-        android:orderInCategory="96"
+        android:id="@+id/action_edit_my_foundation_profile"
+        android:icon="@drawable/ic_edit_black_24dp"
+        android:orderInCategory="3"
         app:showAsAction="never"
-        android:title="@string/edit_my_preferences"/>
+        android:title="@string/edit_my_foundation_profile"/>
+    <item
+        android:id="@+id/action_edit_my_foundation_dogs"
+        android:icon="@drawable/ic_edit_black_24dp"
+        android:orderInCategory="4"
+        app:showAsAction="never"
+        android:title="@string/edit_my_foundation_dogs"/>
     <item
         android:id="@+id/action_signin"
         android:orderInCategory="98"

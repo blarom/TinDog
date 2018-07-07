@@ -17,13 +17,13 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.tindog.BuildConfig;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FirebaseDao {
@@ -163,7 +163,7 @@ public class FirebaseDao {
         }
 
     }
-    public void updateObjectDetailInFirebaseDb(Object object, final String key, final String value) {
+    public void updateObjectDetailInFirebaseDb(Object object, final String key, final Object value) {
 
         final DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
 
@@ -452,26 +452,28 @@ public class FirebaseDao {
         return eventListener;
     }
     public void populateFirebaseDbWithDummyData() {
-        List<Dog> dummyUrises = new ArrayList<>();
+        List<Dog> dummyDogs = new ArrayList<>();
         Dog dog = new Dog("Snickers", "Male", "Mixed", "Cairo", "Wakanda", "2.5 years");
-        dummyUrises.add(dog);
+        dummyDogs.add(dog);
         dog = new Dog("Charlie", "Female", "Mixed", "Cairo", "Wakanda", "3 years");
-        dummyUrises.add(dog);
-        updateObjectsOrCreateThemInFirebaseDb(dummyUrises);
+        dummyDogs.add(dog);
+        updateObjectsOrCreateThemInFirebaseDb(dummyDogs);
 
         List<Family> dummyFamilies = new ArrayList<>();
-        Family family = new Family("incrediblestindogprofile@gmail.com");
-        family.setPseudonym("The Incredibles");
+        Family family = new Family("The Incredibles", "incrediblestindogprofile@gmail.com");
+        family.setUniqueIdentifierFromDetails();
         dummyFamilies.add(family);
-        family = new Family("avengerstindogprofile@gmail.com");
-        family.setPseudonym("The Avengers");
+        family = new Family("The Avengers", "avengerstindogprofile@gmail.com");
+        family.setUniqueIdentifierFromDetails();
         dummyFamilies.add(family);
         updateObjectsOrCreateThemInFirebaseDb(dummyFamilies);
 
         List<Foundation> dummyFoundations = new ArrayList<>();
         Foundation foundation = new Foundation("Leave No Man Behind", "Old York", "Wisconsin");
+        foundation.setUniqueIdentifierFromDetails();
         dummyFoundations.add(foundation);
         foundation = new Foundation("All Lives Matter", "London", "England");
+        foundation.setUniqueIdentifierFromDetails();
         dummyFoundations.add(foundation);
         updateObjectsOrCreateThemInFirebaseDb(dummyFoundations);
     }
@@ -493,39 +495,52 @@ public class FirebaseDao {
     }
 
     //Firebase Storage methods
-    public void putImageInFirebaseStorage(Object object, Uri uri, String imageName) {
+    public void putImageInFirebaseStorage(final Object object, Uri localUri, final String imageName) {
 
         String childPath;
+        String folderPath;
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
         StorageReference imageRef;
 
+        List<String> uploadTimes;
         if (object instanceof Dog) {
             Dog dog = (Dog) object;
-            childPath = "dogs/" + dog.getUniqueIdentifier() + "/images/" + imageName + ".jpg";
-            imageRef = storageRef.child(childPath);
+            folderPath = "dogs/" + dog.getUniqueIdentifier() + "/images";
+            uploadTimes = dog.getImageUploadTimes();
         }
         else if (object instanceof Family) {
             Family family = (Family) object;
-            childPath = "families/" + family.getUniqueIdentifier() + "/images/" + imageName + ".jpg";
-            imageRef = storageRef.child(childPath);
+            folderPath = "families/" + family.getUniqueIdentifier() + "/images";
+            uploadTimes = family.getImageUploadTimes();
         }
         else if (object instanceof Foundation) {
             Foundation foundation = (Foundation) object;
-            childPath = "foundations/" + foundation.getUniqueIdentifier() + "/images/" + imageName + ".jpg";
-            imageRef = storageRef.child(childPath);
-        }
-        else if (object instanceof TinDogUser) {
-            TinDogUser user = (TinDogUser) object;
-            childPath = "users/" + user.getUniqueIdentifier() + "/images/" + imageName + ".jpg";
-            imageRef = storageRef.child(childPath);
+            folderPath = "foundations/" + foundation.getUniqueIdentifier() + "/images";
+            uploadTimes = foundation.getImageUploadTimes();
         }
         else return;
 
-        imageRef.putFile(uri)
+        childPath = folderPath + "/" + imageName + ".jpg";
+        imageRef = storageRef.child(childPath);
+
+        final List<String> finalUploadTimes = uploadTimes;
+        imageRef.putFile(localUri)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        StorageMetadata metaData = taskSnapshot.getMetadata();
+                        //StorageMetadata metaData = taskSnapshot.getMetadata();
+                        long currentTime= System.currentTimeMillis();
+                        if (finalUploadTimes.size()>0) {
+                            switch (imageName) {
+                                case "mainImage": finalUploadTimes.set(0,String.valueOf(currentTime)); break;
+                                case "image1": finalUploadTimes.set(1,String.valueOf(currentTime)); break;
+                                case "image2": finalUploadTimes.set(2,String.valueOf(currentTime)); break;
+                                case "image3": finalUploadTimes.set(3,String.valueOf(currentTime)); break;
+                                case "image4": finalUploadTimes.set(4,String.valueOf(currentTime)); break;
+                                case "image5": finalUploadTimes.set(5,String.valueOf(currentTime)); break;
+                            }
+                            updateObjectDetailInFirebaseDb(object, "imageUploadTimes", finalUploadTimes);
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -540,6 +555,7 @@ public class FirebaseDao {
 
         if (TextUtils.isEmpty(imageName)
                 || !(imageName.equals("mainImage")
+                    || imageName.equals("image1")
                     || imageName.equals("image2")
                     || imageName.equals("image3")
                     || imageName.equals("image4")
@@ -553,53 +569,90 @@ public class FirebaseDao {
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
         StorageReference imageRef;
 
+        List<String> uploadTimes;
         if (object instanceof Dog) {
             Dog dog = (Dog) object;
             folderPath = "dogs/" + dog.getUniqueIdentifier() + "/images";
+            uploadTimes = dog.getImageUploadTimes();
         }
         else if (object instanceof Family) {
             Family family = (Family) object;
             folderPath = "families/" + family.getUniqueIdentifier() + "/images";
+            uploadTimes = family.getImageUploadTimes();
         }
         else if (object instanceof Foundation) {
             Foundation foundation = (Foundation) object;
             folderPath = "foundations/" + foundation.getUniqueIdentifier() + "/images";
-        }
-        else if (object instanceof TinDogUser) {
-            TinDogUser user = (TinDogUser) object;
-            folderPath = "users/" + user.getUniqueIdentifier() + "/images";
+            uploadTimes = foundation.getImageUploadTimes();
         }
         else return;
 
         childPath = folderPath + "/" + imageName + ".jpg";
         imageRef = storageRef.child(childPath);
 
-        File storeInternal = new File(mContext.getFilesDir().getAbsolutePath() + "/files/" + folderPath);
+        final Uri localImageUri = getLocalImageUri(folderPath, imageName);
+        if (uploadTimes==null || uploadTimes.size()==0) {
+            sendImageUriToInterface(localImageUri, imageName);
+            return;
+        }
+
+        //If the image loaded into Firebase is newer than the image saved onto the local device (if it exists), then download it. Otherwise, use the local image.
+        File storeInternal = new File(mContext.getFilesDir().getAbsolutePath() + "/" + folderPath);
         if (!storeInternal.exists()) storeInternal.mkdirs();
         File localFile = new File(storeInternal, imageName + ".jpg");
-        //File localFile = File.createTempFile(folderPath, "jpg");
-        final Uri imageUri = Uri.fromFile(new File(mContext.getFilesDir().getAbsolutePath() + "/files/" + folderPath + childPath));
+        Date lastModified = new Date(localFile.lastModified());
+        long lastModifiedTime = lastModified.getTime();
 
-        imageRef.getFile(localFile)
-                .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                        sendImageUriToInterface(imageUri, imageName);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        exception.printStackTrace();
-                        //Toast.makeText(mContext, "Failed to retrieve image from Firebase storage, check log.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        long imageUploadTime = 0;
+
+        switch (imageName) {
+            case "mainImage": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(0)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
+            case "image1": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(1)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
+            case "image2": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(2)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
+            case "image3": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(3)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
+            case "image4": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(4)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
+            case "image5": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(5)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
+        }
+
+        //If the local file is older than the Firebase file, then download the Firebase file to the cache directory
+        if (!localFile.exists() || (localFile.exists() && imageUploadTime!=0 && imageUploadTime > lastModifiedTime)) {
+
+            File cacheDirectory = new File(mContext.getFilesDir().getAbsolutePath() + "/cache");
+            if (!cacheDirectory.exists()) cacheDirectory.mkdirs();
+            File localFirebaseTempImage = new File(storeInternal, imageName + ".jpg");
+            final Uri localFirebaseTempImageUri = Uri.fromFile(localFirebaseTempImage);
+
+            imageRef.getFile(localFirebaseTempImage)
+                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            sendImageUriToInterface(localFirebaseTempImageUri, imageName);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            exception.printStackTrace();
+                            //Toast.makeText(mContext, "Failed to retrieve image from Firebase storage, check log.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+        else {
+            sendImageUriToInterface(localImageUri, imageName);
+        }
 
     }
 
     //Firebase Storage Helper methods (prevent code repetitions in the CRUD methods)
     private void sendImageUriToInterface(Uri imageUri, String imageName) {
         mOnOperationPerformedHandler.onImageAvailable(imageUri, imageName);
+    }
+    private Uri getLocalImageUri(String folderPath, String imageName) {
+
+        File storeInternal = new File(mContext.getFilesDir().getAbsolutePath() + "/" + folderPath);
+        if (!storeInternal.exists()) storeInternal.mkdirs();
+        File localFile = new File(storeInternal, imageName + ".jpg");
+        return Uri.fromFile(localFile);
     }
 
     //Communication with other activities/fragments

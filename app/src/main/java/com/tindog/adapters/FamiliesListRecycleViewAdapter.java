@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.tindog.R;
+import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Family;
 
 import java.io.File;
@@ -53,10 +54,8 @@ public class FamiliesListRecycleViewAdapter extends RecyclerView.Adapter<Familie
     }
     private void updateItemImage(final FamilyViewHolder holder, int position) {
 
-        Uri imageUri = Uri.fromFile(new File(mFamilies.get(position).getMainImageUri()));
-
         Picasso.with(mContext)
-                .load(imageUri)
+                .load(DatabaseUtilities.getImageUri(mContext, mFamilies.get(position), "mainImage"))
                 .error(R.drawable.ic_image_not_available)
                 .into(holder.imageInRecycleView);
     }

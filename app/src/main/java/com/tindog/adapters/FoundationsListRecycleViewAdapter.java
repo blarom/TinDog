@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.tindog.R;
+import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Foundation;
 
 import java.io.File;
@@ -51,10 +52,8 @@ public class FoundationsListRecycleViewAdapter extends RecyclerView.Adapter<Foun
     }
     private void updateItemImage(final FoundationViewHolder holder, int position) {
 
-        Uri imageUri = Uri.fromFile(new File(mFoundations.get(position).getMainImageUrl()));
-
         Picasso.with(mContext)
-                .load(imageUri)
+                .load(DatabaseUtilities.getImageUri(mContext, mFoundations.get(position), "mainImage"))
                 .error(R.drawable.ic_image_not_available)
                 .into(holder.imageInRecycleView);
     }

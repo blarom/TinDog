@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -110,7 +109,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         }
     }
     @Override public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.dog_prefs_update_menu, menu);
+        getMenuInflater().inflate(R.menu.preferences_update_menu, menu);
         return true;
     }
     @Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -122,7 +121,9 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 finish();
                 return true;
             case R.id.action_edit_family_profile:
-                //TODO finish this
+                Intent intent = new Intent(this, UpdateMyFamilyActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -131,7 +132,10 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
 
     //Structural methods
     private void initializeParameters() {
+
+        if (getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ButterKnife.bind(this);
+
         mUser = new TinDogUser();
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -341,6 +345,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         android.app.AlertDialog dialog = builder.create();
         dialog.show();
     }
+
 
     //Communication with other activities/fragments:
 

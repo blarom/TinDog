@@ -28,7 +28,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class SearchScreenFragment extends Fragment implements DogsListRecycleViewAdapter.DogsListItemClickHandler, FamiliesListRecycleViewAdapter.FamiliesListItemClickHandler, FoundationsListRecycleViewAdapter.FoundationsListItemClickHandler, FirebaseDao.FirebaseOperationsHandler {
+public class SearchScreenFragment extends Fragment implements
+        DogsListRecycleViewAdapter.DogsListItemClickHandler,
+        FamiliesListRecycleViewAdapter.FamiliesListItemClickHandler,
+        FoundationsListRecycleViewAdapter.FoundationsListItemClickHandler,
+        FirebaseDao.FirebaseOperationsHandler {
 
     @BindView(R.id.search_screen_magnifying_glass_image) ImageView mImageViewMagnifyingGlass;
     @BindView(R.id.search_screen_profile_selection_recycler_view) RecyclerView mRecyclerViewProfileSelection;
@@ -38,26 +42,32 @@ public class SearchScreenFragment extends Fragment implements DogsListRecycleVie
     private FamiliesListRecycleViewAdapter mFamiliesListRecycleViewAdapter;
     private FoundationsListRecycleViewAdapter mFoundationsListRecycleViewAdapter;
     private DatabaseReference mFirebaseDbReference;
+    private FirebaseDao mFirebaseDao;
 
     public SearchScreenFragment() {
         // Required empty public constructor
     }
 
+
     //Lifecyle methods
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FirebaseDatabase firebaseDb = FirebaseDatabase.getInstance();
-        mFirebaseDbReference = firebaseDb.getReference();
+        initializeParameters();
     }
     @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_search_screen, container, false);
         ButterKnife.bind(this, rootView);
 
-        setupLists();
+        setupRecyclerViews();
 
         return rootView;
     }
+    @Override public void onResume() {
+        super.onResume();
+        getListsFromFirebase();
+    }
+
     @Override public void onAttach(Context context) {
         super.onAttach(context);
         onProfileSelectedListener = (OnProfileSelectedListener) context;
@@ -67,14 +77,14 @@ public class SearchScreenFragment extends Fragment implements DogsListRecycleVie
         onProfileSelectedListener = null;
     }
 
-    //Functionality methods
-    private void setupLists() {
 
-        //Setting up the item lists (results are received through the FirebaseDao interface, see methods below)
-        FirebaseDao firebaseDao = new FirebaseDao(getContext(), this);
-        firebaseDao.getFullObjectsListFromFirebase(new Dog());
-        firebaseDao.getFullObjectsListFromFirebase(new Family());
-        firebaseDao.getFullObjectsListFromFirebase(new Foundation());
+    //Functionality methods
+    private void initializeParameters() {
+        FirebaseDatabase firebaseDb = FirebaseDatabase.getInstance();
+        mFirebaseDbReference = firebaseDb.getReference();
+        mFirebaseDao = new FirebaseDao(getContext(), this);
+    }
+    private void setupRecyclerViews() {
 
         //Setting up the RecyclerView adapters
         mRecyclerViewProfileSelection.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -113,6 +123,13 @@ public class SearchScreenFragment extends Fragment implements DogsListRecycleVie
             }
         });
     }
+    private void getListsFromFirebase() {
+        //Setting up the item lists (results are received through the FirebaseDao interface, see methods below)
+        mFirebaseDao.getFullObjectsListFromFirebase(new Dog());
+        mFirebaseDao.getFullObjectsListFromFirebase(new Family());
+        mFirebaseDao.getFullObjectsListFromFirebase(new Foundation());
+    }
+
 
     //Communication with other activities/fragments:
 
@@ -146,5 +163,10 @@ public class SearchScreenFragment extends Fragment implements DogsListRecycleVie
     }
     @Override public void onImageAvailable(android.net.Uri imageUri, String imageName) {
 
+    }
+
+    //Communication with parent activity
+    public void reloadDataAfterSuccessfulSignIn() {
+        getListsFromFirebase();
     }
 }

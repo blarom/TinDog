@@ -1,14 +1,12 @@
 package com.tindog;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -17,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -25,9 +22,6 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
@@ -38,43 +32,33 @@ import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
 import com.tindog.resources.SharedMethods;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class UpdateMyFamilyActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler, ImagesRecycleViewAdapter.ImageClickHandler {
-
+public class UpdateMyFoundationActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler, ImagesRecycleViewAdapter.ImageClickHandler {
+    
     //region Parameters
-    private static final String DEBUG_TAG = "TinDog UpdateMyFamily";
-    @BindView(R.id.update_my_family_button_choose_main_pic) Button mButtonChooseMainPic;
-    @BindView(R.id.update_my_family_button_upload_pics) Button mButtonUploadPics;
-    @BindView(R.id.update_my_family_button_done) Button mButtonDone;
-    @BindView(R.id.update_my_family_value_username) TextInputEditText mEditTextUsername;
-    @BindView(R.id.update_my_family_value_pseudonym) TextInputEditText mEditTextPseudonym;
-    @BindView(R.id.update_my_family_value_cell) TextInputEditText mEditTextCell;
-    @BindView(R.id.update_my_family_value_email) TextInputEditText mEditTextEmail;
-    @BindView(R.id.update_my_family_value_country) TextInputEditText mEditTextCountry;
-    @BindView(R.id.update_my_family_value_city) TextInputEditText mEditTextCity;
-    @BindView(R.id.update_my_family_value_street) TextInputEditText mEditTextStreet;
-    @BindView(R.id.update_my_family_value_history) TextInputEditText mEditTextExperience;
-    @BindView(R.id.update_my_family_checkbox_foster) CheckBox mCheckBoxFoster;
-    @BindView(R.id.update_my_family_checkbox_adopt) CheckBox mCheckBoxAdopt;
-    @BindView(R.id.update_my_family_checkbox_foster_and_adopt) CheckBox mCheckBoxFosterAndAdopt;
-    @BindView(R.id.update_my_family_checkbox_help_organize) CheckBox mCheckBoxHelpOrganize;
-    @BindView(R.id.update_my_family_checkbox_dogwalking) CheckBox mCheckBoxDogWalking;
-    @BindView(R.id.update_my_family_image_main) ImageView mImageViewMain;
-    @BindView(R.id.update_my_family_recyclerview_pet_images) RecyclerView mRecyclerViewPetImages;
-    private Family mFamily;
+    private static final String DEBUG_TAG = "TinDog Update";
+    @BindView(R.id.update_my_foundation_button_choose_main_pic) Button mButtonChooseMainPic;
+    @BindView(R.id.update_my_foundation_button_upload_pics) Button mButtonUploadPics;
+    @BindView(R.id.update_my_foundation_value_name) TextInputEditText mEditTextName;
+    @BindView(R.id.update_my_foundation_value_contact_phone) TextInputEditText mEditTextContactPhone;
+    @BindView(R.id.update_my_foundation_value_contact_email) TextInputEditText mEditTextContactEmail;
+    @BindView(R.id.update_my_foundation_value_website) TextInputEditText mEditTextWebsite;
+    @BindView(R.id.update_my_foundation_value_country) TextInputEditText mEditTextCountry;
+    @BindView(R.id.update_my_foundation_value_city) TextInputEditText mEditTextCity;
+    @BindView(R.id.update_my_foundation_value_street) TextInputEditText mEditTextStreet;
+    @BindView(R.id.update_my_foundation_value_street_number) TextInputEditText mEditTextStreetNumber;
+    @BindView(R.id.update_my_foundation_image_main) ImageView mImageViewMain;
+    @BindView(R.id.update_my_foundation_recyclerview_images) RecyclerView mRecyclerViewFoundationImages;
+    private Foundation mFoundation;
     private FirebaseDao mFirebaseDao;
-    private ImagesRecycleViewAdapter mPetImagesRecycleViewAdapter;
+    private ImagesRecycleViewAdapter mFoundationImagesRecycleViewAdapter;
     private String mImageName = "mainImage";
-    private int mStoredPetImagesRecyclerViewPosition;
+    private int mStoredFoundationImagesRecyclerViewPosition;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mCurrentFirebaseUser;
     private String mNameFromFirebase;
@@ -83,23 +67,24 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private String mChosenAction;
     private String mFirebaseUid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private String mFamilyImagesDirectory;
+    private String mFoundationImagesDirectory;
     //endregion
 
 
     //Lifecycle methods
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_my_family);
+        setContentView(R.layout.activity_update_my_foundation);
 
         getExtras();
         initializeParameters();
-        getFamilyProfileFromFirebase();
+        getFoundationProfileFromFirebase();
         updateProfileFieldsOnScreen();
-        setupPetImagesRecyclerView();
-        SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mFamilyImagesDirectory, mImageViewMain);
-        SharedMethods.refreshImagesListShownToUser(mFamilyImagesDirectory, mPetImagesRecycleViewAdapter);
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mFamily, mFirebaseDao);
+        setupFoundationImagesRecyclerView();
+        SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mFoundationImagesDirectory, mImageViewMain);
+        SharedMethods.refreshImagesListShownToUser(mFoundationImagesDirectory, mFoundationImagesRecycleViewAdapter);
+        SharedMethods.updateImagesFromFirebaseIfRelevant(mFoundation, mFirebaseDao);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -118,9 +103,9 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 SharedMethods.shrinkImageWithUri(croppedImageTempUri, 300, 300);
 
                 Uri copiedImageUri = SharedMethods.updateImageInLocalDirectoryAndShowIt(getApplicationContext(),
-                        croppedImageTempUri, mFamilyImagesDirectory, mImageName, mImageViewMain, mPetImagesRecycleViewAdapter);
+                        croppedImageTempUri, mFoundationImagesDirectory, mImageName, mImageViewMain, mFoundationImagesRecycleViewAdapter);
 
-                if (copiedImageUri !=null) mFirebaseDao.putImageInFirebaseStorage(mFamily, copiedImageUri, mImageName);
+                if (copiedImageUri !=null) mFirebaseDao.putImageInFirebaseStorage(mFoundation, copiedImageUri, mImageName);
             }
             else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
@@ -132,7 +117,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                getFamilyProfileFromFirebase();
+                getFoundationProfileFromFirebase();
                 // ...
             } else {
                 // Sign in failed. If response is null the user canceled the
@@ -143,7 +128,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         }
     }
     @Override public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.update_my_family_menu, menu);
+        getMenuInflater().inflate(R.menu.update_my_foundation_menu, menu);
         return true;
     }
     @Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -151,7 +136,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
 
         switch (itemThatWasClickedId) {
             case R.id.action_done:
-                updateFamilyWithUserInput();
+                updateFoundationWithUserInput();
                 finish();
                 return true;
             case R.id.action_edit_preferences:
@@ -163,8 +148,8 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         return super.onOptionsItemSelected(item);
     }
     @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        mStoredPetImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewPetImages);
-        outState.putInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION, mStoredPetImagesRecyclerViewPosition);
+        mStoredFoundationImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewFoundationImages);
+        outState.putInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION, mStoredFoundationImagesRecyclerViewPosition);
         outState.putString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME, mImageName);
         super.onSaveInstanceState(outState, outPersistentState);
 
@@ -172,8 +157,8 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-            mStoredPetImagesRecyclerViewPosition = savedInstanceState.getInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION);
-            mRecyclerViewPetImages.scrollToPosition(mStoredPetImagesRecyclerViewPosition);
+            mStoredFoundationImagesRecyclerViewPosition = savedInstanceState.getInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION);
+            mRecyclerViewFoundationImages.scrollToPosition(mStoredFoundationImagesRecyclerViewPosition);
             mImageName = savedInstanceState.getString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME);
         }
     }
@@ -189,12 +174,12 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private void initializeParameters() {
         if (getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ButterKnife.bind(this);
-        mFamily = new Family();
+        mFoundation = new Foundation();
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
-    private void getFamilyProfileFromFirebase() {
+    private void getFoundationProfileFromFirebase() {
         if (mCurrentFirebaseUser != null) {
             // Name, email address, and profile photo Url
             mNameFromFirebase = mCurrentFirebaseUser.getDisplayName();
@@ -206,59 +191,33 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
 
             //Setting the requested Family's id
             mFirebaseUid = mCurrentFirebaseUser.getUid();
-            mFamily.setOwnerfirebaseUid(mFirebaseUid);
+            mFoundation.setOwnerfirebaseUid(mFirebaseUid);
 
             //Initializing the local parameters that depend on this family, used in the rest of the activity
-            mFamilyImagesDirectory = getFilesDir()+"/families/"+mFamily.getUniqueIdentifier()+"/images/";
+            mFoundationImagesDirectory = getFilesDir()+"/foundations/"+mFoundation.getUniqueIdentifier()+"/images/";
             mImageName = "mainImage";
 
             //Getting the rest of the family's parameters
-            mFirebaseDao.getUniqueObjectFromFirebaseDb(mFamily);
+            mFirebaseDao.getUniqueObjectFromFirebaseDb(mFoundation);
         }
     }
     private void updateProfileFieldsOnScreen() {
-        mEditTextUsername.setText(mNameFromFirebase);
-        mEditTextUsername.setEnabled(false);
-        mEditTextPseudonym.setText(mFamily.getPseudonym());
-        mEditTextCell.setText(mFamily.getCell());
-        mEditTextEmail.setText(mEmailFromFirebase);
-        mEditTextEmail.setEnabled(false);
-        mEditTextCountry.setText(mFamily.getCountry());
-        mEditTextCity.setText(mFamily.getCity());
-        mEditTextStreet.setText(mFamily.getStreet());
-        mEditTextExperience.setText(mFamily.getExperience());
-        mCheckBoxFoster.setChecked(false);
-        mCheckBoxAdopt.setChecked(false);
-        mCheckBoxFosterAndAdopt.setChecked(false);
-        mCheckBoxHelpOrganize.setChecked(false);
-        mCheckBoxDogWalking.setChecked(false);
+        mEditTextName.setText(mNameFromFirebase);
+        mEditTextContactPhone.setText(mFoundation.getContactPhone());
+        mEditTextContactEmail.setText(mFoundation.getContactEmail());
+        mEditTextWebsite.setText(mFoundation.getWebsite());
+        mEditTextCountry.setText(mFoundation.getCountry());
+        mEditTextCity.setText(mFoundation.getCity());
+        mEditTextStreet.setText(mFoundation.getStreet());
+        mEditTextStreetNumber.setText(mFoundation.getStreetNumber());
     }
-    private void setupPetImagesRecyclerView() {
-        mRecyclerViewPetImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
-        mRecyclerViewPetImages.setNestedScrollingEnabled(true);
-        mPetImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getExistingImageUris(mFamilyImagesDirectory));
-        mRecyclerViewPetImages.setAdapter(mPetImagesRecycleViewAdapter);
+    private void setupFoundationImagesRecyclerView() {
+        mRecyclerViewFoundationImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
+        mRecyclerViewFoundationImages.setNestedScrollingEnabled(true);
+        mFoundationImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getExistingImageUris(mFoundationImagesDirectory));
+        mRecyclerViewFoundationImages.setAdapter(mFoundationImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
-        mButtonDone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                updateFamilyWithUserInput();
-
-                if (!TextUtils.isEmpty(mChosenAction)) {
-                    if (mChosenAction.equals(getString(R.string.action_search_profiles))) {
-                        Intent intent = new Intent(getApplicationContext(), SearchResultsActivity.class);
-                        startActivity(intent);
-                    }
-                    else if (mChosenAction.equals(getString(R.string.action_update_profile))) {
-                        Intent intent = new Intent(getApplicationContext(), TaskSelectionActivity.class);
-                        startActivity(intent);
-                    }
-                }
-            }
-        });
-
         mButtonChooseMainPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -266,16 +225,15 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 performImageCaptureAndCrop();
             }
         });
-
         mButtonUploadPics.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (SharedMethods.getExistingImageUris(mFamilyImagesDirectory).size() == 5) {
+                if (SharedMethods.getExistingImageUris(mFoundationImagesDirectory).size() == 5) {
                     Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mFamilyImagesDirectory);
+                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mFoundationImagesDirectory);
                     performImageCaptureAndCrop();
                 }
             }
@@ -296,7 +254,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
-                    getFamilyProfileFromFirebase();
+                    getFoundationProfileFromFirebase();
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
@@ -319,17 +277,18 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private void cleanUpListeners() {
         if (mFirebaseAuth!=null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
-    private void updateFamilyWithUserInput() {
-        mFamily.setOwnerfirebaseUid(mFirebaseUid);
-        mFamily.setPseudonym(mEditTextPseudonym.getText().toString());
-        mFamily.setCell(mEditTextCell.getText().toString());
-        mFamily.setEmail(mEditTextEmail.getText().toString());
-        mFamily.setCountry(mEditTextCountry.getText().toString());
-        mFamily.setCity(mEditTextCity.getText().toString());
-        mFamily.setStreet(mEditTextStreet.getText().toString());
-        mFamily.setExperience(mEditTextExperience.getText().toString());
+    private void updateFoundationWithUserInput() {
+        mFoundation.setOwnerfirebaseUid(mFirebaseUid);
+        mFoundation.setName(mEditTextName.getText().toString());
+        mFoundation.setContactPhone(mEditTextContactPhone.getText().toString());
+        mFoundation.setContactEmail(mEditTextContactEmail.getText().toString());
+        mFoundation.setWebsite(mEditTextWebsite.getText().toString());
+        mFoundation.setCountry(mEditTextCountry.getText().toString());
+        mFoundation.setCity(mEditTextCity.getText().toString());
+        mFoundation.setStreet(mEditTextStreet.getText().toString());
+        mFoundation.setStreetNumber(mEditTextStreetNumber.getText().toString());
 
-        mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
+        mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFoundation);
     }
 
 
@@ -352,23 +311,22 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
 
     }
     @Override public void onFamiliesListFound(List<Family> familiesList) {
-        if (familiesList.size()==1) {
-            if (familiesList.get(0) != null) mFamily = familiesList.get(0);
+    }
+    @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
+        if (foundationsList.size()==1) {
+            if (foundationsList.get(0) != null) mFoundation = foundationsList.get(0);
         }
-        else if (familiesList.size()>1) {
-            mFamily = familiesList.get(0);
-            Toast.makeText(getBaseContext(), "Warning! Multiple users found for your entered email.", Toast.LENGTH_SHORT).show();
+        else if (foundationsList.size()>1) {
+            mFoundation = foundationsList.get(0);
+            Toast.makeText(getBaseContext(), "Warning! Multiple foundations found for your entered email.", Toast.LENGTH_SHORT).show();
         }
         else {
-            mFamily = new Family(mFirebaseUid);
+            mFoundation = new Foundation(mFirebaseUid);
             Toast.makeText(getBaseContext(), "No user found for your entered email, press DONE to create a new user.", Toast.LENGTH_SHORT).show();
         }
 
         updateProfileFieldsOnScreen();
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mFamily, mFirebaseDao);
-    }
-    @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
-
+        SharedMethods.updateImagesFromFirebaseIfRelevant(mFoundation, mFirebaseDao);
     }
     @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
 
@@ -376,8 +334,6 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
 
         SharedMethods.synchronizeImageOnAllDevices(getApplicationContext(),
-                mFamily, mFirebaseDao, mFamilyImagesDirectory, imageName, downloadedImageUri, mImageViewMain, mPetImagesRecycleViewAdapter);
-
+                mFoundation, mFirebaseDao, mFoundationImagesDirectory, imageName, downloadedImageUri, mImageViewMain, mFoundationImagesRecycleViewAdapter);
     }
-
 }

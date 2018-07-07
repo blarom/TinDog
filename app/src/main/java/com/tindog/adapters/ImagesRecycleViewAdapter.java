@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.R;
 
@@ -20,10 +21,10 @@ import butterknife.ButterKnife;
 public class ImagesRecycleViewAdapter extends RecyclerView.Adapter<ImagesRecycleViewAdapter.ImageViewHolder> {
 
     private final Context mContext;
-    private List<String> mUris;
+    private List<Uri> mUris;
     final private ImageClickHandler mOnClickHandler;
 
-    public ImagesRecycleViewAdapter(Context context, ImageClickHandler listener, List<String> uris) {
+    public ImagesRecycleViewAdapter(Context context, ImageClickHandler listener, List<Uri> uris) {
         this.mContext = context;
         this.mOnClickHandler = listener;
         this.mUris = uris;
@@ -37,8 +38,9 @@ public class ImagesRecycleViewAdapter extends RecyclerView.Adapter<ImagesRecycle
     @Override public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
 
         Picasso.with(mContext)
-                .load(Uri.parse(mUris.get(position)))
+                .load(mUris.get(position).toString())
                 .error(R.drawable.ic_image_not_available)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .into(holder.imageInRecycleView);
     }
 
@@ -46,9 +48,9 @@ public class ImagesRecycleViewAdapter extends RecyclerView.Adapter<ImagesRecycle
         return (mUris == null) ? 0 : mUris.size();
     }
 
-    public void setContents(List<String> uri) {
-        mUris = uri;
-        if (uri != null) {
+    public void setContents(List<Uri> uris) {
+        mUris = uris;
+        if (uris != null) {
             this.notifyDataSetChanged();
         }
     }

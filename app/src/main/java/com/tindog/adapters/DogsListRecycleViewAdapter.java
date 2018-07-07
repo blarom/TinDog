@@ -1,6 +1,7 @@
 package com.tindog.adapters;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,7 +12,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.tindog.R;
+import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Dog;
+import com.tindog.data.Family;
+import com.tindog.data.Foundation;
+import com.tindog.resources.SharedMethods;
 
 import java.io.File;
 import java.util.List;
@@ -22,18 +27,16 @@ import butterknife.ButterKnife;
 public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRecycleViewAdapter.DogViewHolder> {
 
     private final Context mContext;
-    private List<Dog> mUrises;
+    private List<Dog> mDogs;
     final private DogsListItemClickHandler mOnClickHandler;
 
-    public DogsListRecycleViewAdapter(Context context, DogsListItemClickHandler listener, List<Dog> urises) {
+    public DogsListRecycleViewAdapter(Context context, DogsListItemClickHandler listener, List<Dog> dogs) {
         this.mContext = context;
         this.mOnClickHandler = listener;
-        this.mUrises = urises;
+        this.mDogs = dogs;
     }
 
-    @NonNull
-    @Override
-    public DogViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {LayoutInflater inflater = LayoutInflater.from(mContext);
+    @NonNull @Override public DogViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.list_item_profiles, parent, false);
         view.setFocusable(true);
         return new DogViewHolder(view);
@@ -43,7 +46,7 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
         updateItemImage(holder, position);
     }
     private void updateItemDescription(DogViewHolder holder, int position) {
-        Dog dog = mUrises.get(position);
+        Dog dog = mDogs.get(position);
         TextView nameTV = holder.nameInRecycleView;
         nameTV.setText(dog.getName());
         TextView detailsTV = holder.detailsInRecycleView;
@@ -52,20 +55,18 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
     }
     private void updateItemImage(final DogViewHolder holder, int position) {
 
-        android.net.Uri imageUri = android.net.Uri.fromFile(new File(mUrises.get(position).getMainImageUrl()));
-
         Picasso.with(mContext)
-                .load(imageUri)
+                .load(DatabaseUtilities.getImageUri(mContext, mDogs.get(position), "mainImage"))
                 .error(R.drawable.ic_image_not_available)
                 .into(holder.imageInRecycleView);
     }
 
     @Override public int getItemCount() {
-        return (mUrises == null) ? 0 : mUrises.size();
+        return (mDogs == null) ? 0 : mDogs.size();
     }
 
     public void setContents(List<Dog> dog) {
-        mUrises = dog;
+        mDogs = dog;
         if (dog != null) {
             this.notifyDataSetChanged();
         }

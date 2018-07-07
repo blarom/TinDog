@@ -8,13 +8,8 @@
         app:showAsAction="ifRoom"
         android:title="@string/action_done"/>
     <item
-        android:id="@+id/action_edit_preferences"
+        android:id="@+id/action_edit_family_profile"
         android:orderInCategory="97"
         app:showAsAction="never"
-        android:title="@string/edit_my_preferences"/>
-    <item
-        android:id="@+id/action_edit_user_profile"
-        android:orderInCategory="98"
-        app:showAsAction="never"
-        android:title="@string/edit_my_user_profile"/>
+        android:title="@string/edit_my_family_profile"/>
 </menu>

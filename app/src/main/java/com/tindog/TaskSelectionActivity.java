@@ -1,7 +1,14 @@
 package com.tindog;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
@@ -16,8 +24,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tindog.resources.SharedMethods;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,9 +35,11 @@ import butterknife.ButterKnife;
 public class TaskSelectionActivity extends AppCompatActivity {
 
     private static final String DEBUG_TAG = "Tindog Firebase";
+    public static final int REQUEST_WRITE_STORAGE = 555;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mCurrentFirebaseUser;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private boolean hasStoragePermissions;
     @BindView(R.id.task_selection_find) Button mButtonFind;
     @BindView(R.id.task_selection_help_organize) Button mButtonHelpOrganize;
     @BindView(R.id.task_selection_offer_advice) Button mButtonOfferAdvice;
@@ -42,6 +54,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         ButterKnife.bind(this);
+        hasStoragePermissions = checkStoragePermission();
 
         mButtonFind.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,13 +130,26 @@ public class TaskSelectionActivity extends AppCompatActivity {
 
         Intent intent;
         switch (itemThatWasClickedId) {
-            case R.id.action_edit_my_profile:
+            case android.R.id.home:
+                this.finish();
+                return true;
+            case R.id.action_edit_preferences:
+                intent = new Intent(this, PreferencesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                return true;
+            case R.id.action_edit_my_family_profile:
                 intent = new Intent(this, UpdateMyFamilyActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 return true;
-            case R.id.action_edit_preferences:
-                intent = new Intent(this, PreferencesActivity.class);
+            case R.id.action_edit_my_foundation_profile:
+                intent = new Intent(this, UpdateMyFoundationActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                return true;
+            case R.id.action_edit_my_foundation_dogs:
+                intent = new Intent(this, UpdateMyDogsListActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 return true;
@@ -135,6 +161,23 @@ public class TaskSelectionActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            hasStoragePermissions = true;
+
+            Log.e(DEBUG_TAG,"Returned from permission request.");
+        }
+        else {
+            Toast.makeText(this, R.string.no_permissions_terminating, Toast.LENGTH_SHORT).show();
+
+            //Close app (inspired by: https://stackoverflow.com/questions/17719634/how-to-exit-an-android-app-using-code)
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory( Intent.CATEGORY_HOME );
+            homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(homeIntent);
+        }
     }
 
     //Functionality methods
@@ -186,5 +229,20 @@ public class TaskSelectionActivity extends AppCompatActivity {
                         .build(),
                 SharedMethods.FIREBASE_SIGN_IN);
     }
-
+    public boolean checkStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.e(DEBUG_TAG, "User has granted EXTERNAL_STORAGE permission");
+                return true;
+            } else {
+                Log.e(DEBUG_TAG, "User has asked for EXTERNAL_STORAGE permission");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else {
+            Log.e(DEBUG_TAG,"User already has the permission");
+            return true;
+        }
+    }
 }

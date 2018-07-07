@@ -1,7 +1,13 @@
 package com.tindog;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -9,6 +15,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.FirebaseDao;
+
+import java.io.File;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
@@ -41,4 +49,6 @@ public class SplashScreenActivity extends AppCompatActivity {
             }
         }, SPLASH_DISPLAY_LENGTH);
     }
+    public static final int REQUEST_WRITE_STORAGE = 112;
+
 }

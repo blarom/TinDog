@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tindog.resources.SharedMethods;
@@ -31,13 +32,14 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchSc
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseAuth mFirebaseAuth;
 
+
     //Lifecycle methods
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_results);
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFragmentManager = getSupportFragmentManager();
+        initializeParameters();
+
         if(savedInstanceState == null) setFragmentLayouts(getString(R.string.dog_profile), 0); //Initializing with defaults
     }
     @Override public void onStart() {
@@ -48,6 +50,28 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchSc
         super.onStop();
         cleanUpListeners();
     }
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        removeListenersAndHandlers();
+    }
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+
+            if (resultCode == RESULT_OK) {
+                // Successfully signed in
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                mSearchScreenFragment.reloadDataAfterSuccessfulSignIn();
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+            }
+        }
+    }
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search_results_menu, menu);
         return true;
@@ -57,7 +81,10 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchSc
 
         Intent intent;
         switch (itemThatWasClickedId) {
-            case R.id.action_edit_my_profile:
+            case android.R.id.home:
+                this.finish();
+                return true;
+            case R.id.action_edit_my_family_profile:
                 intent = new Intent(this, UpdateMyFamilyActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
@@ -76,6 +103,7 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchSc
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     //Functionality methods
     private void setFragmentLayouts(String profile, int selectedProfileIndex) {
@@ -167,6 +195,15 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchSc
                         .build(),
                 SharedMethods.FIREBASE_SIGN_IN);
     }
+    private void initializeParameters() {
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFragmentManager = getSupportFragmentManager();
+        if (getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+    private void removeListenersAndHandlers() {
+
+    }
+
 
     //Communication with other activities/fragments
     @Override public void onProfileSelected(String profile, int selectedProfileIndex) {

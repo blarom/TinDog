@@ -24,133 +24,117 @@
             android:orientation="vertical">
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/profile_update_container_username"
+                android:id="@+id/update_my_family_container_username"
                 android:hint="@string/my_name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="8dp">
+                android:layout_marginTop="8dp">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/profile_update_value_username"
+                    android:id="@+id/update_my_family_value_username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/profile_update_container_pseudonym"
+                android:id="@+id/update_my_family_container_pseudonym"
                 android:hint="@string/my_family_s_pseudonym"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="8dp">
+                android:layout_marginTop="8dp">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/profile_update_value_pseudonym"
+                    android:id="@+id/update_my_family_value_pseudonym"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/profile_update_container_cell"
+                android:id="@+id/update_my_family_container_cell"
                 android:hint="@string/my_cell_number_not_shown_to_others"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/profile_update_container_pseudonym"
-                tools:layout_editor_absoluteX="8dp">
+                android:layout_marginTop="8dp">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/profile_update_value_cell"
+                    android:id="@+id/update_my_family_value_cell"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/profile_update_container_email"
+                android:id="@+id/update_my_family_container_email"
                 android:hint="@string/my_email_not_shown_to_others"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/profile_update_value_email"
+                    android:id="@+id/update_my_family_value_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/profile_update_container_country"
+                android:id="@+id/update_my_family_container_country"
                 android:hint="@string/country_where_i_live"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/profile_update_value_country"
+                    android:id="@+id/update_my_family_value_country"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/profile_update_container_city"
+                android:id="@+id/update_my_family_container_city"
                 android:hint="@string/city_where_i_live"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/profile_update_value_city"
+                    android:id="@+id/update_my_family_value_city"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
 
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/profile_update_container_street"
+                android:id="@+id/update_my_family_container_street"
                 android:hint="@string/street_where_i_live"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/profile_update_value_street"
+                    android:id="@+id/update_my_family_value_street"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/profile_update_container_my_experience"
+                android:id="@+id/update_my_family_container_history"
                 android:hint="@string/my_experience_with_fostering_adoption"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/profile_update_value_my_experience"
+                    android:id="@+id/update_my_family_value_history"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
             </android.support.design.widget.TextInputLayout>
 
             <TextView
-                android:id="@+id/profile_update_title_how_want_help"
+                android:id="@+id/update_my_family_title_how_want_help"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="How I want to help:"/>
 
             <CheckBox
-                android:id="@+id/profile_update_checkbox_foster"
+                android:id="@+id/update_my_family_checkbox_foster"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Foster a dog"/>
@@ -161,33 +145,33 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/profile_update_title_foster_period"
+                    android:id="@+id/update_my_family_title_foster_period"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Foster period"/>
 
                 <Spinner
-                    android:id="@+id/profile_update_spinner_foster_period"
+                    android:id="@+id/update_my_family_spinner_foster_period"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
             </LinearLayout>
 
             <CheckBox
-                android:id="@+id/profile_update_checkbox_foster_and_adopt"
+                android:id="@+id/update_my_family_checkbox_foster_and_adopt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Adopt a dog"/>
 
             <CheckBox
-                android:id="@+id/profile_update_checkbox_adopt"
+                android:id="@+id/update_my_family_checkbox_adopt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Foster and possibly adopt a dog"/>
 
             <CheckBox
-                android:id="@+id/profile_update_checkbox_help_organize"
+                android:id="@+id/update_my_family_checkbox_help_organize"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Help organize adoption events"/>
@@ -199,21 +183,21 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/profile_update_title_how_help"
+                    android:id="@+id/update_my_family_title_how_help"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="How I can help:"/>
 
                 <Spinner
-                    android:id="@+id/profile_update_spinner_how_help"
+                    android:id="@+id/update_my_family_spinner_how_help"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
             </LinearLayout>
 
             <CheckBox
-                android:id="@+id/profile_update_checkbox_dogwalking"
+                android:id="@+id/update_my_family_checkbox_dogwalking"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Dogwalking"/>
@@ -225,14 +209,14 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/profile_update_title_where_dogwalking"
+                    android:id="@+id/update_my_family_title_where_dogwalking"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Where:"/>
 
                 <Spinner
-                    android:id="@+id/profile_update_spinner_where_dogwalking"
+                    android:id="@+id/update_my_family_spinner_where_dogwalking"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -245,41 +229,40 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/profile_update_title_when_dogwalking"
+                    android:id="@+id/update_my_family_title_when_dogwalking"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="When:"/>
 
                 <Spinner
-                    android:id="@+id/profile_update_spinner_when_dogwalking"
+                    android:id="@+id/update_my_family_spinner_when_dogwalking"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
             </LinearLayout>
 
             <Button
-                android:id="@+id/profile_update_button_upload_pics"
+                android:id="@+id/update_my_family_button_upload_pics"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/upload_pics_of_my_current_pets"/>
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/profile_update_recyclerview_pet_images"
+                android:id="@+id/update_my_family_recyclerview_pet_images"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 />
 
             <Button
-                android:id="@+id/profile_update_button_choose_main_pic"
+                android:id="@+id/update_my_family_button_choose_main_pic"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/choose_my_family_page_picture"/>
 
             <com.santalu.aspectratioimageview.AspectRatioImageView
-                android:id="@+id/profile_update_image_main"
-                android:visibility="gone"
+                android:id="@+id/update_my_family_image_main"
                 android:scaleType="centerCrop"
                 app:ari_aspect="height"
                 app:ari_ratio="0.75"
@@ -289,7 +272,7 @@
                 app:srcCompat="@drawable/ic_image_not_available"/>
 
             <Button
-                android:id="@+id/profile_update_button_done"
+                android:id="@+id/update_my_family_button_done"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/done"/>

@@ -3,6 +3,7 @@ package com.tindog.data;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Family {
@@ -11,8 +12,14 @@ public class Family {
 
     }
 
+    public Family(String pseudonym, String email) {
+        this.pseudonym = pseudonym;
+        this.email = email;
+    }
+
     public Family(String ownerfirebaseUid) {
         this.ownerfirebaseUid = ownerfirebaseUid;
+        setUniqueIdentifierFromDetails();
     }
 
     private String ownerfirebaseUid;
@@ -21,6 +28,7 @@ public class Family {
     }
     public void setOwnerfirebaseUid(String ownerfirebaseUid) {
         this.ownerfirebaseUid = ownerfirebaseUid;
+        setUniqueIdentifierFromDetails();
     }
 
     private String pseudonym = "No name available";
@@ -42,14 +50,6 @@ public class Family {
         if (TextUtils.isEmpty(ownerfirebaseUid)) uniqueIdentifier = pseudonym + "-" + email;
         else uniqueIdentifier = ownerfirebaseUid;
         uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
-    }
-
-    private String mainImageUri = "No main image available";
-    public String getMainImageUri() {
-        return mainImageUri;
-    }
-    public void setMainImageUri(String mainImageUri) {
-        this.mainImageUri = mainImageUri;
     }
 
     private String email = "default@default.com";
@@ -108,18 +108,11 @@ public class Family {
         this.helpOffer = helpOffer;
     }
 
-    private List<String> imageUris = initializeImageUris();
-    private List<String> initializeImageUris() {
-        List<String> uris = new ArrayList<>();
-        for (int i=0; i<5; i++) {
-            uris.add("");
-        }
-        return uris;
+    private List<String> imageUploadTimes = Arrays.asList("","","","","","");
+    public List<String> getImageUploadTimes() {
+        return imageUploadTimes;
     }
-    public List<String> getImageUris() {
-        return imageUris;
-    }
-    public void setImageUris(List<String> imageUris) {
-        this.imageUris = imageUris;
+    public void setImageUploadTimes(List<String> imageUploadTimes) {
+        this.imageUploadTimes = imageUploadTimes;
     }
 }
