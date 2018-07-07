@@ -30,7 +30,7 @@
     <string name="our_experience_with_dogs">Our experience with dogs:</string>
     <string name="how_we_want_to_help">How we want to help:</string>
     <string name="family_s_pseudonym">Family\'s name</string>
-    <string name="default_experience">No experience yet...</string>
+    <string name="default_experience">No experience yet…</string>
     <string name="default_address">Street, City, Country</string>
     <string name="magnifying_glass">Magnifying glass</string>
     <string name="dogs">Dogs</string>
@@ -125,8 +125,9 @@
     <string name="hidden_password">********</string>
     <string name="name">Name:</string>
     <string name="who_i_am">Who I am</string>
-    <string name="i_want_my_doggy_to_be">I want my doggy to be...</string>
+    <string name="i_want_my_doggy_to_be">I want my doggy to be…</string>
     <string name="find_my_perfect_friend">Find my perfect friend!</string>
+    <string name="skip_this_step_leave_defaults">Skip this step (leave defaults)</string>
     <string-array name="dog_age">
         <item>Newborn pup</item>
         <item>Young troublemaker (1–3 yrs old)</item>
