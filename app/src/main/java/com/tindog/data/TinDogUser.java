@@ -87,4 +87,12 @@ public class TinDogUser {
     public void setInteractionsPref(String interactionsPref) {
         this.interactionsPref = interactionsPref;
     }
+
+    private boolean limitQueryToCountry = true;
+    public boolean getLimitQueryToCountry() {
+        return limitQueryToCountry;
+    }
+    public void setLimitQueryToCountry(boolean limitQueryToCountry) {
+        this.limitQueryToCountry = limitQueryToCountry;
+    }
 }

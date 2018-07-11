@@ -32,6 +32,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_dog_value_foundation"
+                    android:maxLength="140"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
@@ -39,38 +40,43 @@
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/update_dog_container_name"
-                android:hint="@string/dog_s_name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:hint="@string/dog_s_name_required">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_dog_value_name"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:maxLength="140"/>
 
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/update_dog_container_country"
-                android:hint="@string/country"
+                android:hint="@string/country_required"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_dog_value_country"
+                    android:maxLength="140"
+                    android:inputType="textCapWords"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/update_my_family_container_city"
-                android:hint="@string/city"
+                android:hint="@string/city_required"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_dog_value_city"
+                    android:maxLength="140"
+                    android:inputType="textCapWords"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>

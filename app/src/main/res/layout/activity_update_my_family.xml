@@ -32,6 +32,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_username"
+                    android:maxLength="140"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
@@ -46,6 +47,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_pseudonym"
+                    android:maxLength="140"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
@@ -60,6 +62,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_cell"
+                    android:maxLength="140"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
@@ -72,6 +75,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_email"
+                    android:maxLength="140"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
@@ -84,6 +88,8 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_country"
+                    android:maxLength="140"
+                    android:inputType="textCapWords"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
@@ -96,6 +102,8 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_city"
+                    android:maxLength="140"
+                    android:inputType="textCapWords"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>
@@ -109,6 +117,8 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_street"
+                    android:maxLength="140"
+                    android:inputType="textCapWords"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </android.support.design.widget.TextInputLayout>

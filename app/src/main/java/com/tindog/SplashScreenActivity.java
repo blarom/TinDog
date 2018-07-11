@@ -49,6 +49,5 @@ public class SplashScreenActivity extends AppCompatActivity {
             }
         }, SPLASH_DISPLAY_LENGTH);
     }
-    public static final int REQUEST_WRITE_STORAGE = 112;
 
 }

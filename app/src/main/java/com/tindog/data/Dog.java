@@ -8,10 +8,6 @@ public class Dog {
 
     public Dog() {}
 
-    public Dog(String ownerfirebaseUid) {
-        this.ownerfirebaseUid = ownerfirebaseUid;
-    }
-
     Dog(String name, String gender, String race, String city, String country, String age) {
         this.name = name;
         this.gender = gender;
@@ -19,10 +15,9 @@ public class Dog {
         this.city = city;
         this.country = country;
         this.age = age;
-        setUniqueIdentifierFromDetails();
     }
 
-    private String name = "No name available";
+    private String name = "";
     public String getName() {
         return name;
     }
@@ -30,40 +25,20 @@ public class Dog {
         this.name = name;
     }
 
-    private String ownerfirebaseUid;
-    public String getOwnerfirebaseUid() {
-        return ownerfirebaseUid;
+    private String associatedFoundationContactPhone;
+    public String getAssociatedFoundationContactPhone() {
+        return associatedFoundationContactPhone;
     }
-    public void setOwnerfirebaseUid(String ownerfirebaseUid) {
-        this.ownerfirebaseUid = ownerfirebaseUid;
-    }
-
-    private String ownerName;
-    public String getOwnerName() {
-        return ownerName;
-    }
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
-    }
-
-    private String ownerCell;
-    public String getOwnerCell() {
-        return ownerCell;
-    }
-    public void setOwnerCell(String ownerCell) {
-        this.ownerCell = ownerCell;
+    public void setAssociatedFoundationContactPhone(String associatedFoundationContactPhone) {
+        this.associatedFoundationContactPhone = associatedFoundationContactPhone;
     }
 
     private String uniqueIdentifier = "";
     public String getUniqueIdentifier() {
-        return DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+        return uniqueIdentifier;
     }
     public void setUniqueIdentifier(String uniqueIdentifier) {
-        this.uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
-    }
-    public void setUniqueIdentifierFromDetails() {
-        uniqueIdentifier = name + "-" + gender + "-" + race + "-" + city + "-" + country + "-" + age;
-        uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+        this.uniqueIdentifier = uniqueIdentifier;
     }
 
     private String associatedFoundationUniqueId = "";
@@ -97,21 +72,6 @@ public class Dog {
     public void setCity(String city) {
         this.city = city;
     }
-//
-//    private List<String> imageUris = initializeImageUris();
-//    private List<String> initializeImageUris() {
-//        List<String> uris = new ArrayList<>();
-//        for (int i=0; i<6; i++) {
-//            uris.add("");
-//        }
-//        return uris;
-//    }
-//    public List<String> getImageUris() {
-//        return imageUris;
-//    }
-//    public void setImageUris(List<String> imageUris) {
-//        this.imageUris = imageUris;
-//    }
 
     private List<String> videoUrls = new ArrayList<>();
     public List<String> getVideoUrls() {

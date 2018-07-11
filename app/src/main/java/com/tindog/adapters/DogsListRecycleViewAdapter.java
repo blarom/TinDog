@@ -55,6 +55,7 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
     }
     private void updateItemImage(final DogViewHolder holder, int position) {
 
+        //SharedMethods.refreshMainImageShownToUser(mContext, directory, holder.imageInRecycleView);
         Picasso.with(mContext)
                 .load(DatabaseUtilities.getImageUri(mContext, mDogs.get(position), "mainImage"))
                 .error(R.drawable.ic_image_not_available)

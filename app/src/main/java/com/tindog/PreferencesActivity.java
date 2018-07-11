@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -57,6 +58,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     @BindView(R.id.preferences_change_name) ImageView mImageViewChangeName;
     @BindView(R.id.preferences_change_email) ImageView mImageViewChangeEmail;
     @BindView(R.id.preferences_change_password) ImageView mImageViewChangePassword;
+    @BindView(R.id.preferences_search_country_only_checkbox) CheckBox mCheckBoxLimitToCountry;
     private TinDogUser mUser;
     private FirebaseDao mFirebaseDao;
     private FirebaseAuth mFirebaseAuth;
@@ -89,25 +91,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         super.onStop();
         cleanUpListeners();
     }
-    @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-
-            if (resultCode == RESULT_OK) {
-                // Successfully signed in
-                mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                getUserInfoFromFirebase();
-                mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser);
-                getTinDogUserProfileFromFirebase();
-                // ...
-            } else {
-                // Sign in failed. If response is null the user canceled the
-                // sign-in flow using the back button. Otherwise check
-                // response.getError().getErrorCode() and handle the error.
-                // ...
-            }
-        }
-    }
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.preferences_update_menu, menu);
         return true;
@@ -116,6 +99,12 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         int itemThatWasClickedId = item.getItemId();
 
         switch (itemThatWasClickedId) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.action_save:
+                updatePreferencesWithUserInput();
+                return true;
             case R.id.action_done:
                 updatePreferencesWithUserInput();
                 finish();
@@ -133,7 +122,10 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     //Structural methods
     private void initializeParameters() {
 
-        if (getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar()!=null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.preferences);
+        }
         ButterKnife.bind(this);
 
         mUser = new TinDogUser();
@@ -192,6 +184,13 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     private void updateProfileFields() {
         mTextViewUserName.setText(mNameFromFirebase);
         mTextViewUserEmail.setText(mEmailFromFirebase);
+        mSpinnerAge.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerAge, mUser.getAgePref()));
+        mSpinnerSize.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerSize, mUser.getAgePref()));
+        mSpinnerGender.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerGender, mUser.getAgePref()));
+        mSpinnerRace.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerRace, mUser.getAgePref()));
+        mSpinnerBehavior.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerBehavior, mUser.getAgePref()));
+        mSpinnerInteractions.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerInteractions, mUser.getAgePref()));
+        mCheckBoxLimitToCountry.setChecked(mUser.getLimitQueryToCountry());
     }
     private void getUserInfoFromFirebase() {
         if (mCurrentFirebaseUser != null) {
@@ -225,6 +224,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         mUser.setRacePref(mSpinnerAge.getSelectedItem().toString());
         mUser.setBehaviorPref(mSpinnerBehavior.getSelectedItem().toString());
         mUser.setInteractionsPref(mSpinnerInteractions.getSelectedItem().toString());
+        mUser.setLimitQueryToCountry(mCheckBoxLimitToCountry.isChecked());
 
         mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser);
     }
@@ -239,9 +239,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
-                    getUserInfoFromFirebase();
-                    mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser);
-                    getTinDogUserProfileFromFirebase();
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
@@ -373,7 +370,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
             //Toast.makeText(getBaseContext(), "No user found for your entered email, press DONE to create a new user.", Toast.LENGTH_SHORT).show();
         }
 
-        //getUserInfoFromFirebase();
         updateProfileFields();
     }
     @Override public void onImageAvailable(Uri imageUri, String imageName) {

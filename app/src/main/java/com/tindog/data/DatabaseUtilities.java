@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.tindog.BuildConfig;
 import com.tindog.R;
+import com.tindog.resources.SharedMethods;
 
 import java.io.File;
 
@@ -148,20 +149,18 @@ public class DatabaseUtilities {
         String imageDirectory;
         if (object instanceof Dog) {
             Dog dog = (Dog) object;
-            imageDirectory = context.getFilesDir()+"/dogs/"+dog.getUniqueIdentifier()+"/images/";
+            imageDirectory = context.getFilesDir().getAbsolutePath()+"/dogs/"+dog.getUniqueIdentifier()+"/images/";
         }
         else if (object instanceof Family) {
             Family family = (Family) object;
-            imageDirectory = context.getFilesDir()+"/families/"+ family.getUniqueIdentifier()+"/images/";
+            imageDirectory = context.getFilesDir().getAbsolutePath()+"/families/"+ family.getUniqueIdentifier()+"/images/";
         }
         else if (object instanceof Foundation) {
             Foundation foundation = (Foundation) object;
-            imageDirectory = context.getFilesDir()+"/foundations/"+ foundation.getUniqueIdentifier()+"/images/";
+            imageDirectory = context.getFilesDir().getAbsolutePath()+"/foundations/"+ foundation.getUniqueIdentifier()+"/images/";
         }
         else return null;
 
-        File imageFile = new File(imageDirectory, imageName);
-        if (imageFile.exists()) return Uri.fromFile(imageFile);
-        else return null;
+        return SharedMethods.getUriForImage(imageDirectory,imageName);
     }
 }

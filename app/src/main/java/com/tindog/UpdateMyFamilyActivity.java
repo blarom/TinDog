@@ -84,6 +84,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private String mFirebaseUid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private String mFamilyImagesDirectory;
+    private boolean mFamilyFound;
     //endregion
 
 
@@ -95,10 +96,8 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         getExtras();
         initializeParameters();
         getFamilyProfileFromFirebase();
-        updateProfileFieldsOnScreen();
         setupPetImagesRecyclerView();
         SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mFamilyImagesDirectory, mImageViewMain);
-        SharedMethods.refreshImagesListShownToUser(mFamilyImagesDirectory, mPetImagesRecycleViewAdapter);
         SharedMethods.updateImagesFromFirebaseIfRelevant(mFamily, mFirebaseDao);
         setButtonBehaviors();
     }
@@ -115,12 +114,16 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 Uri croppedImageTempUri = result.getUri();
-                SharedMethods.shrinkImageWithUri(croppedImageTempUri, 300, 300);
+                boolean succeeded = SharedMethods.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
 
-                Uri copiedImageUri = SharedMethods.updateImageInLocalDirectoryAndShowIt(getApplicationContext(),
-                        croppedImageTempUri, mFamilyImagesDirectory, mImageName, mImageViewMain, mPetImagesRecycleViewAdapter);
+                if (succeeded) {
 
-                if (copiedImageUri !=null) mFirebaseDao.putImageInFirebaseStorage(mFamily, copiedImageUri, mImageName);
+                    Uri copiedImageUri = SharedMethods.updateImageInLocalDirectoryAndShowIt(getApplicationContext(),
+                            croppedImageTempUri, mFamilyImagesDirectory, mImageName, mImageViewMain, mPetImagesRecycleViewAdapter);
+
+                    if (copiedImageUri != null)
+                        mFirebaseDao.putImageInFirebaseStorage(mFamily, copiedImageUri, mImageName);
+                }
             }
             else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
@@ -150,6 +153,12 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         int itemThatWasClickedId = item.getItemId();
 
         switch (itemThatWasClickedId) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            case R.id.action_save:
+                updateFamilyWithUserInput();
+                return true;
             case R.id.action_done:
                 updateFamilyWithUserInput();
                 finish();
@@ -187,12 +196,21 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         }
     }
     private void initializeParameters() {
-        if (getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar()!=null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(getString(R.string.family_profile));
+        }
+
         ButterKnife.bind(this);
+        mEditTextUsername.setEnabled(false);
+        mEditTextEmail.setEnabled(false);
+
         mFamily = new Family();
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mFirebaseAuth = FirebaseAuth.getInstance();
+
+        mFamilyFound = false;
     }
     private void getFamilyProfileFromFirebase() {
         if (mCurrentFirebaseUser != null) {
@@ -213,16 +231,14 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             mImageName = "mainImage";
 
             //Getting the rest of the family's parameters
-            mFirebaseDao.getUniqueObjectFromFirebaseDb(mFamily);
+            if (!mFamilyFound) mFirebaseDao.getUniqueObjectFromFirebaseDb(mFamily);
         }
     }
     private void updateProfileFieldsOnScreen() {
         mEditTextUsername.setText(mNameFromFirebase);
-        mEditTextUsername.setEnabled(false);
         mEditTextPseudonym.setText(mFamily.getPseudonym());
         mEditTextCell.setText(mFamily.getCell());
         mEditTextEmail.setText(mEmailFromFirebase);
-        mEditTextEmail.setEnabled(false);
         mEditTextCountry.setText(mFamily.getCountry());
         mEditTextCity.setText(mFamily.getCity());
         mEditTextStreet.setText(mFamily.getStreet());
@@ -232,6 +248,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mCheckBoxFosterAndAdopt.setChecked(false);
         mCheckBoxHelpOrganize.setChecked(false);
         mCheckBoxDogWalking.setChecked(false);
+        SharedMethods.hideSoftKeyboard(this);
     }
     private void setupPetImagesRecyclerView() {
         mRecyclerViewPetImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
@@ -296,7 +313,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
-                    getFamilyProfileFromFirebase();
+                    //getFamilyProfileFromFirebase();
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
@@ -353,11 +370,15 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     }
     @Override public void onFamiliesListFound(List<Family> familiesList) {
         if (familiesList.size()==1) {
-            if (familiesList.get(0) != null) mFamily = familiesList.get(0);
+            if (familiesList.get(0) != null) {
+                mFamily = familiesList.get(0);
+                mFamilyFound = true;
+            }
         }
         else if (familiesList.size()>1) {
             mFamily = familiesList.get(0);
-            Toast.makeText(getBaseContext(), "Warning! Multiple users found for your entered email.", Toast.LENGTH_SHORT).show();
+            mFamilyFound = true;
+            Log.i(DEBUG_TAG, "Warning! Multiple users found for your entered email.");
         }
         else {
             mFamily = new Family(mFirebaseUid);

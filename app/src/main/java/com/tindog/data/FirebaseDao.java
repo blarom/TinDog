@@ -39,30 +39,36 @@ public class FirebaseDao {
     }
 
     //Firebase Database CRUD methods
-    private void addObjectToFirebaseDb(Object object) {
+    public String addObjectToFirebaseDb(Object object) {
 
         DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
 
+        String key = "";
         if (object instanceof Dog) {
             Dog dog = (Dog) object;
-            dog.setUniqueIdentifierFromDetails();
-            firebaseDbReference.child("dogsList").child(dog.getUniqueIdentifier()).setValue(dog);
+            if (dog.getUniqueIdentifier().equals("")) key = firebaseDbReference.child("dogsList").push().getKey();
+            else key = dog.getUniqueIdentifier();
+            if (key!=null) firebaseDbReference.child("dogsList").child(key).setValue(dog);
         }
         else if (object instanceof Family) {
             Family family = (Family) object;
             family.setUniqueIdentifierFromDetails();
-            firebaseDbReference.child("familiesList").child(family.getUniqueIdentifier()).setValue(family);
+            key = family.getUniqueIdentifier();
+            firebaseDbReference.child("familiesList").child(key).setValue(family);
         }
         else if (object instanceof Foundation) {
             Foundation foundation = (Foundation) object;
             foundation.setUniqueIdentifierFromDetails();
-            firebaseDbReference.child("foundationsList").child(foundation.getUniqueIdentifier()).setValue(foundation);
+            key = foundation.getUniqueIdentifier();
+            firebaseDbReference.child("foundationsList").child(key).setValue(foundation);
         }
         else if (object instanceof TinDogUser) {
             TinDogUser user = (TinDogUser) object;
-            firebaseDbReference.child("usersList").child(user.getUniqueIdentifier()).setValue(user);
+            key = user.getUniqueIdentifier();
+            firebaseDbReference.child("usersList").child(key).setValue(user);
         }
 
+        return key;
     }
     public void addObjectsToFirebaseDb(Object objectsData) {
 
@@ -107,37 +113,37 @@ public class FirebaseDao {
         }
 
     }
-    public void getObjectsByKeyFromFirebaseDb(Object object, String key) {
+    public void getObjectsByKeyValuePairFromFirebaseDb(Object object, String key, String value) {
 
         DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
 
         if (object instanceof Dog) {
             DatabaseReference reference = firebaseDbReference.child("dogsList");
-            Query objectWithKeyQuery = reference.equalTo(key);
+            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
             ValueEventListener eventListener = createListenerForObjectList(new Dog());
             objectWithKeyQuery.addListenerForSingleValueEvent(eventListener);
         }
         else if (object instanceof Family) {
             DatabaseReference reference = firebaseDbReference.child("familiesList");
-            Query objectWithKeyQuery = reference.equalTo(key);
+            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
             ValueEventListener eventListener = createListenerForObjectList(new Family());
             objectWithKeyQuery.addListenerForSingleValueEvent(eventListener);
         }
         else if (object instanceof Foundation) {
             DatabaseReference reference = firebaseDbReference.child("foundationsList");
-            Query objectWithKeyQuery = reference.equalTo(key);
+            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
             ValueEventListener eventListener = createListenerForObjectList(new Foundation());
             objectWithKeyQuery.addListenerForSingleValueEvent(eventListener);
         }
         else if (object instanceof TinDogUser) {
             DatabaseReference reference = firebaseDbReference.child("usersList");
-            Query objectWithKeyQuery = reference.equalTo(key);
+            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
             ValueEventListener eventListener = createListenerForUniqueObject(new TinDogUser());
             objectWithKeyQuery.addListenerForSingleValueEvent(eventListener);
         }
 
     }
-    public void getFullObjectsListFromFirebase(Object object) {
+    public void getFullObjectsListFromFirebaseDb(Object object) {
 
         DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
 
@@ -163,7 +169,7 @@ public class FirebaseDao {
         }
 
     }
-    public void updateObjectDetailInFirebaseDb(Object object, final String key, final Object value) {
+    public void updateObjectKeyValuePairInFirebaseDb(Object object, final String key, final Object value) {
 
         final DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
 
@@ -350,7 +356,7 @@ public class FirebaseDao {
         }
 
     }
-    public void deleteObjectFromFirebase(Object object) {
+    public void deleteObjectFromFirebaseDb(Object object) {
 
         DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
 
@@ -454,8 +460,10 @@ public class FirebaseDao {
     public void populateFirebaseDbWithDummyData() {
         List<Dog> dummyDogs = new ArrayList<>();
         Dog dog = new Dog("Snickers", "Male", "Mixed", "Cairo", "Wakanda", "2.5 years");
+        dog.setUniqueIdentifier("testDog1");
         dummyDogs.add(dog);
         dog = new Dog("Charlie", "Female", "Mixed", "Cairo", "Wakanda", "3 years");
+        dog.setUniqueIdentifier("testDog2");
         dummyDogs.add(dog);
         updateObjectsOrCreateThemInFirebaseDb(dummyDogs);
 
@@ -479,19 +487,19 @@ public class FirebaseDao {
     }
     public void removeDummyData() {
         Dog dog = new Dog("Snickers", "Male", "Mixed", "Cairo", "Wakanda", "2.5 years");
-        deleteObjectFromFirebase(dog);
+        deleteObjectFromFirebaseDb(dog);
         dog = new Dog("Charlie", "Female", "Mixed", "Cairo", "Wakanda", "2.5 years");
-        deleteObjectFromFirebase(dog);
+        deleteObjectFromFirebaseDb(dog);
 
         Family family = new Family("incrediblestindogprofile@gmail.com");
-        deleteObjectFromFirebase(family);
+        deleteObjectFromFirebaseDb(family);
         family = new Family("avengerstindogprofile@gmail.com");
-        deleteObjectFromFirebase(family);
+        deleteObjectFromFirebaseDb(family);
 
         Foundation foundation = new Foundation("Leave No Man Behind", "Old York", "Wisconsin");
-        deleteObjectFromFirebase(foundation);
+        deleteObjectFromFirebaseDb(foundation);
         foundation = new Foundation("All Lives Matter", "London", "England");
-        deleteObjectFromFirebase(foundation);
+        deleteObjectFromFirebaseDb(foundation);
     }
 
     //Firebase Storage methods
@@ -539,7 +547,7 @@ public class FirebaseDao {
                                 case "image4": finalUploadTimes.set(4,String.valueOf(currentTime)); break;
                                 case "image5": finalUploadTimes.set(5,String.valueOf(currentTime)); break;
                             }
-                            updateObjectDetailInFirebaseDb(object, "imageUploadTimes", finalUploadTimes);
+                            updateObjectKeyValuePairInFirebaseDb(object, "imageUploadTimes", finalUploadTimes);
                         }
                     }
                 })
@@ -607,11 +615,11 @@ public class FirebaseDao {
 
         switch (imageName) {
             case "mainImage": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(0)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
-            case "image1": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(1)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
-            case "image2": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(2)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
-            case "image3": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(3)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
-            case "image4": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(4)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
-            case "image5": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(5)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
+            case "image1": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(1)) ? Long.parseLong(uploadTimes.get(1)) : 0; break;
+            case "image2": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(2)) ? Long.parseLong(uploadTimes.get(2)) : 0; break;
+            case "image3": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(3)) ? Long.parseLong(uploadTimes.get(3)) : 0; break;
+            case "image4": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(4)) ? Long.parseLong(uploadTimes.get(4)) : 0; break;
+            case "image5": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(5)) ? Long.parseLong(uploadTimes.get(5)) : 0; break;
         }
 
         //If the local file is older than the Firebase file, then download the Firebase file to the cache directory

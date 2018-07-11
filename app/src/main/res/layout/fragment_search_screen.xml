@@ -6,7 +6,6 @@
                                              android:layout_height="match_parent"
                                              tools:context=".SearchScreenFragment">
 
-
     <ImageView
         android:id="@+id/search_screen_magnifying_glass_image"
         android:layout_width="100dp"
@@ -22,44 +21,46 @@
         app:layout_constraintTop_toTopOf="parent"
         android:contentDescription="@string/magnifying_glass"/>
 
-    <Button
-        android:id="@+id/button"
+    <LinearLayout
+        android:id="@+id/search_screen_distance_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Change my dog preferences"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/search_screen_magnifying_glass_image"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_screen_magnifying_glass_image"/>
+        app:layout_constraintStart_toStartOf="parent">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="76dp"
-        android:layout_marginStart="76dp"
-        android:text="Distance from me:"
-        app:layout_constraintBottom_toBottomOf="@+id/spinner"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/spinner"
-        app:layout_constraintVertical_bias="1.0"/>
+        <TextView
+            android:id="@+id/search_screen_text_distance_from_me"
+            android:layout_width="148dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_weight="1"
+            android:text="@string/distance_from_me"
+            android:textSize="18sp"/>
 
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView3"
-        app:layout_constraintTop_toBottomOf="@+id/button"/>
+        <EditText
+            android:id="@+id/search_screen_distance_edittext"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:hint="@string/zero"
+            android:inputType="numberSigned"
+            android:textAlignment="textEnd"/>
+
+        <TextView
+            android:id="@+id/search_screen_text_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/unit_km"
+            android:textSize="18sp"/>
+    </LinearLayout>
+
 
     <android.support.design.widget.TabLayout
         android:id="@+id/search_screen_list_selection_tab_layout"
@@ -71,8 +72,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner">
+        app:layout_constraintTop_toBottomOf="@+id/search_screen_distance_layout">
 
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"

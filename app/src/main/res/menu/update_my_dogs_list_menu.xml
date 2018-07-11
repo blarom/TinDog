@@ -3,18 +3,23 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_save"
+        android:id="@+id/action_search"
         android:orderInCategory="1"
         app:showAsAction="ifRoom"
-        android:title="@string/action_done"/>
+        android:title="@string/search"/>
     <item
         android:id="@+id/action_done"
         android:orderInCategory="2"
         app:showAsAction="ifRoom"
         android:title="@string/action_done"/>
     <item
-        android:id="@+id/action_edit_family_profile"
+        android:id="@+id/action_add"
+        android:orderInCategory="96"
+        app:showAsAction="ifRoom"
+        android:title="@string/add_a_dog"/>
+    <item
+        android:id="@+id/action_edit_preferences"
         android:orderInCategory="97"
         app:showAsAction="never"
-        android:title="@string/edit_my_family_profile"/>
+        android:title="@string/edit_my_preferences"/>
 </menu>

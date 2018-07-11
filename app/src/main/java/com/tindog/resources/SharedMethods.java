@@ -2,19 +2,23 @@ package com.tindog.resources;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 import com.tindog.R;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
 import com.tindog.data.FirebaseDao;
@@ -36,11 +40,15 @@ public class SharedMethods {
     public static final long MAX_IMAGE_FILE_SIZE = 300; //kb
     public static final int FIREBASE_SIGN_IN = 123;
     public static final String CHOSEN_ACTION_KEY = "chosen_activity_key";
+    public static final String DOG_ID = "dog_id";
 
+    //App parameters
     public static int getSmallestWidth(Context context) {
         Configuration config = context.getResources().getConfiguration();
         return config.smallestScreenWidthDp;
     }
+
+    //File and Uri utilities
     public static Uri moveFile(Uri source, String destinationDirectory, String destinationFilename) {
 
         File sourceFile = new File(source.getPath());
@@ -194,11 +202,7 @@ public class SharedMethods {
 
         return "image1";
     }
-    public static int getImagesRecyclerViewPosition(RecyclerView recyclerView) {
-        LinearLayoutManager layoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-        return layoutManager.findFirstVisibleItemPosition();
-    }
-    public static void shrinkImageWithUri(Uri uri, int width, int height){
+    public static boolean shrinkImageWithUri(Context context, Uri uri, int width, int height){
 
         //inspired by: from: https://stackoverflow.com/questions/16954109/reduce-the-size-of-a-bitmap-to-a-specified-size-in-android
 
@@ -206,7 +210,7 @@ public class SharedMethods {
         File file = new File(uri.getPath());
         while (file.length()/1024 > SharedMethods.MAX_IMAGE_FILE_SIZE) {
             BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
-            bmpFactoryOptions.inJustDecodeBounds = true;
+            bmpFactoryOptions.inJustDecodeBounds = false;
             Bitmap bitmap;
 
             int heightRatio = (int) Math.ceil(bmpFactoryOptions.outHeight / (float) height);
@@ -222,6 +226,12 @@ public class SharedMethods {
 
             bmpFactoryOptions.inJustDecodeBounds = false;
             bitmap = BitmapFactory.decodeFile(uri.toString(), bmpFactoryOptions);
+
+            if (bitmap==null) {
+                //TODO: fix decoding of large images
+                Toast.makeText(context, "The image you chose is too large, try a smaller image.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
 
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -240,6 +250,7 @@ public class SharedMethods {
             height = (int) Math.ceil(height * 0.75);
             file = new File(uri.getPath());
         }
+        return true;
 
     }
     public static Uri updateImageInLocalDirectoryAndShowIt(Context context,
@@ -252,10 +263,61 @@ public class SharedMethods {
         Uri copiedImageUri = moveFile(originalImageUri, directory, imageName);
         //SharedMethods.deleteFileAtUri(croppedImageTempUri);
 
+        refreshImage(context, directory, imageName, imageViewMain, imagesRecycleViewAdapter);
+
+        return copiedImageUri;
+    }
+    public static void synchronizeImageOnAllDevices(Context context,
+                                                    Object object,
+                                                    FirebaseDao firebaseDao,
+                                                    String localDirectory,
+                                                    String imageName,
+                                                    Uri downloadedImageUri,
+                                                    ImageView imageViewMain,
+                                                    ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
+
+        //The image was downloaded only if it was newer than the local image (If it wasn't downloaded, the downloadedImageUri is the same as the local image Uri)
+        Uri localImageUri = SharedMethods.getUriForImage(localDirectory, imageName);
+
+        if (localImageUri==null && downloadedImageUri==null) {
+            //Do nothing
+        }
+
+        if (localImageUri!=null && downloadedImageUri==null) {
+            refreshImage(context, localDirectory, imageName, imageViewMain, imagesRecycleViewAdapter);
+        }
+
+        else if (localImageUri==null && downloadedImageUri!=null) {
+            SharedMethods.updateImageInLocalDirectoryAndShowIt(context,
+                    downloadedImageUri, localDirectory, imageName, imageViewMain, imagesRecycleViewAdapter);
+        }
+
+        else if (localImageUri!=null && downloadedImageUri!=null) {
+
+            String localUriPath = localImageUri.getPath();
+            String downloadeUriPath = downloadedImageUri.getPath();
+
+            //If the downloaded image is newer, then update the image in the local directory
+            if (!downloadeUriPath.equals(localUriPath)) {
+                SharedMethods.updateImageInLocalDirectoryAndShowIt(context,
+                        downloadedImageUri, localDirectory, imageName, imageViewMain, imagesRecycleViewAdapter);
+            }
+
+            //If the local image is newer, then upload it to Firebase to replace the older image
+            else if (downloadeUriPath.equals(localUriPath)) {
+                firebaseDao.putImageInFirebaseStorage(object, localImageUri, imageName);
+            }
+        }
+
+
+    }
+
+    //UI utilities
+    private static void refreshImage(Context context, String directory, String imageName, ImageView imageViewMain, ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
+
         if (imageName.equals("mainImage")) refreshMainImageShownToUser(context, directory, imageViewMain);
         else refreshImagesListShownToUser(directory, imagesRecycleViewAdapter);
 
-        return copiedImageUri;
     }
     public static void refreshMainImageShownToUser(Context context, String directory, ImageView imageViewMain) {
         Uri mainImageUri = SharedMethods.getUriForImage(directory,"mainImage");
@@ -269,29 +331,98 @@ public class SharedMethods {
     public static void refreshImagesListShownToUser(String directory, ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
         imagesRecycleViewAdapter.setContents(SharedMethods.getExistingImageUris(directory));
     }
-    public static void synchronizeImageOnAllDevices(Context context,
-                                                    Object object,
-                                                    FirebaseDao firebaseDao,
-                                                    String localDirectory,
-                                                    String imageName,
-                                                    Uri downloadedImageUri,
-                                                    ImageView imageViewMain,
-                                                    ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager =(InputMethodManager) activity.getBaseContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null && activity.getCurrentFocus() != null) {
+            inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+        }
+    }
 
-        //The image was downloaded only if it was newer than the local image (If it wasn't downloaded, the downloadedImageUri is the same as the local image Uri)
-        Uri localImageUri = SharedMethods.getUriForImage(localDirectory, imageName);
-        if (localImageUri!=null && downloadedImageUri!=null) {
+    //Functional utlities
+    public static int getImagesRecyclerViewPosition(RecyclerView recyclerView) {
+        LinearLayoutManager layoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+        return layoutManager.findFirstVisibleItemPosition();
+    }
+    public static Address getAddressFromCity(Context context, String location) {
 
-            //If the downloaded image is newer, then update the image in the local directory
-            if (!downloadedImageUri.toString().equals(localImageUri.toString())) {
-                SharedMethods.updateImageInLocalDirectoryAndShowIt(context,
-                        downloadedImageUri, localDirectory, imageName, imageViewMain, imagesRecycleViewAdapter);
-            }
+        //inspired by: https://stackoverflow.com/questions/20166328/how-to-get-longitude-latitude-from-the-city-name-android-code
 
-            //If the local image is newer, then upload it to Firebase to replace the older image
-            else {
-                firebaseDao.putImageInFirebaseStorage(object, localImageUri, imageName);
+        List<Address> addresses = new ArrayList<>();
+        if(Geocoder.isPresent()){
+            try {
+                Geocoder gc = new Geocoder(context);
+                addresses = gc.getFromLocationName(location, 5); // get the found Address Objects
+
+//                List<LatLng> latLong = new ArrayList<>(addresses.size()); // A list to save the coordinates if they are available
+//                for (Address address : addresses){
+//                    if(address.hasLatitude() && address.hasLongitude()){
+//                        latLong.add(new LatLng(address.getLatitude(), address.getLongitude()));
+//                    }
+//                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
+        if (addresses.size()>0) return addresses.get(0);
+        else return null;
+    }
+    public static int getSpinnerPositionFromText(Context context, Spinner spinnerAdapter, String userSelection) {
+
+        String[] spinnerArrayElements;
+        switch (spinnerAdapter.getId()) {
+            case R.id.preferences_age_spinner:
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_age_simple);
+                for (int i=0; i<spinnerArrayElements.length; i++) {
+                    if (userSelection.equals(spinnerArrayElements[i])) return i;
+                }
+                break;
+            case R.id.preferences_size_spinner:
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_size_simple);
+                for (int i=0; i<spinnerArrayElements.length; i++) {
+                    if (userSelection.equals(spinnerArrayElements[i])) return i;
+                }
+                break;
+            case R.id.preferences_gender_spinner:
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_gender_simple);
+                for (int i=0; i<spinnerArrayElements.length; i++) {
+                    if (userSelection.equals(spinnerArrayElements[i])) return i;
+                }
+                break;
+            case R.id.preferences_race_spinner:
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_race_simple);
+                for (int i=0; i<spinnerArrayElements.length; i++) {
+                    if (userSelection.equals(spinnerArrayElements[i])) return i;
+                }
+                break;
+            case R.id.preferences_behavior_spinner:
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_behavior_simple);
+                for (int i=0; i<spinnerArrayElements.length; i++) {
+                    if (userSelection.equals(spinnerArrayElements[i])) return i;
+                }
+                break;
+            case R.id.preferences_interactions_spinner:
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_interactions_simple);
+                for (int i=0; i<spinnerArrayElements.length; i++) {
+                    if (userSelection.equals(spinnerArrayElements[i])) return i;
+                }
+                break;
+        }
+
+        return 0;
+    }
+
+    //Preferences
+    public static void setAppPreferenceSignInRequestState(Context context, boolean requestedSignInState) {
+        if (context != null) {
+            SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean(context.getString(R.string.app_preference_sign_in_state), requestedSignInState);
+            editor.apply();
+        }
+    }
+    public static boolean getAppPreferenceSignInRequestState(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+        return sharedPref.getBoolean(context.getString(R.string.app_preference_sign_in_state), true);
     }
 }

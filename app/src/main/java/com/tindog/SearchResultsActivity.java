@@ -19,7 +19,8 @@ import com.tindog.resources.SharedMethods;
 import java.util.Arrays;
 import java.util.List;
 
-public class SearchResultsActivity extends AppCompatActivity implements SearchScreenFragment.OnProfileSelectedListener{
+public class SearchResultsActivity extends AppCompatActivity implements
+        SearchScreenFragment.OnProfileSelectedListener {
 
     private static final String DEBUG_TAG = "TinDog Search Results";
     private FragmentManager mFragmentManager;
@@ -96,16 +97,35 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchSc
                 return true;
             case R.id.action_signout:
                 if (mCurrentFirebaseUser!=null) mFirebaseAuth.signOut();
+                SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), false);
                 return true;
             case R.id.action_signin:
+                SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), true);
                 showSignInScreen();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
+    @Override public void onBackPressed() {
+
+        //inspired by: https://stackoverflow.com/questions/5448653/how-to-implement-onbackpressed-in-fragments
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
+            super.onBackPressed();
+        } else {
+            getFragmentManager().popBackStack();
+        }
+    }
 
 
     //Functionality methods
+    private void initializeParameters() {
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFragmentManager = getSupportFragmentManager();
+        if (getSupportActionBar()!=null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.profile_finder);
+        }
+    }
     private void setFragmentLayouts(String profile, int selectedProfileIndex) {
         if (SharedMethods.getSmallestWidth(this) < getResources().getInteger(R.integer.tablet_smallest_width_threshold)) {
             if (!mActivatedDetailFragment) setFragmentInPlaceholder("search_screen", R.id.master_fragment_container, selectedProfileIndex);
@@ -173,8 +193,7 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchSc
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
-                    //Showing the sign-in screen
-                    //showSignInScreen();
+                    if (SharedMethods.getAppPreferenceSignInRequestState(getApplicationContext())) showSignInScreen();
                 }
             }
         };
@@ -194,11 +213,6 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchSc
                         .setAvailableProviders(providers)
                         .build(),
                 SharedMethods.FIREBASE_SIGN_IN);
-    }
-    private void initializeParameters() {
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFragmentManager = getSupportFragmentManager();
-        if (getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
     private void removeListenersAndHandlers() {
 

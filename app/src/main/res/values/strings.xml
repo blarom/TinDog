@@ -38,9 +38,8 @@
     <string name="foundations">Foundations</string>
     <string name="profile_image">Profile image</string>
     <string name="no_name_available">No name available</string>
-    <string name="foundation_profile">foundation_profile</string>
-    <string name="family_profile">family_profile</string>
-    <string name="dog_profile">dog_profile</string>
+    <string name="family_profile">Family Profile</string>
+    <string name="dog_profile">Dog Profile</string>
     <string name="selected_profile_index">selected_profile_index</string>
     <string name="my_family_s_pseudonym">My family\'s pseudonym (shown to others)</string>
     <string name="my_cell_number_not_shown_to_others">My cell number (not shown to others)</string>
@@ -128,9 +127,26 @@
     <string name="i_want_my_doggy_to_be">I want my doggy to be…</string>
     <string name="find_my_perfect_friend">Find my perfect friend!</string>
     <string name="skip_this_step_leave_defaults">Skip this step (leave defaults)</string>
+    <string name="search">Search</string>
+    <string name="add_a_dog">Add a dog</string>
+    <string name="save">Save</string>
+    <string name="foundation_profile">Foundation Profile</string>
+    <string name="preferences">Preferences</string>
+    <string name="profile_finder">Profile Finder</string>
+    <string name="dog_not_saved">Dog not saved! Please fill in valid values for the fields marked with *.</string>
+    <string name="dog_s_name_required">Dog\'s name (*required)</string>
+    <string name="country_required">Country (*required)</string>
+    <string name="city_required">City (*required)</string>
+    <string name="distance_from_me">Distance from me:</string>
+    <string name="zero">0</string>
+    <string name="unit_km">km</string>
+    <string name="search_only_in_my_country">Search only in my country (recommended)</string>
+    <string name="app_preference_sign_in_state">app_preference_sign_in_state</string>
+    <string name="app_preferences">app_preferences</string>
+    <string name="location_rationale">Location is required to improve the search results by checking the distance relative to you. If you don\'t allow this, search results may be less useful.</string>
     <string-array name="dog_age">
-        <item>Newborn pup</item>
-        <item>Young troublemaker (1–3 yrs old)</item>
+        <item>Newborn pup (up to 6 months)</item>
+        <item>Young troublemaker (0.5–3 yrs old)</item>
         <item>Experienced pupper (3–6 yrs old)</item>
         <item>Senior doggo (6–10 yrs old)</item>
         <item>Old geyser (10+ yrs old)</item>
@@ -167,5 +183,53 @@
         <item>Kid-friendly (+3 patience perk)</item>
         <item>Adult-friendy (I fear no man!)</item>
         <item>All of the above</item>
+    </string-array>
+    <string-array name="dog_age_simple">
+        <item>Newborn</item>
+        <item>1–3 yrs old</item>
+        <item>3–6 yrs old</item>
+        <item>6–10 yrs old</item>
+        <item>10+ yrs old</item>
+    </string-array>
+    <string-array name="dog_size_simple">
+        <item>Chihuaha</item>
+        <item>Weiner</item>
+        <item>Comfortable</item>
+        <item>Huggable</item>
+        <item>Grizzly</item>
+    </string-array>
+    <string-array name="dog_gender_simple">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+    <string-array name="dog_race_simple">
+        <item>Mixed</item>
+        <item>Cross-bred</item>
+        <item>Pure-bred</item>
+    </string-array>
+    <string-array name="dog_behavior_simple">
+        <item>Playful</item>
+        <item>Gentle</item>
+        <item>Calm</item>
+        <item>Trained</item>
+        <item>Smart</item>
+        <item>Special</item>
+    </string-array>
+    <string-array name="dog_interactions_simple">
+        <item>Playful with dogs</item>
+        <item>Calm with dogs</item>
+        <item>Kitty-tolerant</item>
+        <item>Buddha</item>
+        <item>Kid-friendly</item>
+        <item>Adult-friendy</item>
+        <item>All of the above</item>
+    </string-array>
+    <string-array name="distance">
+        <item>5km</item>
+        <item>20km</item>
+        <item>50km</item>
+        <item>100km</item>
+        <item>300km</item>
+        <item>Any distance</item>
     </string-array>
 </resources>
