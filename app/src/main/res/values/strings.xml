@@ -8,7 +8,6 @@
     <string name="update_the_local_map_with_my_knowledge">Update the local map with my knowledge</string>
     <string name="offer_dog_care_services">Offer dog-care services</string>
     <string name="offer_advice_on_fostering_adopting">Offer advice on fostering/adopting</string>
-    <string name="help_organize_adoption_events">Help organize adoption events</string>
     <string name="find_a_dog_family_foundation">Find a dog/family/foundation</string>
     <string name="dog_main_image">Dog main image</string>
     <string name="dog_s_name">Dog\'s name</string>
@@ -144,6 +143,36 @@
     <string name="app_preference_sign_in_state">app_preference_sign_in_state</string>
     <string name="app_preferences">app_preferences</string>
     <string name="location_rationale">Location is required to improve the search results by checking the distance relative to you. If you don\'t allow this, search results may be less useful.</string>
+    <string name="help_organize_adoption_events">Help organize adoption events</string>
+    <string name="how_i_can_help">How I can help:</string>
+    <string name="moving_equipment_around">Moving equipment around</string>
+    <string name="moving_dogs_around">Moving dogs around</string>
+    <string name="coordinating_and_scheduling">Coordinating and scheduling</string>
+    <string name="lending_a_hand_at_events">Lending a hand at events</string>
+    <string name="dogwalking">Dogwalking</string>
+    <string name="where">Where:</string>
+    <string name="when">When:</string>
+    <string name="morning">Morning</string>
+    <string name="noon">Noon</string>
+    <string name="afternoon">Afternoon</string>
+    <string name="evening">Evening</string>
+    <string name="foster_period">Foster period</string>
+    <string name="how_i_want_to_help">How I want to help:</string>
+    <string name="providing_a_home">Providing a home</string>
+    <string name="foster_a_dog">Foster a dog</string>
+    <string name="adopt_a_dog">Adopt a dog</string>
+    <string name="foster_and_possibly_adopt_a_dog">Foster and possibly adopt a dog</string>
+    <string name="profile_id">profile_id</string>
+    <string name="profile_type">profile_type</string>
+    <string name="profile_parcelable">profile_parcelable</string>
+    <string name="find_a_dog">Find a dog</string>
+    <string name="find_a_family">Find a family</string>
+    <string name="find_a_foundation">Find a foundation</string>
+    <string name="chosen_activity">chosen_activity</string>
+    <string name="no_history_available">No history available</string>
+    <string name="add_a_video_link_http">Add a video link (http://...)</string>
+    <string name="please_paste_a_full_http_link_here">Please paste a full http link here</string>
+    <string name="add_video_link">Add a video link</string>
     <string-array name="dog_age">
         <item>Newborn pup (up to 6 months)</item>
         <item>Young troublemaker (0.5–3 yrs old)</item>
@@ -231,5 +260,19 @@
         <item>100km</item>
         <item>300km</item>
         <item>Any distance</item>
+    </string-array>
+    <string-array name="foster_period">
+        <item>Up to 1 week</item>
+        <item>Up to a few weeks</item>
+        <item>Up to 1 month</item>
+        <item>Up to 1.5 months</item>
+        <item>Up to 2 months</item>
+        <item>Up to 3 months</item>
+    </string-array>
+    <string-array name="dogwalking_location">
+        <item>Near my home</item>
+        <item>Within my neighborhood</item>
+        <item>A short drive away</item>
+        <item>A long drive away</item>
     </string-array>
 </resources>

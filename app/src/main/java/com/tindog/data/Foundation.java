@@ -1,117 +1,160 @@
 package com.tindog.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class Foundation {
+public class Foundation implements Parcelable {
 
     public Foundation() { }
-
     Foundation(String name, String city, String country) {
-        this.name = name;
-        this.city = city;
-        this.country = country;
+        this.nm = name;
+        this.ct = city;
+        this.cn = country;
     }
-
     public Foundation(String ownerfirebaseUid) {
-        this.ownerfirebaseUid = ownerfirebaseUid;
+        this.oFId = ownerfirebaseUid;
+        setUniqueIdentifierFromDetails();
+    }
+    protected Foundation(Parcel in) {
+        nm = in.readString();
+        oFId = in.readString();
+        uI = in.readString();
+        wb = in.readString();
+        cn = in.readString();
+        ct = in.readString();
+        st = in.readString();
+        stN = in.readString();
+        cP = in.readString();
+        cE = in.readString();
+        iUT = in.createStringArrayList();
+    }
+    public static final Creator<Foundation> CREATOR = new Creator<Foundation>() {
+        @Override
+        public Foundation createFromParcel(Parcel in) {
+            return new Foundation(in);
+        }
+
+        @Override
+        public Foundation[] newArray(int size) {
+            return new Foundation[size];
+        }
+    };
+
+    private String nm = "No name available"; //name
+    public String getNm() {
+        return nm;
+    }
+    public void setNm(String nm) {
+        this.nm = nm;
+    }
+
+    private String oFId; // ownerfirebaseUid
+    public String getOFId() {
+        return oFId;
+    }
+    public void setOFId(String Ouid) {
+        this.oFId = Ouid;
         setUniqueIdentifierFromDetails();
     }
 
-    private String name = "No name available";
-    public String getName() {
-        return name;
+    private String uI = ""; //unique identifier
+    public String getUI() {
+        return DatabaseUtilities.cleanIdentifierForFirebase(uI);
     }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    private String ownerfirebaseUid;
-    public String getOwnerfirebaseUid() {
-        return ownerfirebaseUid;
-    }
-    public void setOwnerfirebaseUid(String ownerfirebaseUid) {
-        this.ownerfirebaseUid = ownerfirebaseUid;
-        setUniqueIdentifierFromDetails();
-    }
-
-    private String uniqueIdentifier = "";
-    public String getUniqueIdentifier() {
-        return DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
-    }
-    public void setUniqueIdentifier(String uniqueIdentifier) {
-        this.uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+    public void setUI(String uI) {
+        this.uI = DatabaseUtilities.cleanIdentifierForFirebase(uI);
     }
     public void setUniqueIdentifierFromDetails() {
-        if (TextUtils.isEmpty(ownerfirebaseUid)) uniqueIdentifier = name + "-" + city + "-" + country;
-        else uniqueIdentifier = ownerfirebaseUid;
-        uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+        if (TextUtils.isEmpty(oFId)) uI = nm + "-" + ct + "-" + cn;
+        else uI = oFId;
+        uI = DatabaseUtilities.cleanIdentifierForFirebase(uI);
     }
 
-    private String website = "www.google.com";
-    public String getWebsite() {
-        return website;
+    private String wb = ""; //website
+    public String getWb() {
+        return wb;
     }
-    public void setWebsite(String name) {
-        this.website = website;
-    }
-
-    private String country = "No country available";
-    public String getCountry() {
-        return country;
-    }
-    public void setCountry(String country) {
-        this.country = country;
+    public void setWb(String nm) {
+        this.wb = wb;
     }
 
-    private String city = "No city available";
-    public String getCity() {
-        return city;
+    private String cn = ""; //country
+    public String getCn() {
+        return cn;
     }
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    private String street = "No street available";
-    public String getStreet() {
-        return street;
-    }
-    public void setStreet(String street) {
-        this.street = street;
+    public void setCn(String cn) {
+        this.cn = cn;
     }
 
-    private String streetNumber = "No street number available";
-    public String getStreetNumber() {
-        return streetNumber;
+    private String ct = ""; //city
+    public String getCt() {
+        return ct;
     }
-    public void setStreetNumber(String streetNumber) {
-        this.streetNumber = streetNumber;
-    }
-
-    private String contactPhone = "No contact phone available";
-    public String getContactPhone() {
-        return contactPhone;
-    }
-    public void setContactPhone(String contactPhone) {
-        this.contactPhone = contactPhone;
+    public void etCt(String ct) {
+        this.ct = ct;
     }
 
-    private String contactEmail = "No contact email available";
-    public String getContactEmail() {
-        return contactEmail;
+    private String st = ""; //street
+    public String getSt() {
+        return st;
     }
-    public void setContactEmail(String contactEmail) {
-        this.contactEmail = contactEmail;
-    }
-
-    private List<String> imageUploadTimes = Arrays.asList("","","","","","");
-    public List<String> getImageUploadTimes() {
-        return imageUploadTimes;
-    }
-    public void setImageUploadTimes(List<String> imageUploadTimes) {
-        this.imageUploadTimes = imageUploadTimes;
+    public void setSt(String st) {
+        this.st = st;
     }
 
+    private String stN = ""; //Street number
+    public String getStN() {
+        return stN;
+    }
+    public void setStN(String stN) {
+        this.stN = stN;
+    }
+
+    private String cP = ""; //contect phone
+    public String getCP() {
+        return cP;
+    }
+    public void setCP(String cP) {
+        this.cP = cP;
+    }
+
+    private String cE = ""; //contact email
+    public String getCE() {
+        return cE;
+    }
+    public void setCE(String cE) {
+        this.cE = cE;
+    }
+
+    private List<String> iUT = Arrays.asList("","","","","",""); //Image upload times
+    public List<String> getIUT() {
+        return iUT;
+    }
+    public void setIUT(List<String> iUT) {
+        this.iUT = iUT;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(nm);
+        parcel.writeString(oFId);
+        parcel.writeString(uI);
+        parcel.writeString(wb);
+        parcel.writeString(cn);
+        parcel.writeString(ct);
+        parcel.writeString(st);
+        parcel.writeString(stN);
+        parcel.writeString(cP);
+        parcel.writeString(cE);
+        parcel.writeStringList(iUT);
+    }
 }

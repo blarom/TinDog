@@ -1,148 +1,203 @@
 package com.tindog.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Dog {
+public class Dog implements Parcelable {
 
     public Dog() {}
-
     Dog(String name, String gender, String race, String city, String country, String age) {
-        this.name = name;
-        this.gender = gender;
-        this.race = race;
-        this.city = city;
-        this.country = country;
-        this.age = age;
+        this.nm = name;
+        this.gn = gender;
+        this.rc = race;
+        this.ct = city;
+        this.cn = country;
+        this.ag = age;
+    }
+    protected Dog(Parcel in) {
+        nm = in.readString();
+        uI = in.readString();
+        afCP = in.readString();
+        aFid = in.readString();
+        fN = in.readString();
+        cn = in.readString();
+        ct = in.readString();
+        vU = in.createStringArrayList();
+        ag = in.readString();
+        sz = in.readString();
+        rc = in.readString();
+        gn = in.readString();
+        bh = in.readString();
+        it = in.readString();
+        hs = in.readString();
+        iUT = in.createStringArrayList();
+    }
+    public static final Creator<Dog> CREATOR = new Creator<Dog>() {
+        @Override
+        public Dog createFromParcel(Parcel in) {
+            return new Dog(in);
+        }
+
+        @Override
+        public Dog[] newArray(int size) {
+            return new Dog[size];
+        }
+    };
+
+    private String nm = ""; //name
+    public String getNm() {
+        return nm;
+    }
+    public void setNm(String nm) {
+        this.nm = nm;
     }
 
-    private String name = "";
-    public String getName() {
-        return name;
+    private String uI = ""; //Unique identifier
+    public String getUI() {
+        return uI;
     }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    private String associatedFoundationContactPhone;
-    public String getAssociatedFoundationContactPhone() {
-        return associatedFoundationContactPhone;
-    }
-    public void setAssociatedFoundationContactPhone(String associatedFoundationContactPhone) {
-        this.associatedFoundationContactPhone = associatedFoundationContactPhone;
+    public void setUI(String uI) {
+        this.uI = uI;
     }
 
-    private String uniqueIdentifier = "";
-    public String getUniqueIdentifier() {
-        return uniqueIdentifier;
+    private String afCP; //Associated Foundation contact phone
+    public String getAFCP() {
+        return afCP;
     }
-    public void setUniqueIdentifier(String uniqueIdentifier) {
-        this.uniqueIdentifier = uniqueIdentifier;
-    }
-
-    private String associatedFoundationUniqueId = "";
-    public String getAssociatedFoundationUniqueId() {
-        return associatedFoundationUniqueId;
-    }
-    public void setAssociatedFoundationUniqueId(String associatedFoundationUniqueId) {
-        this.associatedFoundationUniqueId = associatedFoundationUniqueId;
+    public void setAFCP(String FCP) {
+        this.afCP = FCP;
     }
 
-    private String associatedFoundationName = "";
-    public String getAssociatedFoundationName() {
-        return associatedFoundationName;
+    private String aFid = ""; //Associated Foundation unique id
+    public String getAFid() {
+        return aFid;
     }
-    public void setAssociatedFoundationName(String associatedFoundationName) {
-        this.associatedFoundationName = associatedFoundationName;
-    }
-
-    private String country;
-    public String getCountry() {
-        return country;
-    }
-    public void setCountry(String country) {
-        this.country = country;
+    public void setAFid(String Fuid) {
+        this.aFid = Fuid;
     }
 
-    private String city;
-    public String getCity() {
-        return city;
+    private String fN = ""; //Associated Foundation name
+    public String getFN() {
+        return fN;
     }
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    private List<String> videoUrls = new ArrayList<>();
-    public List<String> getVideoUrls() {
-        return videoUrls;
-    }
-    public void setVideoUrls(List<String> videoUrls) {
-        this.videoUrls = videoUrls;
+    public void setFN(String fN) {
+        this.fN = fN;
     }
 
-    private String age  = "No age available";
-    public String getAge() {
-        return age;
+    private String cn; //country
+    public String getCn() {
+        return cn;
     }
-    public void setAge(String age) {
-        this.age = age;
-    }
-
-    private String size  = "No size available";
-    public String getSize() {
-        return size;
-    }
-    public void setSize(String size) {
-        this.size = size;
+    public void setCn(String cn) {
+        this.cn = cn;
     }
 
-    private String race = "No race available";
-    public String getRace() {
-        return race;
+    private String ct; //city
+    public String getCt() {
+        return ct;
     }
-    public void setRace(String race) {
-        this.race = race;
-    }
-
-    private String gender  = "No gender available";
-    public String getGender() {
-        return gender;
-    }
-    public void setGender(String gender) {
-        this.gender = gender;
+    public void setCt(String ct) {
+        this.ct = ct;
     }
 
-    private String behavior  = "No behavior available";
-    public String getBehavior() {
-        return behavior;
+    private List<String> vU = new ArrayList<>(); //video urls
+    public List<String> getVU() {
+        return vU;
     }
-    public void setBehavior(String behavior) {
-        this.behavior = behavior;
-    }
-
-    private String interactions  = "No interactions available";
-    public String getInteractions() {
-        return interactions;
-    }
-    public void setInteractions(String interactions) {
-        this.interactions = interactions;
+    public void setVU(List<String> vU) {
+        this.vU = vU;
     }
 
-    private String history  = "No history available";
-    public String getHistory() {
-        return history;
+    private String ag  = "No age available"; // age
+    public String getAg() {
+        return ag;
     }
-    public void setHistory(String history) {
-        this.history = history;
-    }
-
-    private List<String> imageUploadTimes = Arrays.asList("","","","","","");
-    public List<String> getImageUploadTimes() {
-        return imageUploadTimes;
-    }
-    public void setImageUploadTimes(List<String> imageUploadTimes) {
-        this.imageUploadTimes = imageUploadTimes;
+    public void setAg(String ag) {
+        this.ag = ag;
     }
 
+    private String sz  = "No size available"; //size
+    public String getSz() {
+        return sz;
+    }
+    public void setSz(String sz) {
+        this.sz = sz;
+    }
+
+    private String rc = "No race available"; //race
+    public String getRc() {
+        return rc;
+    }
+    public void setRc(String rc) {
+        this.rc = rc;
+    }
+
+    private String gn  = "No gender available"; //gender
+    public String getGn() {
+        return gn;
+    }
+    public void setGn(String gn) {
+        this.gn = gn;
+    }
+
+    private String bh  = "No behavior available"; //behavior
+    public String getBh() {
+        return bh;
+    }
+    public void setBh(String bh) {
+        this.bh = bh;
+    }
+
+    private String it  = "No interactions available"; //interactions
+    public String getIt() {
+        return it;
+    }
+    public void setIt(String it) {
+        this.it = it;
+    }
+
+    private String hs  = "No history available"; //history
+    public String getHs() {
+        return hs;
+    }
+    public void setHs(String hs) {
+        this.hs = hs;
+    }
+
+    private List<String> iUT = Arrays.asList("","","","","",""); //Image upload times
+    public List<String> getIUT() {
+        return iUT;
+    }
+    public void setIUT(List<String> iUT) {
+        this.iUT = iUT;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(nm);
+        parcel.writeString(uI);
+        parcel.writeString(afCP);
+        parcel.writeString(aFid);
+        parcel.writeString(fN);
+        parcel.writeString(cn);
+        parcel.writeString(ct);
+        parcel.writeStringList(vU);
+        parcel.writeString(ag);
+        parcel.writeString(sz);
+        parcel.writeString(rc);
+        parcel.writeString(gn);
+        parcel.writeString(bh);
+        parcel.writeString(it);
+        parcel.writeString(hs);
+        parcel.writeStringList(iUT);
+    }
 }

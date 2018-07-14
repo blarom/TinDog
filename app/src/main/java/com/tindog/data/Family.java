@@ -1,118 +1,291 @@
 package com.tindog.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Family {
+public class Family implements Parcelable {
 
     public Family() {
 
     }
-
     public Family(String pseudonym, String email) {
-        this.pseudonym = pseudonym;
-        this.email = email;
+        this.pn = pseudonym;
+        this.em = email;
     }
+    public Family(String firebaseUid) {
+        this.oFid = firebaseUid;
+        setUniqueIdentifierFromDetails();
+    }
+    protected Family(Parcel in) {
+        oFid = in.readString();
+        pn = in.readString();
+        uI = in.readString();
+        em = in.readString();
+        cp = in.readString();
+        cn = in.readString();
+        ct = in.readString();
+        st = in.readString();
+        xp = in.readString();
+        fD = in.readByte() != 0;
+        aD = in.readByte() != 0;
+        FAD = in.readByte() != 0;
+        fP = in.readString();
+        hOE = in.readByte() != 0;
+        hOD = in.readByte() != 0;
+        hOC = in.readByte() != 0;
+        hOL = in.readByte() != 0;
+        hD = in.readByte() != 0;
+        hDW = in.readString();
+        hDM = in.readByte() != 0;
+        hDN = in.readByte() != 0;
+        hDa = in.readByte() != 0;
+        hDE = in.readByte() != 0;
+        iUT = in.createStringArrayList();
+    }
+    public static final Creator<Family> CREATOR = new Creator<Family>() {
+        @Override
+        public Family createFromParcel(Parcel in) {
+            return new Family(in);
+        }
 
-    public Family(String ownerfirebaseUid) {
-        this.ownerfirebaseUid = ownerfirebaseUid;
+        @Override
+        public Family[] newArray(int size) {
+            return new Family[size];
+        }
+    };
+
+    private String oFid; //firebase user id
+    public String getOFid() {
+        return oFid;
+    }
+    public void setOFid(String oFid) {
+        this.oFid = oFid;
         setUniqueIdentifierFromDetails();
     }
 
-    private String ownerfirebaseUid;
-    public String getOwnerfirebaseUid() {
-        return ownerfirebaseUid;
+    private String pn = ""; //Pseudonym
+    public String getPn() {
+        return pn;
     }
-    public void setOwnerfirebaseUid(String ownerfirebaseUid) {
-        this.ownerfirebaseUid = ownerfirebaseUid;
-        setUniqueIdentifierFromDetails();
-    }
-
-    private String pseudonym = "No name available";
-    public String getPseudonym() {
-        return pseudonym;
-    }
-    public void setPseudonym(String pseudonym) {
-        this.pseudonym = pseudonym;
+    public void setPn(String pseudonym) {
+        this.pn = pseudonym;
     }
 
-    private String uniqueIdentifier = "";
-    public String getUniqueIdentifier() {
-        return DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+    private String uI = ""; //unique identifier
+    public String getUI() {
+        return DatabaseUtilities.cleanIdentifierForFirebase(uI);
     }
-    public void setUniqueIdentifier(String uniqueIdentifier) {
-        this.uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+    public void setUI(String uniqueIdentifier) {
+        this.uI = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
     }
     public void setUniqueIdentifierFromDetails() {
-        if (TextUtils.isEmpty(ownerfirebaseUid)) uniqueIdentifier = pseudonym + "-" + email;
-        else uniqueIdentifier = ownerfirebaseUid;
-        uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+        if (TextUtils.isEmpty(oFid)) uI = pn + "-" + em;
+        else uI = oFid;
+        uI = DatabaseUtilities.cleanIdentifierForFirebase(uI);
     }
 
-    private String email = "default@default.com";
-    public String getEmail() {
-        return email;
+    private String em = ""; //email
+    public String getEm() {
+        return em;
     }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    private String cell = "000";
-    public String getCell() {
-        return cell;
-    }
-    public void setCell(String cell) {
-        this.cell = cell;
+    public void setEm(String em) {
+        this.em = em;
     }
 
-    private String country = "No country available";
-    public String getCountry() {
-        return country;
+    private String cp = ""; //cellphone number
+    public String getCp() {
+        return cp;
     }
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    private String city = "No city available";
-    public String getCity() {
-        return city;
-    }
-    public void setCity(String city) {
-        this.city = city;
+    public void setCp(String cp) {
+        this.cp = cp;
     }
 
-    private String street = "No street available";
-    public String getStreet() {
-        return street;
+    private String cn = ""; //country
+    public String getCn() {
+        return cn;
     }
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    private String experience = "No experience available";
-    public String getExperience() {
-        return experience;
-    }
-    public void setExperience(String experience) {
-        this.experience = experience;
+    public void setCn(String cn) {
+        this.cn = cn;
     }
 
-    private List<String> helpOffer = new ArrayList<>();
-    public List<String> getHelpOffer() {
-        return helpOffer;
+    private String ct = ""; //city
+    public String getCt() {
+        return ct;
     }
-    public void setHelpOffer(List<String> helpOffer) {
-        this.helpOffer = helpOffer;
+    public void setCt(String ct) {
+        this.ct = ct;
     }
 
-    private List<String> imageUploadTimes = Arrays.asList("","","","","","");
-    public List<String> getImageUploadTimes() {
-        return imageUploadTimes;
+    private String st = ""; //street
+    public String getSt() {
+        return st;
     }
-    public void setImageUploadTimes(List<String> imageUploadTimes) {
-        this.imageUploadTimes = imageUploadTimes;
+    public void setSt(String st) {
+        this.st = st;
+    }
+
+    private String xp = ""; //experience
+    public String getXp() {
+        return xp;
+    }
+    public void setXp(String xp) {
+        this.xp = xp;
+    }
+
+    private boolean fD = false; //Want to foster dogs
+    public boolean getFD() {
+        return fD;
+    }
+    public void setFD(boolean fD) {
+        this.fD = fD;
+    }
+
+    private boolean aD = false; //Want to adopt dogs
+    public boolean getAD() {
+        return aD;
+    }
+    public void setAD(boolean aD) {
+        this.aD = aD;
+    }
+
+    private boolean FAD = false; //Want to foster and maybe adopt dogs
+    public boolean getFAD() {
+        return FAD;
+    }
+    public void setFAD(boolean faD) {
+        this.FAD = faD;
+    }
+
+    private String fP = ""; //Foster period
+    public String getFP() {
+        return fP;
+    }
+    public void setFP(String fT) {
+        this.fP = fT;
+    }
+
+    private boolean hOE = false; //Help organize adoption events - move equipment
+    public boolean getHOE() {
+        return hOE;
+    }
+    public void setHOE(boolean hOE) {
+        this.hOE = hOE;
+    }
+
+    private boolean hOD = false; //Help organize adoption events - move dogs
+    public boolean getHOD() {
+        return hOD;
+    }
+    public void setHOD(boolean hOD) {
+        this.hOD = hOD;
+    }
+
+    private boolean hOC = false; //Help organize adoption events - coordinating
+    public boolean getHOC() {
+        return hOC;
+    }
+    public void setHOC(boolean hOC) {
+        this.hOC = hOC;
+    }
+
+    private boolean hOL = false; //Help organize adoption events - Lending a hand at events
+    public boolean getHOL() {
+        return hOL;
+    }
+    public void setHOL(boolean hOL) {
+        this.hOL = hOL;
+    }
+
+    private boolean hD = false; //Help by dogwalking
+    public boolean getHD() {
+        return hD;
+    }
+    public void setHD(boolean hD) {
+        this.hD = hD;
+    }
+
+    private String hDW = ""; //Help by dogwalking - where
+    public String getHDW() {
+        return hDW;
+    }
+    public void setHDW(String hDw) {
+        this.hDW = hDw;
+    }
+
+    private boolean hDM = false; //Help by dogwalking - morning
+    public boolean getHDM() {
+        return hDM;
+    }
+    public void setHDM(boolean hDm) {
+        this.hDM = hDm;
+    }
+
+    private boolean hDN = false; //Help by dogwalking - noon
+    public boolean getHDN() {
+        return hDN;
+    }
+    public void setHDN(boolean hDn) {
+        this.hDN = hDn;
+    }
+
+    private boolean hDa = false; //Help by dogwalking - afternoon
+    public boolean setHDA() {
+        return hDa;
+    }
+    public void getHDA(boolean hDa) {
+        this.hDa = hDa;
+    }
+
+    private boolean hDE = false; //Help by dogwalking - evening
+    public boolean getHDE() {
+        return hDE;
+    }
+    public void setHDE(boolean hDe) {
+        this.hDE = hDe;
+    }
+
+    private List<String> iUT = Arrays.asList("","","","","",""); //Image upload times
+    public List<String> getIUT() {
+        return iUT;
+    }
+    public void setUIT(List<String> iUT) {
+        this.iUT = iUT;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(oFid);
+        parcel.writeString(pn);
+        parcel.writeString(uI);
+        parcel.writeString(em);
+        parcel.writeString(cp);
+        parcel.writeString(cn);
+        parcel.writeString(ct);
+        parcel.writeString(st);
+        parcel.writeString(xp);
+        parcel.writeByte((byte) (fD ? 1 : 0));
+        parcel.writeByte((byte) (aD ? 1 : 0));
+        parcel.writeByte((byte) (FAD ? 1 : 0));
+        parcel.writeString(fP);
+        parcel.writeByte((byte) (hOE ? 1 : 0));
+        parcel.writeByte((byte) (hOD ? 1 : 0));
+        parcel.writeByte((byte) (hOC ? 1 : 0));
+        parcel.writeByte((byte) (hOL ? 1 : 0));
+        parcel.writeByte((byte) (hD ? 1 : 0));
+        parcel.writeString(hDW);
+        parcel.writeByte((byte) (hDM ? 1 : 0));
+        parcel.writeByte((byte) (hDN ? 1 : 0));
+        parcel.writeByte((byte) (hDa ? 1 : 0));
+        parcel.writeByte((byte) (hDE ? 1 : 0));
+        parcel.writeStringList(iUT);
     }
 }

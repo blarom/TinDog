@@ -1,7 +1,6 @@
 package com.tindog.adapters;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,11 +13,7 @@ import com.squareup.picasso.Picasso;
 import com.tindog.R;
 import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Dog;
-import com.tindog.data.Family;
-import com.tindog.data.Foundation;
-import com.tindog.resources.SharedMethods;
 
-import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -48,9 +43,9 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
     private void updateItemDescription(DogViewHolder holder, int position) {
         Dog dog = mDogs.get(position);
         TextView nameTV = holder.nameInRecycleView;
-        nameTV.setText(dog.getName());
+        nameTV.setText(dog.getNm());
         TextView detailsTV = holder.detailsInRecycleView;
-        String details = dog.getGender() + ", " + dog.getRace();
+        String details = dog.getGn() + ", " + dog.getRc();
         detailsTV.setText(details);
     }
     private void updateItemImage(final DogViewHolder holder, int position) {

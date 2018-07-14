@@ -1,9 +1,10 @@
 package com.tindog;
 
+//TODO: show the dog, family and foundation profiles
+//TODO: implement the pager for the profiles
 //TODO: add the pager and connect it to the activity
 //TODO: update the preference activity options
-//TODO: setup the family spinners and checkboxes
-//TODO: set up country filtering for search results
+//TODO: restore recyclerview positions and parameters on resume in all activities/fragments
 
 import android.Manifest;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 import static butterknife.internal.Utils.arrayOf;
 
@@ -45,12 +47,11 @@ public class TaskSelectionActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private boolean hasStoragePermissions;
     private boolean hasLocationPermissions;
-    @BindView(R.id.task_selection_find) Button mButtonFind;
-    @BindView(R.id.task_selection_help_organize) Button mButtonHelpOrganize;
-    @BindView(R.id.task_selection_offer_advice) Button mButtonOfferAdvice;
-    @BindView(R.id.task_selection_offer_care) Button mButtonOfferCare;
+    @BindView(R.id.task_selection_find_dog) Button mButtonFindDog;
+    @BindView(R.id.task_selection_find_family) Button mButtonFindFamily;
+    @BindView(R.id.task_selection_find_foundation) Button mButtonFindFoundation;
     @BindView(R.id.task_selection_update_map) Button mButtonUpdateMap;
-    private Bundle mBundle;
+    private Unbinder mBinding;
 
 
     //Lifecycle methods
@@ -59,38 +60,26 @@ public class TaskSelectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_task_selection);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
-        ButterKnife.bind(this);
+        mBinding =  ButterKnife.bind(this);
         hasStoragePermissions = checkStoragePermission();
         hasLocationPermissions = checkLocationPermission();
 
-        mButtonFind.setOnClickListener(new View.OnClickListener() {
+        mButtonFindDog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goToSearchResultsScreen();
+                startSearchResultsActivity(getString(R.string.dog_profile));
             }
         });
-        mButtonHelpOrganize.setOnClickListener(new View.OnClickListener() {
+        mButtonFindFamily.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mBundle = new Bundle();
-                mBundle.putString(SharedMethods.CHOSEN_ACTION_KEY, getString(R.string.action_search_profiles));
-                goToProfileUpdateScreen();
+                startSearchResultsActivity(getString(R.string.family_profile));
             }
         });
-        mButtonOfferAdvice.setOnClickListener(new View.OnClickListener() {
+        mButtonFindFoundation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mBundle = new Bundle();
-                mBundle.putString(SharedMethods.CHOSEN_ACTION_KEY, getString(R.string.action_update_profile));
-                goToProfileUpdateScreen();
-            }
-        });
-        mButtonOfferCare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mBundle = new Bundle();
-                mBundle.putString(SharedMethods.CHOSEN_ACTION_KEY, getString(R.string.action_update_profile));
-                goToProfileUpdateScreen();
+                startSearchResultsActivity(getString(R.string.foundation_profile));
             }
         });
         mButtonUpdateMap.setOnClickListener(new View.OnClickListener() {
@@ -108,7 +97,12 @@ public class TaskSelectionActivity extends AppCompatActivity {
     }
     @Override protected void onStop() {
         super.onStop();
-        cleanUpListeners();
+        if (mFirebaseAuth!=null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    }
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        mBinding.unbind();
+        removeListeners();
     }
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -201,12 +195,9 @@ public class TaskSelectionActivity extends AppCompatActivity {
 
 
     //Functionality methods
-    private void goToSearchResultsScreen() {
+    private void startSearchResultsActivity(String profileType) {
         Intent intent = new Intent(this, SearchResultsActivity.class);
-        startActivity(intent);
-    }
-    private void goToProfileUpdateScreen() {
-        Intent intent = new Intent(this, UpdateMyFamilyActivity.class);
+        intent.putExtra(getString(R.string.profile_type), profileType);
         startActivity(intent);
     }
     private void goToMapScreen() {
@@ -233,9 +224,6 @@ public class TaskSelectionActivity extends AppCompatActivity {
             }
         };
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-    private void cleanUpListeners() {
-        if (mFirebaseAuth!=null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
     private void showSignInScreen() {
         List<AuthUI.IdpConfig> providers = Arrays.asList(
@@ -283,6 +271,12 @@ public class TaskSelectionActivity extends AppCompatActivity {
             }
             return false;
         }
+    }
+    private void removeListeners() {
+        mButtonFindDog.setOnClickListener(null);
+        mButtonFindFamily.setOnClickListener(null);
+        mButtonFindFoundation.setOnClickListener(null);
+        mButtonUpdateMap.setOnClickListener(null);
     }
 
 

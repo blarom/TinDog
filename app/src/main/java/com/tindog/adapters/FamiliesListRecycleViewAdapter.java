@@ -1,7 +1,6 @@
 package com.tindog.adapters;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,7 +14,6 @@ import com.tindog.R;
 import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Family;
 
-import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -47,9 +45,9 @@ public class FamiliesListRecycleViewAdapter extends RecyclerView.Adapter<Familie
     private void updateItemDescription(FamilyViewHolder holder, int position) {
         Family family = mFamilies.get(position);
         TextView nameTV = holder.nameInRecycleView;
-        nameTV.setText(family.getPseudonym());
+        nameTV.setText(family.getPn());
         TextView detailsTV = holder.detailsInRecycleView;
-        String details = family.getCity();
+        String details = family.getCt();
         detailsTV.setText(details);
     }
     private void updateItemImage(final FamilyViewHolder holder, int position) {

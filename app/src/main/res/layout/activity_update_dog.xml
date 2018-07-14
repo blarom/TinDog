@@ -247,6 +247,19 @@
             </android.support.design.widget.TextInputLayout>
 
             <Button
+                android:id="@+id/update_dog_button_add_video_link"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/add_a_video_link_http"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/update_dog_recyclerview_video_links"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                />
+
+            <Button
                 android:id="@+id/update_dog_button_upload_pics"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -255,7 +268,7 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/update_dog_recyclerview_images"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 />
 

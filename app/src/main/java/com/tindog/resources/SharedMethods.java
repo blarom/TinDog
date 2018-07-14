@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SharedMethods {
 
@@ -39,7 +40,6 @@ public class SharedMethods {
     public static final String PROFILE_UPDATE_IMAGE_NAME = "profile_update_image_name";
     public static final long MAX_IMAGE_FILE_SIZE = 300; //kb
     public static final int FIREBASE_SIGN_IN = 123;
-    public static final String CHOSEN_ACTION_KEY = "chosen_activity_key";
     public static final String DOG_ID = "dog_id";
 
     //App parameters
@@ -135,13 +135,17 @@ public class SharedMethods {
         firebaseDao.getImageFromFirebaseStorage(object, "image4");
         firebaseDao.getImageFromFirebaseStorage(object, "image5");
     }
-    public static List<Uri> getExistingImageUris(String directory) {
+    public static void updateImageFromFirebaseIfRelevant(Object object, String imageName, FirebaseDao firebaseDao) {
+        firebaseDao.getImageFromFirebaseStorage(object, imageName);
+    }
+    public static List<Uri> getExistingImageUris(String directory, boolean skipMainImage) {
         List<Uri> uris = new ArrayList<>();
         File imageFile;
 
-        //Skipping the mainImage since we want to show only the remaining images
-        //imageFile = new File(imageDirectory, "mainImage");
-        //if (imageFile.exists()) uris.add(Uri.fromFile(imageFile));
+        if (!skipMainImage) {
+            imageFile = new File(directory, "mainImage");
+            if (imageFile.exists()) uris.add(Uri.fromFile(imageFile));
+        }
 
         imageFile = new File(directory, "image1.jpg");
         if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
@@ -253,74 +257,62 @@ public class SharedMethods {
         return true;
 
     }
-    public static Uri updateImageInLocalDirectoryAndShowIt(Context context,
-                                                           Uri originalImageUri,
-                                                           String directory,
-                                                           String imageName,
-                                                           ImageView imageViewMain,
-                                                           ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
+    public static Uri updateImageInLocalDirectory(Uri originalImageUri, String directory, String imageName) {
 
         Uri copiedImageUri = moveFile(originalImageUri, directory, imageName);
-        //SharedMethods.deleteFileAtUri(croppedImageTempUri);
-
-        refreshImage(context, directory, imageName, imageViewMain, imagesRecycleViewAdapter);
-
         return copiedImageUri;
     }
-    public static void synchronizeImageOnAllDevices(Context context,
-                                                    Object object,
-                                                    FirebaseDao firebaseDao,
-                                                    String localDirectory,
-                                                    String imageName,
-                                                    Uri downloadedImageUri,
-                                                    ImageView imageViewMain,
-                                                    ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
+    public static void synchronizeImageOnAllDevices(Object object, FirebaseDao firebaseDao, String localDirectory, String imageName, Uri downloadedImageUri) {
 
         //The image was downloaded only if it was newer than the local image (If it wasn't downloaded, the downloadedImageUri is the same as the local image Uri)
         Uri localImageUri = SharedMethods.getUriForImage(localDirectory, imageName);
 
-        if (localImageUri==null && downloadedImageUri==null) {
-            //Do nothing
-        }
-
-        if (localImageUri!=null && downloadedImageUri==null) {
-            refreshImage(context, localDirectory, imageName, imageViewMain, imagesRecycleViewAdapter);
-        }
-
-        else if (localImageUri==null && downloadedImageUri!=null) {
-            SharedMethods.updateImageInLocalDirectoryAndShowIt(context,
-                    downloadedImageUri, localDirectory, imageName, imageViewMain, imagesRecycleViewAdapter);
-        }
-
-        else if (localImageUri!=null && downloadedImageUri!=null) {
-
-            String localUriPath = localImageUri.getPath();
-            String downloadeUriPath = downloadedImageUri.getPath();
-
-            //If the downloaded image is newer, then update the image in the local directory
-            if (!downloadeUriPath.equals(localUriPath)) {
-                SharedMethods.updateImageInLocalDirectoryAndShowIt(context,
-                        downloadedImageUri, localDirectory, imageName, imageViewMain, imagesRecycleViewAdapter);
+        if (downloadedImageUri != null) {
+            if (localImageUri == null) {
+                SharedMethods.updateImageInLocalDirectory(downloadedImageUri, localDirectory, imageName);
             }
+            else {
+                String localUriPath = localImageUri.getPath();
+                String downloadedUriPath = downloadedImageUri.getPath();
 
-            //If the local image is newer, then upload it to Firebase to replace the older image
-            else if (downloadeUriPath.equals(localUriPath)) {
+                //If the downloaded image is newer, then update the image in the local directory
+                if (!downloadedUriPath.equals(localUriPath)) {
+                    SharedMethods.updateImageInLocalDirectory(downloadedImageUri, localDirectory, imageName);
+                }
+
+                //If the local image is newer, then upload it to Firebase to replace the older image
+                else if (downloadedUriPath.equals(localUriPath)) {
+                    firebaseDao.putImageInFirebaseStorage(object, localImageUri, imageName);
+                }
+            }
+        }
+        else {
+            if (localImageUri != null) {
                 firebaseDao.putImageInFirebaseStorage(object, localImageUri, imageName);
             }
         }
-
-
+    }
+    public static void synchronizeAllObjectImagesOnAllDevices(Object object, FirebaseDao firebaseDao, String localDirectory, Uri downloadedImageUri) {
+        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "mainImage", downloadedImageUri);
+        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image1", downloadedImageUri);
+        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image2", downloadedImageUri);
+        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image3", downloadedImageUri);
+        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image4", downloadedImageUri);
+        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image5", downloadedImageUri);
     }
 
     //UI utilities
-    private static void refreshImage(Context context, String directory, String imageName, ImageView imageViewMain, ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
+    public static void displayImages(Context context, String localDirectory, String imageName, ImageView imageViewMain, ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
 
-        if (imageName.equals("mainImage")) refreshMainImageShownToUser(context, directory, imageViewMain);
-        else refreshImagesListShownToUser(directory, imagesRecycleViewAdapter);
-
+        if (imageName.equals("mainImage")) {
+            Uri localImageUri = SharedMethods.getUriForImage(localDirectory, imageName);
+            if (localImageUri!=null) refreshMainImageShownToUser(context, localDirectory, imageViewMain);
+        }
+        else refreshImagesListShownToUser(localDirectory, imagesRecycleViewAdapter);
     }
     public static void refreshMainImageShownToUser(Context context, String directory, ImageView imageViewMain) {
         Uri mainImageUri = SharedMethods.getUriForImage(directory,"mainImage");
+        if (imageViewMain==null) return;
         Picasso.with(context)
                 .load(mainImageUri)
                 .error(R.drawable.ic_image_not_available)
@@ -329,7 +321,7 @@ public class SharedMethods {
                 .into(imageViewMain);
     }
     public static void refreshImagesListShownToUser(String directory, ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
-        imagesRecycleViewAdapter.setContents(SharedMethods.getExistingImageUris(directory));
+        imagesRecycleViewAdapter.setContents(SharedMethods.getExistingImageUris(directory, true));
     }
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =(InputMethodManager) activity.getBaseContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -337,35 +329,9 @@ public class SharedMethods {
             inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
         }
     }
-
-    //Functional utlities
     public static int getImagesRecyclerViewPosition(RecyclerView recyclerView) {
         LinearLayoutManager layoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
         return layoutManager.findFirstVisibleItemPosition();
-    }
-    public static Address getAddressFromCity(Context context, String location) {
-
-        //inspired by: https://stackoverflow.com/questions/20166328/how-to-get-longitude-latitude-from-the-city-name-android-code
-
-        List<Address> addresses = new ArrayList<>();
-        if(Geocoder.isPresent()){
-            try {
-                Geocoder gc = new Geocoder(context);
-                addresses = gc.getFromLocationName(location, 5); // get the found Address Objects
-
-//                List<LatLng> latLong = new ArrayList<>(addresses.size()); // A list to save the coordinates if they are available
-//                for (Address address : addresses){
-//                    if(address.hasLatitude() && address.hasLongitude()){
-//                        latLong.add(new LatLng(address.getLatitude(), address.getLongitude()));
-//                    }
-//                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (addresses.size()>0) return addresses.get(0);
-        else return null;
     }
     public static int getSpinnerPositionFromText(Context context, Spinner spinnerAdapter, String userSelection) {
 
@@ -410,6 +376,47 @@ public class SharedMethods {
         }
 
         return 0;
+    }
+
+    //Location utlities
+    public static Address getAddressFromCity(Context context, String location) {
+
+        //inspired by: https://stackoverflow.com/questions/20166328/how-to-get-longitude-latitude-from-the-city-name-android-code
+
+        List<Address> addresses = new ArrayList<>();
+        if(Geocoder.isPresent()){
+            try {
+                Geocoder gc = new Geocoder(context);
+                addresses = gc.getFromLocationName(location, 5); // get the found Address Objects
+
+//                List<LatLng> latLong = new ArrayList<>(addresses.size()); // A list to save the coordinates if they are available
+//                for (Address address : addresses){
+//                    if(address.hasLatitude() && address.hasLongitude()){
+//                        latLong.add(new LatLng(address.getLatitude(), address.getLongitude()));
+//                    }
+//                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (addresses.size()>0) return addresses.get(0);
+        else return null;
+    }
+    public static String getCityFromLocation(Context context, double latitude, double longitude) {
+
+        Geocoder gcd = new Geocoder(context, Locale.getDefault());
+        List<Address> addresses;
+        try {
+            addresses = gcd.getFromLocation(latitude, longitude, 1);
+            if (addresses.size() > 0) {
+                return addresses.get(0).getLocality();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     //Preferences

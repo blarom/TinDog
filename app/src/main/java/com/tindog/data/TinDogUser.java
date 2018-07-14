@@ -5,94 +5,94 @@ public class TinDogUser {
     public TinDogUser() {}
 
     public TinDogUser(String uniqueIdentifier) {
-        this.uniqueIdentifier = uniqueIdentifier;
+        this.uI = uniqueIdentifier;
     }
 
-    private String name = "No name available";
-    public String getName() {
-        return name;
+    private String nm = ""; //name
+    public String getNm() {
+        return nm;
     }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    private String uniqueIdentifier = "";
-    public String getUniqueIdentifier() {
-        return DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
-    }
-    public void setUniqueIdentifier(String uniqueIdentifier) {
-        this.uniqueIdentifier = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+    public void setNm(String nm) {
+        this.nm = nm;
     }
 
-    private String cell = "000";
-    public String getCell() {
-        return cell;
+    private String uI = ""; //unique identifier
+    public String getUI() {
+        return DatabaseUtilities.cleanIdentifierForFirebase(uI);
     }
-    public void setCell(String cell) {
-        this.cell = cell;
-    }
-
-    private String email = "default@default.com";
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUI(String uI) {
+        this.uI = DatabaseUtilities.cleanIdentifierForFirebase(uI);
     }
 
-    private String agePref = "No preferred age available";
-    public String getAgePref() {
-        return agePref;
+    private String cp = ""; //cellphone number
+    public String getCp() {
+        return cp;
     }
-    public void setAgePref(String agePref) {
-        this.agePref = agePref;
-    }
-
-    private String sizePref = "No preferred size available";
-    public String getSizePref() {
-        return sizePref;
-    }
-    public void setSizePref(String sizePref) {
-        this.sizePref = sizePref;
+    public void setCp(String ce) {
+        this.cp = ce;
     }
 
-    private String racePref = "No preferred race available";
-    public String getRacePref() {
-        return racePref;
+    private String em = ""; //email
+    public String getEm() {
+        return em;
     }
-    public void setRacePref(String racePref) {
-        this.racePref = racePref;
-    }
-
-    private String genderPref = "No preferred gender available";
-    public String getGenderPref() {
-        return genderPref;
-    }
-    public void setGenderPref(String genderPref) {
-        this.genderPref = genderPref;
+    public void setEm(String em) {
+        this.em = em;
     }
 
-    private String behaviorPref = "No preferred behavior available";
-    public String getBehaviorPref() {
-        return behaviorPref;
+    private String aP = ""; //age preference
+    public String getAP() {
+        return aP;
     }
-    public void setBehaviorPref(String behaviorPref) {
-        this.behaviorPref = behaviorPref;
-    }
-
-    private String interactionsPref = "No preferred interactions available";
-    public String getInteractionsPref() {
-        return interactionsPref;
-    }
-    public void setInteractionsPref(String interactionsPref) {
-        this.interactionsPref = interactionsPref;
+    public void setAP(String aP) {
+        this.aP = aP;
     }
 
-    private boolean limitQueryToCountry = true;
-    public boolean getLimitQueryToCountry() {
-        return limitQueryToCountry;
+    private String sZ = ""; //size preference
+    public String getSP() {
+        return sZ;
     }
-    public void setLimitQueryToCountry(boolean limitQueryToCountry) {
-        this.limitQueryToCountry = limitQueryToCountry;
+    public void setSP(String sZ) {
+        this.sZ = sZ;
+    }
+
+    private String rP = ""; //race preference
+    public String getRP() {
+        return rP;
+    }
+    public void setRP(String rP) {
+        this.rP = rP;
+    }
+
+    private String gP = ""; //gender preference
+    public String getGP() {
+        return gP;
+    }
+    public void setGP(String gP) {
+        this.gP = gP;
+    }
+
+    private String bP = ""; //behavior preference
+    public String getBP() {
+        return bP;
+    }
+    public void setBP(String bP) {
+        this.bP = bP;
+    }
+
+    private String iP = ""; //interactions preference
+    public String getIP() {
+        return iP;
+    }
+    public void setIP(String iP) {
+        this.iP = iP;
+    }
+
+    private boolean lC = true; //limit query to country preference
+    public boolean getLC() {
+        return lC;
+    }
+    public void setLC(boolean lC) {
+        this.lC = lC;
     }
 }

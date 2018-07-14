@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout
+    android:id="@+id/root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="?dialogPreferredPadding">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/dialog_input_text_old_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="@string/please_paste_a_full_http_link_here">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/input_text_video_link"
+            android:inputType="text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+
+</LinearLayout>

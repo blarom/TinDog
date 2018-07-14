@@ -1,7 +1,6 @@
 package com.tindog.adapters;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,7 +14,6 @@ import com.tindog.R;
 import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Foundation;
 
-import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -45,9 +43,9 @@ public class FoundationsListRecycleViewAdapter extends RecyclerView.Adapter<Foun
     private void updateItemDescription(FoundationViewHolder holder, int position) {
         Foundation foundation = mFoundations.get(position);
         TextView nameTV = holder.nameInRecycleView;
-        nameTV.setText(foundation.getName());
+        nameTV.setText(foundation.getNm());
         TextView detailsTV = holder.detailsInRecycleView;
-        String details = foundation.getCity();
+        String details = foundation.getCt();
         detailsTV.setText(details);
     }
     private void updateItemImage(final FoundationViewHolder holder, int position) {

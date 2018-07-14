@@ -41,6 +41,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class PreferencesActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler, AdapterView.OnItemSelectedListener {
 
@@ -59,6 +60,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     @BindView(R.id.preferences_change_email) ImageView mImageViewChangeEmail;
     @BindView(R.id.preferences_change_password) ImageView mImageViewChangePassword;
     @BindView(R.id.preferences_search_country_only_checkbox) CheckBox mCheckBoxLimitToCountry;
+    private Unbinder mBinding;
     private TinDogUser mUser;
     private FirebaseDao mFirebaseDao;
     private FirebaseAuth mFirebaseAuth;
@@ -81,6 +83,8 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         setContentView(R.layout.activity_preferences);
 
         initializeParameters();
+        getUserInfoFromFirebase();
+        getTinDogUserProfileFromFirebase();
         updateProfileFields();
     }
     @Override public void onStart() {
@@ -89,7 +93,30 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     }
     @Override protected void onStop() {
         super.onStop();
-        cleanUpListeners();
+        if (mFirebaseAuth!=null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    }
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        mBinding.unbind();
+        removeListeners();
+    }
+    @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+
+            if (resultCode == RESULT_OK) {
+                // Successfully signed in
+                mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                getUserInfoFromFirebase();
+                getTinDogUserProfileFromFirebase();
+                // ...
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+            }
+        }
     }
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.preferences_update_menu, menu);
@@ -126,7 +153,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.preferences);
         }
-        ButterKnife.bind(this);
+        mBinding =  ButterKnife.bind(this);
 
         mUser = new TinDogUser();
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
@@ -184,47 +211,39 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     private void updateProfileFields() {
         mTextViewUserName.setText(mNameFromFirebase);
         mTextViewUserEmail.setText(mEmailFromFirebase);
-        mSpinnerAge.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerAge, mUser.getAgePref()));
-        mSpinnerSize.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerSize, mUser.getAgePref()));
-        mSpinnerGender.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerGender, mUser.getAgePref()));
-        mSpinnerRace.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerRace, mUser.getAgePref()));
-        mSpinnerBehavior.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerBehavior, mUser.getAgePref()));
-        mSpinnerInteractions.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerInteractions, mUser.getAgePref()));
-        mCheckBoxLimitToCountry.setChecked(mUser.getLimitQueryToCountry());
+        mSpinnerAge.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerAge, mUser.getAP()));
+        mSpinnerSize.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerSize, mUser.getSP()));
+        mSpinnerGender.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerGender, mUser.getGP()));
+        mSpinnerRace.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerRace, mUser.getRP()));
+        mSpinnerBehavior.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerBehavior, mUser.getBP()));
+        mSpinnerInteractions.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerInteractions, mUser.getIP()));
+        mCheckBoxLimitToCountry.setChecked(mUser.getLC());
     }
     private void getUserInfoFromFirebase() {
         if (mCurrentFirebaseUser != null) {
-            // Name, email address, and profile photo Url
             mNameFromFirebase = mCurrentFirebaseUser.getDisplayName();
             mEmailFromFirebase = mCurrentFirebaseUser.getEmail();
             mPhotoUriFromFirebase = mCurrentFirebaseUser.getPhotoUrl();
-
-            // Check if user's email is verified
-            boolean emailVerified = mCurrentFirebaseUser.isEmailVerified();
-
-            // The user's ID, unique to the Firebase project. Do NOT use this value to
-            // authenticate with your backend server, if you have one. Use
-            // FirebaseUser.getIdToken() instead.
             mFirebaseUid = mCurrentFirebaseUser.getUid();
         }
     }
     private void getTinDogUserProfileFromFirebase() {
         if (mCurrentFirebaseUser != null) {
-            mUser.setEmail(mEmailFromFirebase);
-            mUser.setName(mNameFromFirebase);
-            mUser.setUniqueIdentifier(mFirebaseUid);
+            mUser.setEm(mEmailFromFirebase);
+            mUser.setNm(mNameFromFirebase);
+            mUser.setUI(mFirebaseUid);
             mFirebaseDao.getUniqueObjectFromFirebaseDb(mUser);
         }
     }
     private void updatePreferencesWithUserInput() {
 
-        mUser.setAgePref(mSpinnerAge.getSelectedItem().toString());
-        mUser.setSizePref(mSpinnerSize.getSelectedItem().toString());
-        mUser.setGenderPref(mSpinnerGender.getSelectedItem().toString());
-        mUser.setRacePref(mSpinnerAge.getSelectedItem().toString());
-        mUser.setBehaviorPref(mSpinnerBehavior.getSelectedItem().toString());
-        mUser.setInteractionsPref(mSpinnerInteractions.getSelectedItem().toString());
-        mUser.setLimitQueryToCountry(mCheckBoxLimitToCountry.isChecked());
+        mUser.setAP(mSpinnerAge.getSelectedItem().toString());
+        mUser.setSP(mSpinnerSize.getSelectedItem().toString());
+        mUser.setGP(mSpinnerGender.getSelectedItem().toString());
+        mUser.setRP(mSpinnerAge.getSelectedItem().toString());
+        mUser.setBP(mSpinnerBehavior.getSelectedItem().toString());
+        mUser.setIP(mSpinnerInteractions.getSelectedItem().toString());
+        mUser.setLC(mCheckBoxLimitToCountry.isChecked());
 
         mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser);
     }
@@ -257,9 +276,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
             }
         };
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-    private void cleanUpListeners() {
-        if (mFirebaseAuth!=null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
     private void showUserInfoUpdateDialog(final String infoType) {
 
@@ -342,7 +358,18 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         android.app.AlertDialog dialog = builder.create();
         dialog.show();
     }
-
+    private void removeListeners() {
+        mFirebaseDao.removeListeners();
+        mSpinnerAge.setOnItemClickListener(null);
+        mSpinnerSize.setOnItemClickListener(null);
+        mSpinnerGender.setOnItemClickListener(null);
+        mSpinnerRace.setOnItemClickListener(null);
+        mSpinnerBehavior.setOnItemClickListener(null);
+        mSpinnerInteractions.setOnItemClickListener(null);
+        mImageViewChangeName.setOnClickListener(null);
+        mImageViewChangeEmail.setOnClickListener(null);
+        mImageViewChangePassword.setOnClickListener(null);
+    }
 
     //Communication with other activities/fragments:
 
@@ -375,27 +402,30 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     @Override public void onImageAvailable(Uri imageUri, String imageName) {
 
     }
+    @Override public void onImageUploaded(List<String> uploadTimes) {
+
+    }
 
     //Communication with spinner adapters
     @Override public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
         switch (adapterView.getId()) {
             case R.id.preferences_age_spinner:
-                mUser.setAgePref((String) adapterView.getItemAtPosition(pos));
+                mUser.setAP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_size_spinner:
-                mUser.setSizePref((String) adapterView.getItemAtPosition(pos));
+                mUser.setSP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_gender_spinner:
-                mUser.setGenderPref((String) adapterView.getItemAtPosition(pos));
+                mUser.setGP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_race_spinner:
-                mUser.setRacePref((String) adapterView.getItemAtPosition(pos));
+                mUser.setRP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_behavior_spinner:
-                mUser.setBehaviorPref((String) adapterView.getItemAtPosition(pos));
+                mUser.setBP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_interactions_spinner:
-                mUser.setInteractionsPref((String) adapterView.getItemAtPosition(pos));
+                mUser.setIP((String) adapterView.getItemAtPosition(pos));
                 break;
         }
     }

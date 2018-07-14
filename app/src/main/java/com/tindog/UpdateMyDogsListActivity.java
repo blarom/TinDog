@@ -32,6 +32,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class UpdateMyDogsListActivity extends AppCompatActivity implements
         DogsListRecycleViewAdapter.DogsListItemClickHandler, FirebaseDao.FirebaseOperationsHandler {
@@ -50,6 +51,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
     private List<Dog> mDogsList;
     private List<Dog> mDogsListSubset;
     private boolean mRequestedFullList;
+    private Unbinder mBinding;
     //endregion
 
 
@@ -61,11 +63,19 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         initializeParameters();
         setupRecyclerView();
         getFoundationFirebaseId();
-        getListsFromFirebase();
     }
     @Override public void onStart() {
         super.onStart();
         setupFirebaseAuthentication();
+    }
+    @Override protected void onResume() {
+        super.onResume();
+        getListsFromFirebase();
+    }
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        mBinding.unbind();
+        mFirebaseDao.removeListeners();
     }
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
@@ -118,7 +128,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
     //Functionality methods
     private void initializeParameters() {
         if (getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ButterKnife.bind(this);
+        mBinding =  ButterKnife.bind(this);
         FirebaseDatabase firebaseDb = FirebaseDatabase.getInstance();
         mFirebaseDbReference = firebaseDb.getReference();
         mFirebaseDao = new FirebaseDao(this, this);
@@ -132,7 +142,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
     }
     private void getListsFromFirebase() {
         mRequestedFullList = true;
-        mFirebaseDao.getObjectsByKeyValuePairFromFirebaseDb(new Dog(), "associatedFoundationUniqueId", mFirebaseUid);
+        mFirebaseDao.getObjectsByKeyValuePairFromFirebaseDb(new Dog(), "afid", mFirebaseUid);
     }
     private void getFoundationFirebaseId() {
         if (mCurrentFirebaseUser != null) {
@@ -179,7 +189,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         }
         else {
             for (Dog dog : mDogsList) {
-                if (dog.getName().contains(userInput)) {
+                if (dog.getNm().contains(userInput)) {
                     mDogsListSubset.add(dog);
                 }
             }
@@ -189,7 +199,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
     private void openDogProfile(Dog dog) {
         Intent intent = new Intent(this, UpdateDogActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString(SharedMethods.DOG_ID, dog.getUniqueIdentifier());
+        bundle.putString(SharedMethods.DOG_ID, dog.getUI());
         intent.putExtras(bundle);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
@@ -223,6 +233,9 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
 
     }
     @Override public void onImageAvailable(android.net.Uri imageUri, String imageName) {
+
+    }
+    @Override public void onImageUploaded(List<String> uploadTimes) {
 
     }
 

@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +36,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class UpdateMyFoundationActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler, ImagesRecycleViewAdapter.ImageClickHandler {
     
@@ -54,6 +54,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     @BindView(R.id.update_my_foundation_value_street_number) TextInputEditText mEditTextStreetNumber;
     @BindView(R.id.update_my_foundation_image_main) ImageView mImageViewMain;
     @BindView(R.id.update_my_foundation_recyclerview_images) RecyclerView mRecyclerViewFoundationImages;
+    private Unbinder mBinding;
     private Foundation mFoundation;
     private FirebaseDao mFirebaseDao;
     private ImagesRecycleViewAdapter mFoundationImagesRecycleViewAdapter;
@@ -76,7 +77,6 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_my_foundation);
 
-        getExtras();
         initializeParameters();
         getFoundationProfileFromFirebase();
         setupFoundationImagesRecyclerView();
@@ -92,6 +92,11 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         super.onStop();
         cleanUpListeners();
     }
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        mBinding.unbind();
+        mFirebaseDao.removeListeners();
+    }
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
@@ -100,8 +105,8 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 boolean succeeded = SharedMethods.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
 
                 if (succeeded) {
-                    Uri copiedImageUri = SharedMethods.updateImageInLocalDirectoryAndShowIt(getApplicationContext(),
-                            croppedImageTempUri, mFoundationImagesDirectory, mImageName, mImageViewMain, mFoundationImagesRecycleViewAdapter);
+                    Uri copiedImageUri = SharedMethods.updateImageInLocalDirectory(croppedImageTempUri, mFoundationImagesDirectory, mImageName);
+                    SharedMethods.displayImages(getApplicationContext(), mFoundationImagesDirectory, mImageName, mImageViewMain, mFoundationImagesRecycleViewAdapter);
 
                     if (copiedImageUri != null)
                         mFirebaseDao.putImageInFirebaseStorage(mFoundation, copiedImageUri, mImageName);
@@ -171,18 +176,12 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
 
 
     //Structural methods
-    private void getExtras() {
-        Intent intent = getIntent();
-        if (getIntent().hasExtra(SharedMethods.CHOSEN_ACTION_KEY)) {
-            mChosenAction = intent.getStringExtra(SharedMethods.CHOSEN_ACTION_KEY);
-        }
-    }
     private void initializeParameters() {
         if (getSupportActionBar()!=null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.foundation_profile);
         }
-        ButterKnife.bind(this);
+        mBinding =  ButterKnife.bind(this);
         mFoundation = new Foundation();
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -201,10 +200,10 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
 
             //Setting the requested Foundation's id
             mFirebaseUid = mCurrentFirebaseUser.getUid();
-            mFoundation.setOwnerfirebaseUid(mFirebaseUid);
+            mFoundation.setOFId(mFirebaseUid);
 
             //Initializing the local parameters that depend on this family, used in the rest of the activity
-            mFoundationImagesDirectory = getFilesDir()+"/foundations/"+mFoundation.getUniqueIdentifier()+"/images/";
+            mFoundationImagesDirectory = getFilesDir()+"/foundations/"+mFoundation.getUI()+"/images/";
             mImageName = "mainImage";
 
             //Getting the rest of the family's parameters
@@ -212,20 +211,20 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         }
     }
     private void updateProfileFieldsOnScreen() {
-        mEditTextName.setText(mFoundation.getName());
-        mEditTextContactPhone.setText(mFoundation.getContactPhone());
-        mEditTextContactEmail.setText(mFoundation.getContactEmail());
-        mEditTextWebsite.setText(mFoundation.getWebsite());
-        mEditTextCountry.setText(mFoundation.getCountry());
-        mEditTextCity.setText(mFoundation.getCity());
-        mEditTextStreet.setText(mFoundation.getStreet());
-        mEditTextStreetNumber.setText(mFoundation.getStreetNumber());
+        mEditTextName.setText(mFoundation.getNm());
+        mEditTextContactPhone.setText(mFoundation.getCP());
+        mEditTextContactEmail.setText(mFoundation.getCE());
+        mEditTextWebsite.setText(mFoundation.getWb());
+        mEditTextCountry.setText(mFoundation.getCn());
+        mEditTextCity.setText(mFoundation.getCt());
+        mEditTextStreet.setText(mFoundation.getSt());
+        mEditTextStreetNumber.setText(mFoundation.getStN());
         SharedMethods.hideSoftKeyboard(this);
     }
     private void setupFoundationImagesRecyclerView() {
         mRecyclerViewFoundationImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
         mRecyclerViewFoundationImages.setNestedScrollingEnabled(true);
-        mFoundationImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getExistingImageUris(mFoundationImagesDirectory));
+        mFoundationImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getExistingImageUris(mFoundationImagesDirectory, true));
         mRecyclerViewFoundationImages.setAdapter(mFoundationImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
@@ -240,7 +239,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             @Override
             public void onClick(View view) {
 
-                if (SharedMethods.getExistingImageUris(mFoundationImagesDirectory).size() == 5) {
+                if (SharedMethods.getExistingImageUris(mFoundationImagesDirectory, true).size() == 5) {
                     Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -289,15 +288,15 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         if (mFirebaseAuth!=null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
     private void updateFoundationWithUserInput() {
-        mFoundation.setOwnerfirebaseUid(mFirebaseUid);
-        mFoundation.setName(mEditTextName.getText().toString());
-        mFoundation.setContactPhone(mEditTextContactPhone.getText().toString());
-        mFoundation.setContactEmail(mEditTextContactEmail.getText().toString());
-        mFoundation.setWebsite(mEditTextWebsite.getText().toString());
-        mFoundation.setCountry(mEditTextCountry.getText().toString());
-        mFoundation.setCity(mEditTextCity.getText().toString());
-        mFoundation.setStreet(mEditTextStreet.getText().toString());
-        mFoundation.setStreetNumber(mEditTextStreetNumber.getText().toString());
+        mFoundation.setOFId(mFirebaseUid);
+        mFoundation.setNm(mEditTextName.getText().toString());
+        mFoundation.setCP(mEditTextContactPhone.getText().toString());
+        mFoundation.setCE(mEditTextContactEmail.getText().toString());
+        mFoundation.setWb(mEditTextWebsite.getText().toString());
+        mFoundation.setCn(mEditTextCountry.getText().toString());
+        mFoundation.etCt(mEditTextCity.getText().toString());
+        mFoundation.setSt(mEditTextStreet.getText().toString());
+        mFoundation.setStN(mEditTextStreetNumber.getText().toString());
 
         mFoundation.setUniqueIdentifierFromDetails();
 
@@ -346,7 +345,10 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     }
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
 
-        SharedMethods.synchronizeImageOnAllDevices(getApplicationContext(),
-                mFoundation, mFirebaseDao, mFoundationImagesDirectory, imageName, downloadedImageUri, mImageViewMain, mFoundationImagesRecycleViewAdapter);
+        SharedMethods.synchronizeImageOnAllDevices(mFoundation, mFirebaseDao, mFoundationImagesDirectory, imageName, downloadedImageUri);
+        SharedMethods.displayImages(getApplicationContext(), mFoundationImagesDirectory, imageName, mImageViewMain, mFoundationImagesRecycleViewAdapter);
+    }
+    @Override public void onImageUploaded(List<String> uploadTimes) {
+        mFoundation.setIUT(uploadTimes);
     }
 }

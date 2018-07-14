@@ -1,12 +1,14 @@
 package com.tindog.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.ImageView;
 
 import com.squareup.picasso.MemoryPolicy;
@@ -37,11 +39,18 @@ public class ImagesRecycleViewAdapter extends RecyclerView.Adapter<ImagesRecycle
     }
     @Override public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
 
-        Picasso.with(mContext)
-                .load(mUris.get(position).toString())
-                .error(R.drawable.ic_image_not_available)
-                .memoryPolicy(MemoryPolicy.NO_CACHE)
-                .into(holder.imageInRecycleView);
+        if (URLUtil.isNetworkUrl(mUris.get(position).toString())) {
+            holder.imageInRecycleView.setImageResource(R.drawable.ic_play_circle_outline_black_24dp);
+            holder.imageInRecycleView.setBackgroundColor(Color.BLACK);
+            holder.imageInRecycleView.setColorFilter(Color.WHITE);
+        }
+        else {
+            Picasso.with(mContext)
+                    .load(mUris.get(position).toString())
+                    .error(R.drawable.ic_image_not_available)
+                    .memoryPolicy(MemoryPolicy.NO_CACHE)
+                    .into(holder.imageInRecycleView);
+        }
     }
 
     @Override public int getItemCount() {

@@ -16,8 +16,6 @@ import com.tindog.BuildConfig;
 import com.tindog.R;
 import com.tindog.resources.SharedMethods;
 
-import java.io.File;
-
 public class DatabaseUtilities {
 
     public static final String firebaseEmail = BuildConfig.firebaseEmail;
@@ -149,15 +147,15 @@ public class DatabaseUtilities {
         String imageDirectory;
         if (object instanceof Dog) {
             Dog dog = (Dog) object;
-            imageDirectory = context.getFilesDir().getAbsolutePath()+"/dogs/"+dog.getUniqueIdentifier()+"/images/";
+            imageDirectory = context.getFilesDir().getAbsolutePath()+"/dogs/"+dog.getUI()+"/images/";
         }
         else if (object instanceof Family) {
             Family family = (Family) object;
-            imageDirectory = context.getFilesDir().getAbsolutePath()+"/families/"+ family.getUniqueIdentifier()+"/images/";
+            imageDirectory = context.getFilesDir().getAbsolutePath()+"/families/"+ family.getUI()+"/images/";
         }
         else if (object instanceof Foundation) {
             Foundation foundation = (Foundation) object;
-            imageDirectory = context.getFilesDir().getAbsolutePath()+"/foundations/"+ foundation.getUniqueIdentifier()+"/images/";
+            imageDirectory = context.getFilesDir().getAbsolutePath()+"/foundations/"+ foundation.getUI()+"/images/";
         }
         else return null;
 

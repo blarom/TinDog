@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 
 public class FoundationProfileFragment extends Fragment {
@@ -19,6 +20,7 @@ public class FoundationProfileFragment extends Fragment {
     @BindView(R.id.foundation_profile_address) TextView mTextViewFoundationAddress;
     @BindView(R.id.foundation_profile_contact_details) TextView mTextViewFoundationContactDeails;
     private int mSelectedProfileIndex;
+    private Unbinder mBinding;
 
     public FoundationProfileFragment() {
         // Required empty public constructor
@@ -32,8 +34,12 @@ public class FoundationProfileFragment extends Fragment {
     }
     @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_foundation_profile, container, false);
-        ButterKnife.bind(this, rootView);
+        mBinding = ButterKnife.bind(this, rootView);
         return rootView;
+    }
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        mBinding.unbind();
     }
     @Override public void onAttach(Context context) {
         super.onAttach(context);

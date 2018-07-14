@@ -35,10 +35,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/task_selection_offer_care"/>
+        app:layout_constraintTop_toBottomOf="@+id/task_selection_find_foundation"/>
 
     <Button
-        android:id="@+id/task_selection_offer_care"
+        android:id="@+id/task_selection_find_foundation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -46,14 +46,13 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="@string/offer_dog_care_services"
+        android:text="@string/find_a_foundation"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/task_selection_offer_advice"/>
+        app:layout_constraintTop_toBottomOf="@+id/task_selection_find_family"/>
 
     <Button
-        android:id="@+id/task_selection_offer_advice"
+        android:id="@+id/task_selection_find_family"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -61,14 +60,13 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="@string/offer_advice_on_fostering_adopting"
+        android:text="@string/find_a_family"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/task_selection_help_organize"/>
+        app:layout_constraintTop_toBottomOf="@+id/task_selection_find_dog"/>
 
     <Button
-        android:id="@+id/task_selection_help_organize"
+        android:id="@+id/task_selection_find_dog"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -76,22 +74,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="@string/help_organize_adoption_events"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/task_selection_find"/>
-
-    <Button
-        android:id="@+id/task_selection_find"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/find_a_dog_family_foundation"
+        android:text="@string/find_a_dog"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/task_selection_title"/>
