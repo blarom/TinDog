@@ -138,7 +138,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 Exception error = result.getError();
             }
         }
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
+        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -182,17 +182,17 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     }
     @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         mStoredPetImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewPetImages);
-        outState.putInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION, mStoredPetImagesRecyclerViewPosition);
-        outState.putString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME, mImageName);
+        outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredPetImagesRecyclerViewPosition);
+        outState.putString(getString(R.string.profile_update_image_name), mImageName);
         super.onSaveInstanceState(outState, outPersistentState);
 
     }
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-            mStoredPetImagesRecyclerViewPosition = savedInstanceState.getInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION);
+            mStoredPetImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.profile_update_pet_images_rv_position));
             mRecyclerViewPetImages.scrollToPosition(mStoredPetImagesRecyclerViewPosition);
-            mImageName = savedInstanceState.getString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME);
+            mImageName = savedInstanceState.getString(getString(R.string.profile_update_image_name));
         }
     }
 
@@ -222,7 +222,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
 
         mSpinnerAdapterFosterPeriod = ArrayAdapter.createFromResource(this, R.array.foster_period, android.R.layout.simple_spinner_item);
         mSpinnerAdapterFosterPeriod.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpinnerFosterPeriod.setAdapter(mSpinnerAdapterDogwalkingWhere);
+        mSpinnerFosterPeriod.setAdapter(mSpinnerAdapterFosterPeriod);
         mSpinnerFosterPeriod.setOnItemSelectedListener(this);
     }
     private void getFamilyProfileFromFirebase() {
@@ -340,7 +340,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                                     .createSignInIntentBuilder()
                                     .setAvailableProviders(providers)
                                     .build(),
-                            SharedMethods.FIREBASE_SIGN_IN);
+                            SharedMethods.FIREBASE_SIGN_IN_KEY);
                 }
             }
         };

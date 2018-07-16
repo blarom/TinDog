@@ -11,6 +11,7 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -36,11 +37,8 @@ import java.util.Locale;
 
 public class SharedMethods {
 
-    public static final String PROFILE_UPDATE_PET_IMAGES_RV_POSITION = "profile_update_pet_images_rv_position";
-    public static final String PROFILE_UPDATE_IMAGE_NAME = "profile_update_image_name";
     public static final long MAX_IMAGE_FILE_SIZE = 300; //kb
-    public static final int FIREBASE_SIGN_IN = 123;
-    public static final String DOG_ID = "dog_id";
+    public static final int FIREBASE_SIGN_IN_KEY = 123;
 
     //App parameters
     public static int getSmallestWidth(Context context) {
@@ -56,27 +54,12 @@ public class SharedMethods {
         if (!destinationFileDirectory.exists()) destinationFileDirectory.mkdirs();
 
         File destinationFile = new File(destinationFileDirectory, destinationFilename+".jpg");
-
-        long length = destinationFile.length();
-        boolean exists = destinationFile.exists();
-
         if (destinationFile.exists()) destinationFile.delete(); //Allows replacing files
-
-        length = destinationFile.length();
-        exists = destinationFile.exists();
 
         FileChannel outputChannel = null;
         FileChannel inputChannel = null;
         try {
-
             destinationFile = new File(destinationFileDirectory, destinationFilename+".jpg");
-            length = destinationFile.length();
-            exists = destinationFile.exists();
-
-//            if (destinationFile.exists()) {
-//                deleted = destinationFile.delete(); //Allows replacing files
-//                FileWriter fw = new FileWriter(destinationDirectory + "/"+destinationFilename+".jpg", false);
-//            }
 
             //if (!destinationFile.exists()) destinationFile.createNewFile();
             outputChannel = new FileOutputStream(destinationFile, false).getChannel();
@@ -85,8 +68,6 @@ public class SharedMethods {
             inputChannel.close();
             sourceFile.delete();
 
-            length = destinationFile.length();
-            exists = destinationFile.exists();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -143,8 +124,8 @@ public class SharedMethods {
         File imageFile;
 
         if (!skipMainImage) {
-            imageFile = new File(directory, "mainImage");
-            if (imageFile.exists()) uris.add(Uri.fromFile(imageFile));
+            imageFile = new File(directory, "mainImage.jpg");
+            if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
         }
 
         imageFile = new File(directory, "image1.jpg");
@@ -384,7 +365,7 @@ public class SharedMethods {
         //inspired by: https://stackoverflow.com/questions/20166328/how-to-get-longitude-latitude-from-the-city-name-android-code
 
         List<Address> addresses = new ArrayList<>();
-        if(Geocoder.isPresent()){
+        if(Geocoder.isPresent() && !TextUtils.isEmpty(location)){
             try {
                 Geocoder gc = new Geocoder(context);
                 addresses = gc.getFromLocationName(location, 5); // get the found Address Objects
@@ -431,5 +412,29 @@ public class SharedMethods {
     public static boolean getAppPreferenceSignInRequestState(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
         return sharedPref.getBoolean(context.getString(R.string.app_preference_sign_in_state), true);
+    }
+    public static void setAppPreferenceUserLongitude(Context context, double longitude) {
+        if (context != null) {
+            SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(context.getString(R.string.user_longitude), Double.toString(longitude));
+            editor.apply();
+        }
+    }
+    public static Double getAppPreferenceUserLongitude(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+        return Double.parseDouble(sharedPref.getString(context.getString(R.string.user_longitude), "0.0"));
+    }
+    public static void setAppPreferenceUserLatitude(Context context, double latitude) {
+        if (context != null) {
+            SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(context.getString(R.string.user_latitude), Double.toString(latitude));
+            editor.apply();
+        }
+    }
+    public static Double getAppPreferenceUserLatitude(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+        return Double.parseDouble(sharedPref.getString(context.getString(R.string.user_latitude), "0.0"));
     }
 }

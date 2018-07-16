@@ -78,7 +78,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         mFirebaseDao.removeListeners();
     }
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
+        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -175,7 +175,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
                                     .createSignInIntentBuilder()
                                     .setAvailableProviders(providers)
                                     .build(),
-                            SharedMethods.FIREBASE_SIGN_IN);
+                            SharedMethods.FIREBASE_SIGN_IN_KEY);
                 }
             }
         };
@@ -199,7 +199,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
     private void openDogProfile(Dog dog) {
         Intent intent = new Intent(this, UpdateDogActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString(SharedMethods.DOG_ID, dog.getUI());
+        bundle.putString(getString(R.string.selected_dog_id), dog.getUI());
         intent.putExtras(bundle);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);

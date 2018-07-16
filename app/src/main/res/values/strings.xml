@@ -173,6 +173,12 @@
     <string name="add_a_video_link_http">Add a video link (http://...)</string>
     <string name="please_paste_a_full_http_link_here">Please paste a full http link here</string>
     <string name="add_video_link">Add a video link</string>
+    <string name="no_exp_shared">No experience shared.</string>
+    <string name="user_longitude">user_longitude</string>
+    <string name="user_latitude">user_latitude</string>
+    <string name="selected_dog_id">selected_dog_id</string>
+    <string name="profile_update_pet_images_rv_position">profile_update_pet_images_rv_position</string>
+    <string name="profile_update_image_name">profile_update_image_name</string>
     <string-array name="dog_age">
         <item>Newborn pup (up to 6 months)</item>
         <item>Young troublemaker (0.5–3 yrs old)</item>

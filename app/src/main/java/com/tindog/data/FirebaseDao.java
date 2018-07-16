@@ -609,8 +609,6 @@ public class FirebaseDao {
 
         String childPath;
         String folderPath;
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-        StorageReference imageRef;
 
         List<String> uploadTimes;
         if (object instanceof Dog) {
@@ -631,7 +629,6 @@ public class FirebaseDao {
         else return;
 
         childPath = folderPath + "/" + imageName + ".jpg";
-        imageRef = storageRef.child(childPath);
 
         final Uri localImageUri = getLocalImageUri(folderPath, imageName);
         if (uploadTimes==null || uploadTimes.size()==0) {
@@ -640,51 +637,63 @@ public class FirebaseDao {
         }
 
         //If the image loaded into Firebase is newer than the image saved onto the local device (if it exists), then download it. Otherwise, use the local image.
-        File storeInternal = new File(mContext.getFilesDir().getAbsolutePath() + "/" + folderPath);
-        if (!storeInternal.exists()) storeInternal.mkdirs();
-        File localFile = new File(storeInternal, imageName + ".jpg");
-        Date lastModified = new Date(localFile.lastModified());
-        long lastModifiedTime = lastModified.getTime();
+        File internalStorageDir = new File(mContext.getFilesDir().getAbsolutePath() + "/" + folderPath);
+        if (!internalStorageDir.exists()) internalStorageDir.mkdirs();
 
-        long imageUploadTime = 0;
+        File localFile = new File(internalStorageDir, imageName + ".jpg");
+        if (localFile.exists()) {
+            Date lastModified = new Date(localFile.lastModified());
+            long lastModifiedTime = lastModified.getTime();
 
-        switch (imageName) {
-            case "mainImage": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(0)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
-            case "image1": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(1)) ? Long.parseLong(uploadTimes.get(1)) : 0; break;
-            case "image2": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(2)) ? Long.parseLong(uploadTimes.get(2)) : 0; break;
-            case "image3": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(3)) ? Long.parseLong(uploadTimes.get(3)) : 0; break;
-            case "image4": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(4)) ? Long.parseLong(uploadTimes.get(4)) : 0; break;
-            case "image5": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(5)) ? Long.parseLong(uploadTimes.get(5)) : 0; break;
-        }
+            long imageUploadTime = 0;
 
-        //If the local file is older than the Firebase file, then download the Firebase file to the cache directory
-        if (!localFile.exists() || (localFile.exists() && imageUploadTime!=0 && imageUploadTime > lastModifiedTime)) {
+            switch (imageName) {
+                case "mainImage": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(0)) ? Long.parseLong(uploadTimes.get(0)) : 0; break;
+                case "image1": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(1)) ? Long.parseLong(uploadTimes.get(1)) : 0; break;
+                case "image2": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(2)) ? Long.parseLong(uploadTimes.get(2)) : 0; break;
+                case "image3": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(3)) ? Long.parseLong(uploadTimes.get(3)) : 0; break;
+                case "image4": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(4)) ? Long.parseLong(uploadTimes.get(4)) : 0; break;
+                case "image5": imageUploadTime = !TextUtils.isEmpty(uploadTimes.get(5)) ? Long.parseLong(uploadTimes.get(5)) : 0; break;
+            }
 
-            File cacheDirectory = new File(mContext.getFilesDir().getAbsolutePath() + "/cache");
-            if (!cacheDirectory.exists()) cacheDirectory.mkdirs();
-            File localFirebaseTempImage = new File(storeInternal, imageName + ".jpg");
-            final Uri localFirebaseTempImageUri = Uri.fromFile(localFirebaseTempImage);
-
-            imageRef.getFile(localFirebaseTempImage)
-                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                            sendImageUriToInterface(localFirebaseTempImageUri, imageName);
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            sendImageUriToInterface(localImageUri, imageName);
-                            exception.printStackTrace();
-                            //Toast.makeText(mContext, "Failed to retrieve image from Firebase storage, check log.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            //If the local file is older than the Firebase file, then download the Firebase file to the cache directory
+            if (imageUploadTime!=0 && imageUploadTime > lastModifiedTime) {
+                downloadFromFirebase(internalStorageDir, imageName, childPath, localImageUri);
+            }
+            else {
+                sendImageUriToInterface(localImageUri, imageName);
+            }
         }
         else {
-            sendImageUriToInterface(localImageUri, imageName);
+            downloadFromFirebase(internalStorageDir, imageName, childPath, localImageUri);
         }
 
+    }
+    private void downloadFromFirebase(File internalStorageDir, final String imageName, String childPath, final Uri localImageUri) {
+
+        File cacheDirectory = new File(mContext.getFilesDir().getAbsolutePath() + "/cache");
+        if (!cacheDirectory.exists()) cacheDirectory.mkdirs();
+
+        File localFirebaseTempImage = new File(internalStorageDir, imageName + ".jpg");
+        final Uri localFirebaseTempImageUri = Uri.fromFile(localFirebaseTempImage);
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        StorageReference imageRef = storageRef.child(childPath);
+        imageRef.getFile(localFirebaseTempImage)
+                .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        sendImageUriToInterface(localFirebaseTempImageUri, imageName);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        sendImageUriToInterface(localImageUri, imageName);
+                        exception.printStackTrace();
+                        //Toast.makeText(mContext, "Failed to retrieve image from Firebase storage, check log.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     //Firebase Storage Helper methods (prevent code repetitions in the CRUD methods)

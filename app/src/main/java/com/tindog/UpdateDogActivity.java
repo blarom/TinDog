@@ -147,7 +147,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 Exception error = result.getError();
             }
         }
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
+        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -191,17 +191,17 @@ public class UpdateDogActivity extends AppCompatActivity implements
     }
     @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         mStoredDogImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewDogImages);
-        outState.putInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION, mStoredDogImagesRecyclerViewPosition);
-        outState.putString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME, mImageName);
+        outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredDogImagesRecyclerViewPosition);
+        outState.putString(getString(R.string.profile_update_image_name), mImageName);
         super.onSaveInstanceState(outState, outPersistentState);
 
     }
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-            mStoredDogImagesRecyclerViewPosition = savedInstanceState.getInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION);
+            mStoredDogImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.profile_update_pet_images_rv_position));
             mRecyclerViewDogImages.scrollToPosition(mStoredDogImagesRecyclerViewPosition);
-            mImageName = savedInstanceState.getString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME);
+            mImageName = savedInstanceState.getString(getString(R.string.profile_update_image_name));
         }
     }
 
@@ -209,8 +209,8 @@ public class UpdateDogActivity extends AppCompatActivity implements
     //Structural methods
     private void getExtras() {
         Intent intent = getIntent();
-        if (getIntent().hasExtra(SharedMethods.DOG_ID)) {
-            mChosenDogId = intent.getStringExtra(SharedMethods.DOG_ID);
+        if (getIntent().hasExtra(getString(R.string.selected_dog_id))) {
+            mChosenDogId = intent.getStringExtra(getString(R.string.selected_dog_id));
         }
     }
     private void initializeParameters() {
@@ -449,7 +449,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
                                     .createSignInIntentBuilder()
                                     .setAvailableProviders(providers)
                                     .build(),
-                            SharedMethods.FIREBASE_SIGN_IN);
+                            SharedMethods.FIREBASE_SIGN_IN_KEY);
                 }
             }
         };

@@ -101,7 +101,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         removeListeners();
     }
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
+        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -271,7 +271,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                                     .createSignInIntentBuilder()
                                     .setAvailableProviders(providers)
                                     .build(),
-                            SharedMethods.FIREBASE_SIGN_IN);
+                            SharedMethods.FIREBASE_SIGN_IN_KEY);
                 }
             }
         };

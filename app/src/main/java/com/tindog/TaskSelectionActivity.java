@@ -61,8 +61,6 @@ public class TaskSelectionActivity extends AppCompatActivity {
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mBinding =  ButterKnife.bind(this);
-        hasStoragePermissions = checkStoragePermission();
-        hasLocationPermissions = checkLocationPermission();
 
         mButtonFindDog.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +88,8 @@ public class TaskSelectionActivity extends AppCompatActivity {
         });
 
         setupFirebaseAuthentication();
+        hasStoragePermissions = checkStoragePermission();
+        hasLocationPermissions = checkLocationPermission();
     }
     @Override public void onStart() {
         super.onStart();
@@ -101,19 +101,18 @@ public class TaskSelectionActivity extends AppCompatActivity {
     }
     @Override protected void onDestroy() {
         super.onDestroy();
-        mBinding.unbind();
         removeListeners();
+        mBinding.unbind();
     }
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
+        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                // ...
+                mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
@@ -181,6 +180,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
                 homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(homeIntent);
             }
+            if (!hasLocationPermissions) checkLocationPermission();
         }
         else if (requestCode == APP_PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -214,6 +214,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
+                    SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), true);
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                 } else {
                     // TinDogUser is signed out
@@ -226,6 +227,9 @@ public class TaskSelectionActivity extends AppCompatActivity {
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
     private void showSignInScreen() {
+
+        SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), false);
+
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.EmailBuilder().build(),
                 new AuthUI.IdpConfig.GoogleBuilder().build());
@@ -235,7 +239,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
                         .build(),
-                SharedMethods.FIREBASE_SIGN_IN);
+                SharedMethods.FIREBASE_SIGN_IN_KEY);
     }
     public boolean checkStoragePermission() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -273,10 +277,10 @@ public class TaskSelectionActivity extends AppCompatActivity {
         }
     }
     private void removeListeners() {
-        mButtonFindDog.setOnClickListener(null);
-        mButtonFindFamily.setOnClickListener(null);
-        mButtonFindFoundation.setOnClickListener(null);
-        mButtonUpdateMap.setOnClickListener(null);
+        if (mButtonFindDog!=null) mButtonFindDog.setOnClickListener(null);
+        if (mButtonFindFamily!=null) mButtonFindFamily.setOnClickListener(null);
+        if (mButtonFindFoundation!=null) mButtonFindFoundation.setOnClickListener(null);
+        if (mButtonUpdateMap!=null) mButtonUpdateMap.setOnClickListener(null);
     }
 
 

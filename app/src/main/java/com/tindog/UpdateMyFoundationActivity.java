@@ -116,7 +116,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 Exception error = result.getError();
             }
         }
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
+        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -160,17 +160,17 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     }
     @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         mStoredFoundationImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewFoundationImages);
-        outState.putInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION, mStoredFoundationImagesRecyclerViewPosition);
-        outState.putString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME, mImageName);
+        outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredFoundationImagesRecyclerViewPosition);
+        outState.putString(getString(R.string.profile_update_image_name), mImageName);
         super.onSaveInstanceState(outState, outPersistentState);
 
     }
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-            mStoredFoundationImagesRecyclerViewPosition = savedInstanceState.getInt(SharedMethods.PROFILE_UPDATE_PET_IMAGES_RV_POSITION);
+            mStoredFoundationImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.profile_update_pet_images_rv_position));
             mRecyclerViewFoundationImages.scrollToPosition(mStoredFoundationImagesRecyclerViewPosition);
-            mImageName = savedInstanceState.getString(SharedMethods.PROFILE_UPDATE_IMAGE_NAME);
+            mImageName = savedInstanceState.getString(getString(R.string.profile_update_image_name));
         }
     }
 
@@ -278,7 +278,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                                     .createSignInIntentBuilder()
                                     .setAvailableProviders(providers)
                                     .build(),
-                            SharedMethods.FIREBASE_SIGN_IN);
+                            SharedMethods.FIREBASE_SIGN_IN_KEY);
                 }
             }
         };

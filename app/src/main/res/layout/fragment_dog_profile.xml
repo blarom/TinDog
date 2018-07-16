@@ -21,15 +21,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/dog_profile_recyclerview_images"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dog_profile_main_image"
-                />
-
             <com.santalu.aspectratioimageview.AspectRatioImageView
                 android:id="@+id/dog_profile_main_image"
                 android:layout_width="0dp"
@@ -42,6 +33,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_image_not_available"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/dog_profile_recyclerview_images"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dog_profile_main_image"
+                />
 
             <TextView
                 android:id="@+id/dog_profile_dog_name"

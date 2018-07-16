@@ -1,7 +1,5 @@
 package com.tindog;
 
-import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,7 +28,7 @@ import butterknife.Unbinder;
 public class DogProfileFragment extends Fragment implements ImagesRecycleViewAdapter.ImageClickHandler {
 
     @BindView(R.id.dog_profile_main_image) ImageView mImageViewMainImage;
-    @BindView(R.id.dog_profile_recyclerview_images) RecyclerView mRecyclerViewDogImages;
+    @BindView(R.id.dog_profile_recyclerview_images) RecyclerView mRecyclerViewImages;
     @BindView(R.id.dog_profile_dog_name) TextView mTextViewDogName;
     @BindView(R.id.dog_profile_value_age) TextView mTextViewDogAge;
     @BindView(R.id.dog_profile_value_size) TextView mTextViewDogSize;
@@ -66,12 +64,6 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         super.onDestroyView();
         mBinding.unbind();
     }
-    @Override public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-    @Override public void onDetach() {
-        super.onDetach();
-    }
 
 
     //Structural methods
@@ -85,10 +77,10 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         setupImagesRecyclerView();
     }
     private void setupImagesRecyclerView() {
-        mRecyclerViewDogImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
-        mRecyclerViewDogImages.setNestedScrollingEnabled(true);
+        mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
+        mRecyclerViewImages.setNestedScrollingEnabled(true);
         mImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(getContext(), this, null);
-        mRecyclerViewDogImages.setAdapter(mImagesRecycleViewAdapter);
+        mRecyclerViewImages.setAdapter(mImagesRecycleViewAdapter);
     }
     private void updateProfileFieldsOnScreen() {
 
@@ -109,6 +101,7 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
 
         //Updating the images with the video links to display to the user
         mDisplayedImageList = SharedMethods.getExistingImageUris(imagesDirectory, false);
+        //TODO: find out why the main image is not shown next to the others
         List<String> videoUrls = mDog.getVU();
         for (String videoUrl : videoUrls) {
             mDisplayedImageList.add(Uri.parse(videoUrl));

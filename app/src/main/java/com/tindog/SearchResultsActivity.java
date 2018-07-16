@@ -1,7 +1,6 @@
 package com.tindog;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,12 +22,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tindog.data.Dog;
 import com.tindog.data.Family;
-import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
-import com.tindog.data.TinDogUser;
 import com.tindog.resources.SharedMethods;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -83,7 +79,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN) {
+        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -165,11 +161,13 @@ public class SearchResultsActivity extends AppCompatActivity implements
         if (SharedMethods.getSmallestWidth(this) < getResources().getInteger(R.integer.tablet_smallest_width_threshold)) {
             if (!mActivatedDetailFragment) {
                 setupSearchScreenFragment();
+                removePager();
                 mMasterFragmentContainer.setVisibility(View.VISIBLE);
                 mPager.setVisibility(View.GONE);
             }
             else {
                 setupProfilesPager(selectedProfileIndex);
+                removeSearchScreenFragment();
                 mMasterFragmentContainer.setVisibility(View.GONE);
                 mPager.setVisibility(View.VISIBLE);
             }
@@ -193,6 +191,13 @@ public class SearchResultsActivity extends AppCompatActivity implements
         mPagerAdapter = new ProfilesPagerAdapter(mFragmentManager);
         mPager.setAdapter(mPagerAdapter);
         mPager.setCurrentItem(selectedProfileIndex);
+    }
+    private void removeSearchScreenFragment() {
+        mSearchScreenFragment = null;
+    }
+    private void removePager() {
+        mPagerAdapter = null;
+        mPager.setAdapter(null);
     }
     private void setupFirebaseAuthentication() {
         // Check if user is signed in (non-null) and update UI accordingly.
@@ -223,7 +228,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
                         .build(),
-                SharedMethods.FIREBASE_SIGN_IN);
+                SharedMethods.FIREBASE_SIGN_IN_KEY);
     }
     private class ProfilesPagerAdapter extends FragmentStatePagerAdapter {
 
