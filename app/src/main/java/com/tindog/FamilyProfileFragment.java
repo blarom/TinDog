@@ -109,7 +109,7 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
     private void storeFragmentLayout() {
         int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
 
-        onFamilyProfileFragmentOperationsHandler.onFragmentLayoutParametersCalculated(imagesRecyclerViewPosition);
+        onFamilyProfileFragmentOperationsHandler.onFamilyLayoutParametersCalculated(imagesRecyclerViewPosition);
     }
 
 
@@ -127,7 +127,7 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
     //Communication with parent activity
     private OnFamilyProfileFragmentOperationsHandler onFamilyProfileFragmentOperationsHandler;
     public interface OnFamilyProfileFragmentOperationsHandler {
-        void onFragmentLayoutParametersCalculated(int imagesRecyclerViewPosition);
+        void onFamilyLayoutParametersCalculated(int imagesRecyclerViewPosition);
     }
     public void setImagesRecyclerViewPosition(int mStoredImagesRecyclerViewPosition) {
         if (mRecyclerViewImages!=null) mRecyclerViewImages.scrollToPosition(mStoredImagesRecyclerViewPosition);

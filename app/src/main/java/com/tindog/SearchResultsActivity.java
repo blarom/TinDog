@@ -35,7 +35,9 @@ import butterknife.Unbinder;
 
 public class SearchResultsActivity extends AppCompatActivity implements
         SearchScreenFragment.OnSearchScreenOperationsHandler,
-        DogProfileFragment.OnDogProfileFragmentOperationsHandler {
+        DogProfileFragment.OnDogProfileFragmentOperationsHandler,
+        FamilyProfileFragment.OnFamilyProfileFragmentOperationsHandler,
+        FoundationProfileFragment.OnFoundationProfileFragmentOperationsHandler {
 
     @BindView(R.id.master_fragment_container) FrameLayout mMasterFragmentContainer;
     @BindView(R.id.profiles_pager) ViewPager mPager;
@@ -320,9 +322,16 @@ public class SearchResultsActivity extends AppCompatActivity implements
         mFoundations = foundationList;
     }
 
-    //Communication with Dog Profile Profile fragment
-    @Override public void onFragmentLayoutParametersCalculated(int imagesRecyclerViewPosition) {
+    //Communication with Profile fragments
+    @Override public void onDogLayoutParametersCalculated(int imagesRecyclerViewPosition) {
         mStoredImagesRecyclerViewPosition = imagesRecyclerViewPosition;
     }
+    @Override public void onFamilyLayoutParametersCalculated(int imagesRecyclerViewPosition) {
+        mStoredImagesRecyclerViewPosition = imagesRecyclerViewPosition;
+    }
+    @Override public void onFoundationLayoutParametersCalculated(int imagesRecyclerViewPosition) {
+        mStoredImagesRecyclerViewPosition = imagesRecyclerViewPosition;
+    }
+
 
 }

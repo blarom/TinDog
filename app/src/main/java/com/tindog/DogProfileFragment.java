@@ -124,7 +124,7 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
     private void storeFragmentLayout() {
         int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
 
-        onDogProfileFragmentOperationsHandler.onFragmentLayoutParametersCalculated(imagesRecyclerViewPosition);
+        onDogProfileFragmentOperationsHandler.onDogLayoutParametersCalculated(imagesRecyclerViewPosition);
     }
 
 
@@ -147,7 +147,7 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
     //Communication with parent activity
     private OnDogProfileFragmentOperationsHandler onDogProfileFragmentOperationsHandler;
     public interface OnDogProfileFragmentOperationsHandler {
-        void onFragmentLayoutParametersCalculated(int imagesRecyclerViewPosition);
+        void onDogLayoutParametersCalculated(int imagesRecyclerViewPosition);
     }
     public void setImagesRecyclerViewPosition(int mStoredImagesRecyclerViewPosition) {
         if (mRecyclerViewImages!=null) mRecyclerViewImages.scrollToPosition(mStoredImagesRecyclerViewPosition);
