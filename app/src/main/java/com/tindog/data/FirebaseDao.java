@@ -91,7 +91,7 @@ public class FirebaseDao {
         }
 
     }
-    public void getUniqueObjectFromFirebaseDb(Object object) {
+    public void getUniqueObjectFromFirebaseDbOrCreateIt(Object object) {
 
         DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
 
@@ -488,7 +488,10 @@ public class FirebaseDao {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                //If the object was not found, then try to update it. If that fails, then the object is truly missing so create it
+                updateObjectOrCreateItInFirebaseDb(object);
+            }
         };
         return eventListener;
     }

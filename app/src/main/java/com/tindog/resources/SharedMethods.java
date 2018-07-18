@@ -358,37 +358,37 @@ public class SharedMethods {
         String[] spinnerArrayElements;
         switch (spinnerAdapter.getId()) {
             case R.id.preferences_age_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_age_simple);
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_age);
                 for (int i=0; i<spinnerArrayElements.length; i++) {
                     if (userSelection.equals(spinnerArrayElements[i])) return i;
                 }
                 break;
             case R.id.preferences_size_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_size_simple);
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_size);
                 for (int i=0; i<spinnerArrayElements.length; i++) {
                     if (userSelection.equals(spinnerArrayElements[i])) return i;
                 }
                 break;
             case R.id.preferences_gender_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_gender_simple);
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_gender);
                 for (int i=0; i<spinnerArrayElements.length; i++) {
                     if (userSelection.equals(spinnerArrayElements[i])) return i;
                 }
                 break;
             case R.id.preferences_race_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_race_simple);
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_race);
                 for (int i=0; i<spinnerArrayElements.length; i++) {
                     if (userSelection.equals(spinnerArrayElements[i])) return i;
                 }
                 break;
             case R.id.preferences_behavior_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_behavior_simple);
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_behavior);
                 for (int i=0; i<spinnerArrayElements.length; i++) {
                     if (userSelection.equals(spinnerArrayElements[i])) return i;
                 }
                 break;
             case R.id.preferences_interactions_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_interactions_simple);
+                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_interactions);
                 for (int i=0; i<spinnerArrayElements.length; i++) {
                     if (userSelection.equals(spinnerArrayElements[i])) return i;
                 }
@@ -447,27 +447,7 @@ public class SharedMethods {
 
         NetworkInfo activeNetworkInfo = connMgr.getActiveNetworkInfo();
 
-        if (activeNetworkInfo != null) { // connected to the internet
-            //Toast.makeText(context, activeNetworkInfo.getTypeName(), Toast.LENGTH_SHORT).show();
-
-            if (activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                // connected to wifi
-                return isWifiInternetAvailable();
-            }
-            else {
-                return activeNetworkInfo.getType() == ConnectivityManager.TYPE_MOBILE;
-            }
-        }
-        return false;
-    }
-    private static boolean isWifiInternetAvailable() {
-        //adapted from https://stackoverflow.com/questions/43315393/android-internet-connection-timeout
-        try {
-            InetAddress ipAddr = InetAddress.getByName("google.com"); //You can replace it with your name
-            return !ipAddr.toString().equals("");
-        } catch (Exception e) {
-            return false;
-        }
+        return activeNetworkInfo != null;
     }
 
     //Preferences
@@ -506,5 +486,17 @@ public class SharedMethods {
     public static Double getAppPreferenceUserLatitude(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
         return Double.parseDouble(sharedPref.getString(context.getString(R.string.user_latitude), "0.0"));
+    }
+    public static void setAppPreferenceFirstTimeUsingApp(Context context, boolean firstTimeFlag) {
+        if (context != null) {
+            SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean(context.getString(R.string.first_time_using_app), firstTimeFlag);
+            editor.apply();
+        }
+    }
+    public static boolean getAppPreferenceFirstTimeUsingApp(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+        return sharedPref.getBoolean(context.getString(R.string.first_time_using_app), true);
     }
 }

@@ -117,9 +117,6 @@ public class SearchScreenFragment extends Fragment implements
         initializeViews(rootView);
         setupRecyclerViews();
         showLoadingIndicator();
-        if (getContext()!=null && !SharedMethods.internetIsAvailable(getContext())) {
-            Toast.makeText(getContext(), R.string.no_internet_bad_results_warning, Toast.LENGTH_SHORT).show();
-        }
         startListeningForUserLocation();
 
         return rootView;
@@ -221,7 +218,7 @@ public class SearchScreenFragment extends Fragment implements
             mFirebaseUid = mCurrentFirebaseUser.getUid();
 
             mUser.setUI(mFirebaseUid);
-            mFirebaseDao.getUniqueObjectFromFirebaseDb(mUser);
+            mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mUser);
         }
     }
     private int getRequestedDistanceFromUserInput() {

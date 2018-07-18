@@ -7,6 +7,8 @@ package com.tindog;
 //TODO: search for dog profiles according to the user preferences
 //TODO: create landscape mode profile views and profile update views
 //TODO: add a FAB to dogslist activity
+//TODO: fix image flickering in dog update activity
+//TODO: make the app look good in landscape mode
 
 import android.Manifest;
 import android.content.Intent;
@@ -92,6 +94,8 @@ public class TaskSelectionActivity extends AppCompatActivity {
         setupFirebaseAuthentication();
         hasStoragePermissions = checkStoragePermission();
         hasLocationPermissions = checkLocationPermission();
+
+        doThisIfFirstTimeUsingApp();
     }
     @Override public void onStart() {
         super.onStart();
@@ -284,6 +288,17 @@ public class TaskSelectionActivity extends AppCompatActivity {
         if (mButtonFindFoundation!=null) mButtonFindFoundation.setOnClickListener(null);
         if (mButtonUpdateMap!=null) mButtonUpdateMap.setOnClickListener(null);
     }
+    private void doThisIfFirstTimeUsingApp() {
+        boolean firstTime = SharedMethods.getAppPreferenceFirstTimeUsingApp(this);
+        if (firstTime) {
+            SharedMethods.setAppPreferenceFirstTimeUsingApp(this, false);
+            Toast.makeText(this, R.string.set_preferred_characteristics, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, PreferencesActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
+        }
+    }
+
 
 
 }

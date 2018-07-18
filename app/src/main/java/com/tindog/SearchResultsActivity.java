@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
@@ -68,6 +69,9 @@ public class SearchResultsActivity extends AppCompatActivity implements
 
         getExtras();
         initializeParameters();
+        if (!SharedMethods.internetIsAvailable(this)) {
+            Toast.makeText(this, R.string.no_internet_bad_results_warning, Toast.LENGTH_SHORT).show();
+        }
         if(savedInstanceState == null) setFragmentLayouts(0);
     }
     @Override public void onStart() {
@@ -177,6 +181,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
         }
 
         mBinding =  ButterKnife.bind(this);
+        SharedMethods.hideSoftKeyboard(this);
     }
     private void setFragmentLayouts(int selectedProfileIndex) {
 

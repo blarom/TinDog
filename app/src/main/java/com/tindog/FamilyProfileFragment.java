@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,6 +33,20 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
     @BindView(R.id.family_profile_pseudonym) TextView mTextViewFamilyPseudonym;
     @BindView(R.id.family_profile_address) TextView mTextViewFamilyAddress;
     @BindView(R.id.family_profile_value_experience) TextView mTextViewFamilyExperience;
+    @BindView(R.id.family_profile_checkbox_foster) CheckBox mCheckBoxFoster;
+    @BindView(R.id.family_profile_checkbox_adopt) CheckBox mCheckBoxAdopt;
+    @BindView(R.id.family_profile_checkbox_foster_and_adopt) CheckBox mCheckBoxFosterAndAdopt;
+    @BindView(R.id.family_profile_value_foster_period) TextView mTextViewFosterPeriod;
+    @BindView(R.id.family_profile_checkbox_help_organize_move_equipment) CheckBox mCheckBoxHelpOrganizeMovingEquipment;
+    @BindView(R.id.family_profile_checkbox_help_organize_move_dogs) CheckBox mCheckBoxHelpOrganizeMovingDogs;
+    @BindView(R.id.family_profile_checkbox_help_organize_coordinating) CheckBox mCheckBoxHelpOrganizeCoordinating;
+    @BindView(R.id.family_profile_checkbox_help_organize_lending_hand) CheckBox mCheckBoxHelpOrganizeLendingHand;
+    @BindView(R.id.family_profile_checkbox_dogwalking) CheckBox mCheckBoxDogWalking;
+    @BindView(R.id.family_profile_value_where_dogwalking) TextView mTextViewDogWalkingWhere;
+    @BindView(R.id.family_profile_checkbox_dogwalking_afternoon) CheckBox mCheckBoxDogWalkingAfternoon;
+    @BindView(R.id.family_profile_checkbox_dogwalking_evening) CheckBox mCheckBoxDogWalkingEvening;
+    @BindView(R.id.family_profile_checkbox_dogwalking_morning) CheckBox mCheckBoxDogWalkingMorning;
+    @BindView(R.id.family_profile_checkbox_dogwalking_noon) CheckBox mCheckBoxDogWalkingNoon;
     private ImagesRecycleViewAdapter mImagesRecycleViewAdapter;
     private Unbinder mBinding;
     private Family mFamily;
@@ -89,6 +104,7 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
     }
     private void updateProfileFieldsOnScreen() {
 
+
         mTextViewFamilyPseudonym.setText(mFamily.getPn());
 
         String address = mFamily.getSt() + ", " + mFamily.getCt() + ", " + mFamily.getCn();
@@ -97,6 +113,21 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
 
         if (mFamily.getXp().equals("")) mTextViewFamilyExperience.setText(R.string.no_exp_shared);
         else mTextViewFamilyExperience.setText(mFamily.getXp());
+
+        mCheckBoxFoster.setChecked(mFamily.getFD());
+        mCheckBoxAdopt.setChecked(mFamily.getAD());
+        mCheckBoxFosterAndAdopt.setChecked(mFamily.getFAD());
+        mTextViewFosterPeriod.setText(mFamily.getFP());
+        mCheckBoxHelpOrganizeMovingEquipment.setChecked(mFamily.getHOE());
+        mCheckBoxHelpOrganizeMovingDogs.setChecked(mFamily.getHOD());
+        mCheckBoxHelpOrganizeCoordinating.setChecked(mFamily.getHOC());
+        mCheckBoxHelpOrganizeLendingHand.setChecked(mFamily.getHOL());
+        mCheckBoxDogWalking.setChecked(mFamily.getHD());
+        mTextViewDogWalkingWhere.setText(mFamily.getHDW());
+        mCheckBoxDogWalkingMorning.setChecked(mFamily.getHDM());
+        mCheckBoxDogWalkingNoon.setChecked(mFamily.getHDN());
+        mCheckBoxDogWalkingAfternoon.setChecked(mFamily.setHDA());
+        mCheckBoxDogWalkingEvening.setChecked(mFamily.getHDE());
 
         if (getContext()==null) return;
         String imagesDirectory = getContext().getFilesDir() + "/families/" + mFamily.getUI() + "/images/";

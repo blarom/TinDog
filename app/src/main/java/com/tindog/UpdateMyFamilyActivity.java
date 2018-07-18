@@ -10,6 +10,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,7 +50,6 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private static final String DEBUG_TAG = "TinDog UpdateMyFamily";
     @BindView(R.id.update_my_family_button_choose_main_pic) Button mButtonChooseMainPic;
     @BindView(R.id.update_my_family_button_upload_pics) Button mButtonUploadPics;
-    @BindView(R.id.update_my_family_button_done) Button mButtonDone;
     @BindView(R.id.update_my_family_value_username) TextInputEditText mEditTextUsername;
     @BindView(R.id.update_my_family_value_pseudonym) TextInputEditText mEditTextPseudonym;
     @BindView(R.id.update_my_family_value_cell) TextInputEditText mEditTextCell;
@@ -245,7 +245,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             mImageName = "mainImage";
 
             //Getting the rest of the family's parameters
-            if (!mFamilyFound) mFirebaseDao.getUniqueObjectFromFirebaseDb(mFamily);
+            if (!mFamilyFound) mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mFamily);
         }
     }
     private void updateProfileFieldsOnScreen() {
@@ -281,15 +281,6 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mRecyclerViewPetImages.setAdapter(mPetImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
-        mButtonDone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                updateFamilyWithUserInput();
-                finish();
-            }
-        });
-
         mButtonChooseMainPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -388,7 +379,9 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mFamily.getHDA(mCheckBoxDogWalkingAfternoon.isChecked());
         mFamily.setHDE(mCheckBoxDogWalkingEvening.isChecked());
 
-        mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
+        if (!TextUtils.isEmpty(mFamily.getUI())) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
+        else Log.i(DEBUG_TAG, "Error: TinDog Family has empty unique ID!");
+
     }
 
 

@@ -9,6 +9,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -53,7 +54,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     @BindView(R.id.preferences_race_spinner) Spinner mSpinnerRace;
     @BindView(R.id.preferences_behavior_spinner) Spinner mSpinnerBehavior;
     @BindView(R.id.preferences_interactions_spinner) Spinner mSpinnerInteractions;
-    @BindView(R.id.preferences_skip) Button mButtonSkipDogPrefsSetting;
     @BindView(R.id.preferences_name_value) TextView mTextViewUserName;
     @BindView(R.id.preferences_email_value) TextView mTextViewUserEmail;
     @BindView(R.id.preferences_change_name) ImageView mImageViewChangeName;
@@ -76,6 +76,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     private ArrayAdapter<CharSequence> mSpinnerAdapterRace;
     private ArrayAdapter<CharSequence> mSpinnerAdapterBehavior;
     private ArrayAdapter<CharSequence> mSpinnerAdapterInteractions;
+    private boolean mUserFound;
 
     //Lifecycle methods
     @Override protected void onCreate(Bundle savedInstanceState) {
@@ -106,9 +107,10 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
 
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
-                mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                mCurrentFirebaseUser = mFirebaseAuth.getCurrentUser();
                 getUserInfoFromFirebase();
                 getTinDogUserProfileFromFirebase();
+                updateProfileFields();
                 // ...
             } else {
                 // Sign in failed. If response is null the user canceled the
@@ -156,6 +158,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         mBinding =  ButterKnife.bind(this);
 
         mUser = new TinDogUser();
+        mUserFound = false;
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -207,6 +210,15 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 showUserInfoUpdateDialog("password");
             }
         });
+
+        mButtonSearchForDog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startSearchResultsActivity(getString(R.string.dog_profile));
+            }
+        });
+
+        SharedMethods.hideSoftKeyboard(this);
     }
     private void updateProfileFields() {
         mTextViewUserName.setText(mNameFromFirebase);
@@ -229,13 +241,15 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     }
     private void getTinDogUserProfileFromFirebase() {
         if (mCurrentFirebaseUser != null) {
-            mUser.setEm(mEmailFromFirebase);
-            mUser.setNm(mNameFromFirebase);
             mUser.setUI(mFirebaseUid);
-            mFirebaseDao.getUniqueObjectFromFirebaseDb(mUser);
+            if (!mUserFound) mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mUser);
         }
     }
     private void updatePreferencesWithUserInput() {
+
+        mUser.setEm(mEmailFromFirebase);
+        mUser.setNm(mNameFromFirebase);
+        mUser.setUI(mFirebaseUid);
 
         mUser.setAP(mSpinnerAge.getSelectedItem().toString());
         mUser.setSP(mSpinnerSize.getSelectedItem().toString());
@@ -245,7 +259,8 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         mUser.setIP(mSpinnerInteractions.getSelectedItem().toString());
         mUser.setLC(mCheckBoxLimitToCountry.isChecked());
 
-        mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser);
+        if (!TextUtils.isEmpty(mUser.getUI())) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser);
+        else Log.i(DEBUG_TAG, "Error: TinDog User has empty unique ID!");
     }
     private void setupFirebaseAuthentication() {
         // Check if user is signed in (non-null) and update UI accordingly.
@@ -257,6 +272,9 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
+                    getUserInfoFromFirebase();
+                    getTinDogUserProfileFromFirebase();
+                    updateProfileFields();
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                 } else {
                     // TinDogUser is signed out
@@ -358,18 +376,18 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         android.app.AlertDialog dialog = builder.create();
         dialog.show();
     }
+    private void startSearchResultsActivity(String profileType) {
+        Intent intent = new Intent(this, SearchResultsActivity.class);
+        intent.putExtra(getString(R.string.profile_type), profileType);
+        startActivity(intent);
+    }
     private void removeListeners() {
         mFirebaseDao.removeListeners();
-        mSpinnerAge.setOnItemClickListener(null);
-        mSpinnerSize.setOnItemClickListener(null);
-        mSpinnerGender.setOnItemClickListener(null);
-        mSpinnerRace.setOnItemClickListener(null);
-        mSpinnerBehavior.setOnItemClickListener(null);
-        mSpinnerInteractions.setOnItemClickListener(null);
         mImageViewChangeName.setOnClickListener(null);
         mImageViewChangeEmail.setOnClickListener(null);
         mImageViewChangePassword.setOnClickListener(null);
     }
+
 
     //Communication with other activities/fragments:
 
@@ -386,10 +404,14 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
 
         if (usersList.size()==1) {
-            if (usersList.get(0) != null) mUser = usersList.get(0);
+            if (usersList.get(0) != null) {
+                mUser = usersList.get(0);
+                mUserFound = true;
+            }
         }
         else if (usersList.size()>1) {
             mUser = usersList.get(0);
+            mUserFound = true;
             Toast.makeText(getBaseContext(), "Warning! Multiple users found for your entered email.", Toast.LENGTH_SHORT).show();
         }
         else {

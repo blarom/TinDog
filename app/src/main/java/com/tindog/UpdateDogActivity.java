@@ -100,6 +100,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
     private Unbinder mBinding;
     private SimpleTextRecycleViewAdapter mVideoLinksRecycleViewAdapter;
     private List<String> mVideoLinks;
+    private boolean[] mImagesReady;
     //endregion
 
 
@@ -141,8 +142,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
                     Uri copiedImageUri = SharedMethods.updateImageInLocalDirectory(croppedImageTempUri, mDogImagesDirectory, mImageName);
                     SharedMethods.displayImages(getApplicationContext(), mDogImagesDirectory, mImageName, mImageViewMain, mDogImagesRecycleViewAdapter);
 
-                    if (copiedImageUri != null)
-                        mFirebaseDao.putImageInFirebaseStorage(mDog, copiedImageUri, mImageName);
+                    if (copiedImageUri != null) mFirebaseDao.putImageInFirebaseStorage(mDog, copiedImageUri, mImageName);
                 }
             }
             else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -224,6 +224,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mBinding =  ButterKnife.bind(this);
         mCreatedDog = false;
         mDogSaved = false;
+        mImagesReady = new boolean[]{false, false, false, false, false, false};
         mEditTextFoundation.setEnabled(false);
         mDog = new Dog();
         mVideoLinks = new ArrayList<>();
@@ -278,12 +279,12 @@ public class UpdateDogActivity extends AppCompatActivity implements
             mImageName = "mainImage";
 
             //Getting the foundation details
-            mFirebaseDao.getUniqueObjectFromFirebaseDb(new Foundation(mFirebaseUid));
+            mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(new Foundation(mFirebaseUid));
 
             //Getting the rest of the dog's parameters
             if (!TextUtils.isEmpty(mChosenDogId)) {
                 mDogImagesDirectory = getFilesDir()+"/dogs/"+ mDog.getUI()+"/images/";
-                mFirebaseDao.getUniqueObjectFromFirebaseDb(mDog);
+                mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mDog);
             }
             else {
                 if (!mCreatedDog) createNewDogInFirebaseDb();
@@ -582,7 +583,21 @@ public class UpdateDogActivity extends AppCompatActivity implements
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
 
         SharedMethods.synchronizeImageOnAllDevices(mDog, mFirebaseDao, mDogImagesDirectory, imageName, downloadedImageUri);
-        SharedMethods.displayImages(getApplicationContext(), mDogImagesDirectory, imageName, mImageViewMain, mDogImagesRecycleViewAdapter);
+
+        //Only showing the images if all images are ready (prevents image flickering)
+        switch (imageName) {
+            case "mainImage": mImagesReady[0] = true; break;
+            case "image1": mImagesReady[1] = true; break;
+            case "image2": mImagesReady[2] = true; break;
+            case "image3": mImagesReady[3] = true; break;
+            case "image4": mImagesReady[4] = true; break;
+            case "image5": mImagesReady[5] = true; break;
+        }
+        boolean allImagesReady = true;
+        for (boolean isReady : mImagesReady) {
+            if (!isReady) { allImagesReady = false; break; }
+        }
+        if (allImagesReady) SharedMethods.displayImages(getApplicationContext(), mDogImagesDirectory, imageName, mImageViewMain, mDogImagesRecycleViewAdapter);
     }
     @Override public void onImageUploaded(List<String> uploadTimes) {
         mDog.setIUT(uploadTimes);

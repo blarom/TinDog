@@ -208,7 +208,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             mImageName = "mainImage";
 
             //Getting the rest of the family's parameters
-            mFirebaseDao.getUniqueObjectFromFirebaseDb(mFoundation);
+            mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mFoundation);
         }
     }
     private void updateProfileFieldsOnScreen() {
