@@ -160,6 +160,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
         mStoredImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.search_results_profile_fragment_rv_position));
     }
 
+
     //Functionality methods
     private void getExtras() {
         Intent intent = getIntent();

@@ -103,9 +103,10 @@ public class FoundationProfileFragment extends Fragment implements ImagesRecycle
         mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
     }
     private void storeFragmentLayout() {
-        int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
-
-        onFoundationProfileFragmentOperationsHandler.onFoundationLayoutParametersCalculated(imagesRecyclerViewPosition);
+        if (mRecyclerViewImages!=null) {
+            int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
+            onFoundationProfileFragmentOperationsHandler.onFoundationLayoutParametersCalculated(imagesRecyclerViewPosition);
+        }
     }
 
 

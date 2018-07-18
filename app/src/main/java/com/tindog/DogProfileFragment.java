@@ -122,9 +122,10 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         if (getContext()!=null) getContext().startActivity(webIntent);
     }
     private void storeFragmentLayout() {
-        int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
-
-        onDogProfileFragmentOperationsHandler.onDogLayoutParametersCalculated(imagesRecyclerViewPosition);
+        if (mRecyclerViewImages!=null) {
+            int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
+            onDogProfileFragmentOperationsHandler.onDogLayoutParametersCalculated(imagesRecyclerViewPosition);
+        }
     }
 
 
