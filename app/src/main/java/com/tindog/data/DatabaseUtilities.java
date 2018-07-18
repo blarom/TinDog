@@ -142,23 +142,4 @@ public class DatabaseUtilities {
                     }
                 });
     }
-    public static Uri getImageUri(Context context, Object object, String imageName) {
-
-        String imageDirectory;
-        if (object instanceof Dog) {
-            Dog dog = (Dog) object;
-            imageDirectory = context.getFilesDir().getAbsolutePath()+"/dogs/"+dog.getUI()+"/images/";
-        }
-        else if (object instanceof Family) {
-            Family family = (Family) object;
-            imageDirectory = context.getFilesDir().getAbsolutePath()+"/families/"+ family.getUI()+"/images/";
-        }
-        else if (object instanceof Foundation) {
-            Foundation foundation = (Foundation) object;
-            imageDirectory = context.getFilesDir().getAbsolutePath()+"/foundations/"+ foundation.getUI()+"/images/";
-        }
-        else return null;
-
-        return SharedMethods.getUriForImage(imageDirectory,imageName);
-    }
 }

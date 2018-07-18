@@ -1,7 +1,9 @@
 package com.tindog;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PersistableBundle;
@@ -112,7 +114,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         setupVideoLinksRecyclerView();
         setupDogImagesRecyclerView();
         SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mDogImagesDirectory, mImageViewMain);
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mDog, mFirebaseDao);
+        mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mDog);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -297,7 +299,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mCreatedDog = true;
     }
     private void updateProfileFieldsOnScreen() {
-        mEditTextFoundation.setText(mDog.getFN());
+        //mEditTextFoundation.setText(mDog.getFN());
         mEditTextName.setText(mDog.getNm());
         mEditTextCountry.setText(mDog.getCn());
         mEditTextCity.setText(mDog.getCt());
@@ -352,9 +354,9 @@ public class UpdateDogActivity extends AppCompatActivity implements
         itemTouchHelper.attachToRecyclerView(mRecyclerViewVideoLinks);
     }
     private void setupDogImagesRecyclerView() {
-        mRecyclerViewDogImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
+        mRecyclerViewDogImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewDogImages.setNestedScrollingEnabled(true);
-        mDogImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getExistingImageUris(mDogImagesDirectory, true));
+        mDogImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getUrisForExistingImages(mDogImagesDirectory, true));
         mRecyclerViewDogImages.setAdapter(mDogImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
@@ -369,7 +371,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
 
-                if (SharedMethods.getExistingImageUris(mDogImagesDirectory, true).size() == 5) {
+                if (SharedMethods.getUrisForExistingImages(mDogImagesDirectory, true).size() == 5) {
                     Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -393,7 +395,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         final EditText inputText = dialogView.findViewById(R.id.input_text_video_link);
 
         //Building the dialog
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.add_video_link);
         inputText.setText("");
 
@@ -417,7 +419,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) builder.setView(dialogView);
         else builder.setMessage(R.string.device_version_too_low);
 
-        android.app.AlertDialog dialog = builder.create();
+        AlertDialog dialog = builder.create();
         dialog.show();
     }
     private void performImageCaptureAndCrop() {
@@ -461,7 +463,20 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mDog.setAFid(mFirebaseUid);
         mDog.setNm(mEditTextName.getText().toString());
         mDog.setCn(mEditTextCountry.getText().toString());
-        mDog.setCt(mEditTextCity.getText().toString());
+
+        String city = mEditTextCity.getText().toString();
+        mDog.setCt(city);
+        Address address = SharedMethods.getAddressFromCity(this, city);
+        if (address!=null) {
+            String geoAddressCountry = address.getCountryCode();
+            double geoAddressLatitude = address.getLatitude();
+            double geoAddressLongitude = address.getLongitude();
+
+            mDog.setGaC(geoAddressCountry);
+            mDog.setGaLt(Double.toString(geoAddressLatitude));
+            mDog.setGaLg(Double.toString(geoAddressLongitude));
+        }
+
         mDog.setHs(mEditTextHistory.getText().toString());
 
         mDog.setAg(mSpinnerAge.getSelectedItem().toString());
@@ -543,7 +558,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         }
 
         updateProfileFieldsOnScreen();
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mDog, mFirebaseDao);
+        mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mDog);
     }
     @Override public void onFamiliesListFound(List<Family> familiesList) {
     }

@@ -1,5 +1,6 @@
 package com.tindog;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -60,6 +61,15 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
 
         return rootView;
     }
+    @Override public void onAttach(Context context) {
+        super.onAttach(context);
+        onDogProfileFragmentOperationsHandler = (OnDogProfileFragmentOperationsHandler) context;
+    }
+    @Override public void onDetach() {
+        super.onDetach();
+        storeFragmentLayout();
+        onDogProfileFragmentOperationsHandler = null;
+    }
     @Override public void onDestroyView() {
         super.onDestroyView();
         mBinding.unbind();
@@ -77,7 +87,7 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         setupImagesRecyclerView();
     }
     private void setupImagesRecyclerView() {
-        mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
+        mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewImages.setNestedScrollingEnabled(true);
         mImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(getContext(), this, null);
         mRecyclerViewImages.setAdapter(mImagesRecycleViewAdapter);
@@ -100,13 +110,21 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         SharedMethods.displayImages(getContext(), imagesDirectory, "mainImage", mImageViewMainImage, mImagesRecycleViewAdapter);
 
         //Updating the images with the video links to display to the user
-        mDisplayedImageList = SharedMethods.getExistingImageUris(imagesDirectory, false);
-        //TODO: find out why the main image is not shown next to the others
+        mDisplayedImageList = SharedMethods.getUrisForExistingImages(imagesDirectory, false);
         List<String> videoUrls = mDog.getVU();
         for (String videoUrl : videoUrls) {
             mDisplayedImageList.add(Uri.parse(videoUrl));
         }
         mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
+    }
+    private void playVideoInBrowser(int clickedItemIndex) {
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, mDisplayedImageList.get(clickedItemIndex));
+        if (getContext()!=null) getContext().startActivity(webIntent);
+    }
+    private void storeFragmentLayout() {
+        int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
+
+        onDogProfileFragmentOperationsHandler.onFragmentLayoutParametersCalculated(imagesRecyclerViewPosition);
     }
 
 
@@ -126,8 +144,12 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         }
     }
 
-    private void playVideoInBrowser(int clickedItemIndex) {
-        Intent webIntent = new Intent(Intent.ACTION_VIEW, mDisplayedImageList.get(clickedItemIndex));
-        if (getContext()!=null) getContext().startActivity(webIntent);
+    //Communication with parent activity
+    private OnDogProfileFragmentOperationsHandler onDogProfileFragmentOperationsHandler;
+    public interface OnDogProfileFragmentOperationsHandler {
+        void onFragmentLayoutParametersCalculated(int imagesRecyclerViewPosition);
+    }
+    public void setImagesRecyclerViewPosition(int mStoredImagesRecyclerViewPosition) {
+        if (mRecyclerViewImages!=null) mRecyclerViewImages.scrollToPosition(mStoredImagesRecyclerViewPosition);
     }
 }

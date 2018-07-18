@@ -13,6 +13,7 @@ import com.squareup.picasso.Picasso;
 import com.tindog.R;
 import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Dog;
+import com.tindog.resources.SharedMethods;
 
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
 
         //SharedMethods.refreshMainImageShownToUser(mContext, directory, holder.imageInRecycleView);
         Picasso.with(mContext)
-                .load(DatabaseUtilities.getImageUri(mContext, mDogs.get(position), "mainImage"))
+                .load(SharedMethods.getImageUriForObject(mContext, mDogs.get(position), "mainImage"))
                 .error(R.drawable.ic_image_not_available)
                 .into(holder.imageInRecycleView);
     }

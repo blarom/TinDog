@@ -56,15 +56,18 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
 
         return rootView;
     }
-    @Override public void onDestroyView() {
-        super.onDestroyView();
-        mBinding.unbind();
-    }
     @Override public void onAttach(Context context) {
         super.onAttach(context);
+        onFamilyProfileFragmentOperationsHandler = (OnFamilyProfileFragmentOperationsHandler) context;
     }
     @Override public void onDetach() {
         super.onDetach();
+        storeFragmentLayout();
+        onFamilyProfileFragmentOperationsHandler = null;
+    }
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        mBinding.unbind();
     }
 
 
@@ -79,7 +82,7 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
         setupImagesRecyclerView();
     }
     private void setupImagesRecyclerView() {
-        mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
+        mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewImages.setNestedScrollingEnabled(true);
         mImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(getContext(), this, null);
         mRecyclerViewImages.setAdapter(mImagesRecycleViewAdapter);
@@ -100,8 +103,13 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
         SharedMethods.displayImages(getContext(), imagesDirectory, "mainImage", mImageViewMainImage, mImagesRecycleViewAdapter);
 
         //Updating the images with the video links to display to the user
-        mDisplayedImageList = SharedMethods.getExistingImageUris(imagesDirectory, false);
+        mDisplayedImageList = SharedMethods.getUrisForExistingImages(imagesDirectory, false);
         mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
+    }
+    private void storeFragmentLayout() {
+        int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
+
+        onFamilyProfileFragmentOperationsHandler.onFragmentLayoutParametersCalculated(imagesRecyclerViewPosition);
     }
 
 
@@ -114,5 +122,14 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
                 .load(clickedImageUri)
                 .error(R.drawable.ic_image_not_available)
                 .into(mImageViewMainImage);
+    }
+
+    //Communication with parent activity
+    private OnFamilyProfileFragmentOperationsHandler onFamilyProfileFragmentOperationsHandler;
+    public interface OnFamilyProfileFragmentOperationsHandler {
+        void onFragmentLayoutParametersCalculated(int imagesRecyclerViewPosition);
+    }
+    public void setImagesRecyclerViewPosition(int mStoredImagesRecyclerViewPosition) {
+        if (mRecyclerViewImages!=null) mRecyclerViewImages.scrollToPosition(mStoredImagesRecyclerViewPosition);
     }
 }

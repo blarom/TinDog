@@ -1,6 +1,7 @@
 package com.tindog;
 
 import android.content.Intent;
+import android.location.Address;
 import android.net.Uri;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
@@ -81,7 +82,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         getFoundationProfileFromFirebase();
         setupFoundationImagesRecyclerView();
         SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mFoundationImagesDirectory, mImageViewMain);
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mFoundation, mFirebaseDao);
+        mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFoundation);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -222,9 +223,9 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         SharedMethods.hideSoftKeyboard(this);
     }
     private void setupFoundationImagesRecyclerView() {
-        mRecyclerViewFoundationImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
+        mRecyclerViewFoundationImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewFoundationImages.setNestedScrollingEnabled(true);
-        mFoundationImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getExistingImageUris(mFoundationImagesDirectory, true));
+        mFoundationImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getUrisForExistingImages(mFoundationImagesDirectory, true));
         mRecyclerViewFoundationImages.setAdapter(mFoundationImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
@@ -239,7 +240,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             @Override
             public void onClick(View view) {
 
-                if (SharedMethods.getExistingImageUris(mFoundationImagesDirectory, true).size() == 5) {
+                if (SharedMethods.getUrisForExistingImages(mFoundationImagesDirectory, true).size() == 5) {
                     Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -294,7 +295,20 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         mFoundation.setCE(mEditTextContactEmail.getText().toString());
         mFoundation.setWb(mEditTextWebsite.getText().toString());
         mFoundation.setCn(mEditTextCountry.getText().toString());
-        mFoundation.etCt(mEditTextCity.getText().toString());
+
+        String city = mEditTextCity.getText().toString();
+        mFoundation.setCt(city);
+        Address address = SharedMethods.getAddressFromCity(this, city);
+        if (address!=null) {
+            String geoAddressCountry = address.getCountryCode();
+            double geoAddressLatitude = address.getLatitude();
+            double geoAddressLongitude = address.getLongitude();
+
+            mFoundation.setGaC(geoAddressCountry);
+            mFoundation.setGaLt(Double.toString(geoAddressLatitude));
+            mFoundation.setGaLg(Double.toString(geoAddressLongitude));
+        }
+
         mFoundation.setSt(mEditTextStreet.getText().toString());
         mFoundation.setStN(mEditTextStreetNumber.getText().toString());
 
@@ -338,7 +352,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         }
 
         updateProfileFieldsOnScreen();
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mFoundation, mFirebaseDao);
+        mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFoundation);
     }
     @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
 

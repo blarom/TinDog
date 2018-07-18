@@ -94,7 +94,7 @@ public class Foundation implements Parcelable {
     public String getCt() {
         return ct;
     }
-    public void etCt(String ct) {
+    public void setCt(String ct) {
         this.ct = ct;
     }
 
@@ -136,6 +136,30 @@ public class Foundation implements Parcelable {
     }
     public void setIUT(List<String> iUT) {
         this.iUT = iUT;
+    }
+
+    private String gac; //Geocoder address Country (requires internet to update)
+    public String getGaC() {
+        return gac;
+    }
+    public void setGaC(String gac) {
+        this.gac = gac;
+    }
+
+    private String galt = "0.0"; //Geocoder address Latitude (requires internet to update)
+    public String getGaLt() {
+        return galt;
+    }
+    public void setGaLt(String galt) {
+        this.galt = galt;
+    }
+
+    private String galg = "0.0"; //Geocoder address Longitude (requires internet to update)
+    public String getGaLg() {
+        return galg;
+    }
+    public void setGaLg(String galg) {
+        this.galg = galg;
     }
 
     @Override

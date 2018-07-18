@@ -1,6 +1,7 @@
 package com.tindog;
 
 import android.content.Intent;
+import android.location.Address;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -103,7 +104,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         getFamilyProfileFromFirebase();
         setupPetImagesRecyclerView();
         SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mFamilyImagesDirectory, mImageViewMain);
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mFamily, mFirebaseDao);
+        mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFamily);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -274,9 +275,9 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         SharedMethods.hideSoftKeyboard(this);
     }
     private void setupPetImagesRecyclerView() {
-        mRecyclerViewPetImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
+        mRecyclerViewPetImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewPetImages.setNestedScrollingEnabled(true);
-        mPetImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getExistingImageUris(mFamilyImagesDirectory, true));
+        mPetImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getUrisForExistingImages(mFamilyImagesDirectory, true));
         mRecyclerViewPetImages.setAdapter(mPetImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
@@ -301,7 +302,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             @Override
             public void onClick(View view) {
 
-                if (SharedMethods.getExistingImageUris(mFamilyImagesDirectory, true).size() == 5) {
+                if (SharedMethods.getUrisForExistingImages(mFamilyImagesDirectory, true).size() == 5) {
                     Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -355,7 +356,20 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mFamily.setCp(mEditTextCell.getText().toString());
         mFamily.setEm(mEditTextEmail.getText().toString());
         mFamily.setCn(mEditTextCountry.getText().toString());
-        mFamily.setCt(mEditTextCity.getText().toString());
+
+        String city = mEditTextCity.getText().toString();
+        mFamily.setCt(city);
+        Address address = SharedMethods.getAddressFromCity(this, city);
+        if (address!=null) {
+            String geoAddressCountry = address.getCountryCode();
+            double geoAddressLatitude = address.getLatitude();
+            double geoAddressLongitude = address.getLongitude();
+
+            mFamily.setGaC(geoAddressCountry);
+            mFamily.setGaLt(Double.toString(geoAddressLatitude));
+            mFamily.setGaLg(Double.toString(geoAddressLongitude));
+        }
+
         mFamily.setSt(mEditTextStreet.getText().toString());
         mFamily.setXp(mEditTextExperience.getText().toString());
 
@@ -414,7 +428,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         }
 
         updateProfileFieldsOnScreen();
-        SharedMethods.updateImagesFromFirebaseIfRelevant(mFamily, mFirebaseDao);
+        mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFamily);
     }
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
 

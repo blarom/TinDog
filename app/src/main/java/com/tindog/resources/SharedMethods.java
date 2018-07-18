@@ -8,10 +8,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -22,7 +25,10 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.R;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
+import com.tindog.data.Dog;
+import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
+import com.tindog.data.Foundation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +44,7 @@ import java.util.Locale;
 
 public class SharedMethods {
 
+    private static final String DEBUG_TAG = "Tindog SharedMethods";
     public static final long MAX_IMAGE_FILE_SIZE = 300; //kb
     public static final int FIREBASE_SIGN_IN_KEY = 123;
 
@@ -82,20 +90,62 @@ public class SharedMethods {
         }
         return Uri.fromFile(destinationFile);
     }
-    public static boolean deleteFileAtUri(Uri uri) {
-        File fdelete = new File(uri.getPath());
-        if (fdelete.exists()) {
-            if (fdelete.delete()) {
-                return true;
-                //System.out.println("file Deleted :" + uri.getPath());
-            } else {
-                return false;
-                //System.out.println("file not Deleted :" + uri.getPath());
-            }
+    public static boolean nameIsInvalid(String imageName) {
+
+        if (TextUtils.isEmpty(imageName)
+                || !(imageName.equals("mainImage")
+                || imageName.equals("image1")
+                || imageName.equals("image2")
+                || imageName.equals("image3")
+                || imageName.equals("image4")
+                || imageName.equals("image5"))){
+            Log.i(DEBUG_TAG, "Invalid filename for image in FirebaseDao storage method.");
+            return true;
         }
         return false;
     }
-    public static Uri getUriForImage(String directory, String imageName) {
+    public static void deleteFileAtUri(Uri uri) {
+        if (uri==null) {
+            Log.i(DEBUG_TAG, "Tried to delete an image with null Uri, aborting.");
+            return;
+        }
+        File fdelete = new File(uri.getPath());
+        if (fdelete.exists()) {
+            if (fdelete.delete()) {
+                Log.i(DEBUG_TAG, "file deleted:" + uri.getPath());
+            } else {
+                Log.i(DEBUG_TAG, "file not deleted:" + uri.getPath());
+            }
+        }
+    }
+    public static void deleteAllLocalObjectImages(Context context, Object object) {
+        deleteFileAtUri(getImageUriForObject(context, object, "mainImage"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image1"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image2"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image3"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image4"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image5"));
+    }
+    public static Uri getImageUriForObject(Context context, Object object, String imageName) {
+
+        String imageDirectory;
+        if (object instanceof Dog) {
+            Dog dog = (Dog) object;
+            imageDirectory = context.getFilesDir().getAbsolutePath()+"/dogs/"+dog.getUI()+"/images/";
+        }
+        else if (object instanceof Family) {
+            Family family = (Family) object;
+            imageDirectory = context.getFilesDir().getAbsolutePath()+"/families/"+ family.getUI()+"/images/";
+        }
+        else if (object instanceof Foundation) {
+            Foundation foundation = (Foundation) object;
+            imageDirectory = context.getFilesDir().getAbsolutePath()+"/foundations/"+ foundation.getUI()+"/images/";
+        }
+        else return null;
+
+        return SharedMethods.getImageUriWithPath(imageDirectory,imageName);
+    }
+    public static Uri getImageUriWithPath(String directory, String imageName) {
 
         File imagesDir = new File(directory);
         if (!imagesDir.exists()) imagesDir.mkdirs();
@@ -108,18 +158,7 @@ public class SharedMethods {
         }
         else return null;
     }
-    public static void updateImagesFromFirebaseIfRelevant(Object object, FirebaseDao firebaseDao) {
-        firebaseDao.getImageFromFirebaseStorage(object, "mainImage");
-        firebaseDao.getImageFromFirebaseStorage(object, "image1");
-        firebaseDao.getImageFromFirebaseStorage(object, "image2");
-        firebaseDao.getImageFromFirebaseStorage(object, "image3");
-        firebaseDao.getImageFromFirebaseStorage(object, "image4");
-        firebaseDao.getImageFromFirebaseStorage(object, "image5");
-    }
-    public static void updateImageFromFirebaseIfRelevant(Object object, String imageName, FirebaseDao firebaseDao) {
-        firebaseDao.getImageFromFirebaseStorage(object, imageName);
-    }
-    public static List<Uri> getExistingImageUris(String directory, boolean skipMainImage) {
+    public static List<Uri> getUrisForExistingImages(String directory, boolean skipMainImage) {
         List<Uri> uris = new ArrayList<>();
         File imageFile;
 
@@ -246,7 +285,7 @@ public class SharedMethods {
     public static void synchronizeImageOnAllDevices(Object object, FirebaseDao firebaseDao, String localDirectory, String imageName, Uri downloadedImageUri) {
 
         //The image was downloaded only if it was newer than the local image (If it wasn't downloaded, the downloadedImageUri is the same as the local image Uri)
-        Uri localImageUri = SharedMethods.getUriForImage(localDirectory, imageName);
+        Uri localImageUri = SharedMethods.getImageUriWithPath(localDirectory, imageName);
 
         if (downloadedImageUri != null) {
             if (localImageUri == null) {
@@ -286,13 +325,13 @@ public class SharedMethods {
     public static void displayImages(Context context, String localDirectory, String imageName, ImageView imageViewMain, ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
 
         if (imageName.equals("mainImage")) {
-            Uri localImageUri = SharedMethods.getUriForImage(localDirectory, imageName);
+            Uri localImageUri = SharedMethods.getImageUriWithPath(localDirectory, imageName);
             if (localImageUri!=null) refreshMainImageShownToUser(context, localDirectory, imageViewMain);
         }
         else refreshImagesListShownToUser(localDirectory, imagesRecycleViewAdapter);
     }
     public static void refreshMainImageShownToUser(Context context, String directory, ImageView imageViewMain) {
-        Uri mainImageUri = SharedMethods.getUriForImage(directory,"mainImage");
+        Uri mainImageUri = SharedMethods.getImageUriWithPath(directory,"mainImage");
         if (imageViewMain==null) return;
         Picasso.with(context)
                 .load(mainImageUri)
@@ -302,7 +341,7 @@ public class SharedMethods {
                 .into(imageViewMain);
     }
     public static void refreshImagesListShownToUser(String directory, ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
-        imagesRecycleViewAdapter.setContents(SharedMethods.getExistingImageUris(directory, true));
+        imagesRecycleViewAdapter.setContents(SharedMethods.getUrisForExistingImages(directory, true));
     }
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =(InputMethodManager) activity.getBaseContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -398,6 +437,37 @@ public class SharedMethods {
             e.printStackTrace();
         }
         return "";
+    }
+
+    //Internet utilities
+    public static boolean internetIsAvailable(Context context) {
+        //adapted from https://stackoverflow.com/questions/43315393/android-internet-connection-timeout
+        final ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connMgr == null) return false;
+
+        NetworkInfo activeNetworkInfo = connMgr.getActiveNetworkInfo();
+
+        if (activeNetworkInfo != null) { // connected to the internet
+            //Toast.makeText(context, activeNetworkInfo.getTypeName(), Toast.LENGTH_SHORT).show();
+
+            if (activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                // connected to wifi
+                return isWifiInternetAvailable();
+            }
+            else {
+                return activeNetworkInfo.getType() == ConnectivityManager.TYPE_MOBILE;
+            }
+        }
+        return false;
+    }
+    private static boolean isWifiInternetAvailable() {
+        //adapted from https://stackoverflow.com/questions/43315393/android-internet-connection-timeout
+        try {
+            InetAddress ipAddr = InetAddress.getByName("google.com"); //You can replace it with your name
+            return !ipAddr.toString().equals("");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     //Preferences

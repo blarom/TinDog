@@ -15,7 +15,7 @@
         android:scaleType="centerCrop"
         app:ari_aspect="height"
         app:ari_ratio="0.75"
-        android:padding="4dp"
+        android:layout_margin="2dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/list_item_profiles_guideline"

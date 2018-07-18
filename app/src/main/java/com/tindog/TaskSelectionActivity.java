@@ -1,10 +1,12 @@
 package com.tindog;
 
-//TODO: show the dog, family and foundation profiles
-//TODO: implement the pager for the profiles
-//TODO: add the pager and connect it to the activity
+//TODO: Fix the missing profile fields when showing the profiles to the user
 //TODO: update the preference activity options
 //TODO: restore recyclerview positions and parameters on resume in all activities/fragments
+//TODO: create the widget
+//TODO: search for dog profiles according to the user preferences
+//TODO: create landscape mode profile views and profile update views
+//TODO: add a FAB to dogslist activity
 
 import android.Manifest;
 import android.content.Intent;

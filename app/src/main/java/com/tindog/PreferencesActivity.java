@@ -97,8 +97,8 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     }
     @Override protected void onDestroy() {
         super.onDestroy();
-        mBinding.unbind();
         removeListeners();
+        mBinding.unbind();
     }
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {

@@ -18,8 +18,13 @@
         app:showAsAction="ifRoom"
         android:title="@string/add_a_dog"/>
     <item
-        android:id="@+id/action_edit_preferences"
+        android:id="@+id/action_remove"
         android:orderInCategory="97"
+        app:showAsAction="ifRoom"
+        android:title="@string/remove_a_dog"/>
+    <item
+        android:id="@+id/action_edit_preferences"
+        android:orderInCategory="98"
         app:showAsAction="never"
         android:title="@string/edit_my_preferences"/>
 </menu>

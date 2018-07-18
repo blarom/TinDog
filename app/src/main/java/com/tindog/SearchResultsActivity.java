@@ -1,6 +1,7 @@
 package com.tindog;
 
 import android.content.Intent;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -33,7 +34,8 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 public class SearchResultsActivity extends AppCompatActivity implements
-        SearchScreenFragment.OnSearchScreenOperationsHandler {
+        SearchScreenFragment.OnSearchScreenOperationsHandler,
+        DogProfileFragment.OnDogProfileFragmentOperationsHandler {
 
     @BindView(R.id.master_fragment_container) FrameLayout mMasterFragmentContainer;
     @BindView(R.id.profiles_pager) ViewPager mPager;
@@ -53,6 +55,8 @@ public class SearchResultsActivity extends AppCompatActivity implements
     private List<Family> mFamilies;
     private List<Foundation> mFoundations;
     private String mProfileType;
+    private int mStoredImagesRecyclerViewPosition;
+    private int mSelectedProfileIndex;
 
 
     //Lifecycle methods
@@ -137,7 +141,22 @@ public class SearchResultsActivity extends AppCompatActivity implements
         }
 
     }
+    @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        outState.putInt(getString(R.string.search_results_profile_fragment_rv_position), mStoredImagesRecyclerViewPosition);
+        outState.putInt(getString(R.string.search_results_selected_profile), mSelectedProfileIndex);
+        outState.putBoolean(getString(R.string.search_results_activated_detail_fragment), mActivatedDetailFragment);
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+    @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
 
+        mActivatedDetailFragment = savedInstanceState.getBoolean(getString(R.string.search_results_activated_detail_fragment), false);
+        if (mActivatedDetailFragment && mPager !=null) {
+            mSelectedProfileIndex = savedInstanceState.getInt(getString(R.string.search_results_selected_profile));
+            setFragmentLayouts(mSelectedProfileIndex);
+        }
+        mStoredImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.search_results_profile_fragment_rv_position));
+    }
 
     //Functionality methods
     private void getExtras() {
@@ -245,20 +264,25 @@ public class SearchResultsActivity extends AppCompatActivity implements
                 bundle.putParcelable(getString(R.string.profile_parcelable), mDogs.get(position));
                 mDogProfileFragment = new DogProfileFragment();
                 mDogProfileFragment.setArguments(bundle);
+                mDogProfileFragment.setImagesRecyclerViewPosition(mStoredImagesRecyclerViewPosition);
                 return mDogProfileFragment;
             }
             else if (mProfileType.equals(getString(R.string.family_profile))) {
                 bundle.putParcelable(getString(R.string.profile_parcelable), mFamilies.get(position));
                 mFamilyProfileFragment = new FamilyProfileFragment();
                 mFamilyProfileFragment.setArguments(bundle);
+                mFamilyProfileFragment.setImagesRecyclerViewPosition(mStoredImagesRecyclerViewPosition);
                 return mFamilyProfileFragment;
             }
             else if (mProfileType.equals(getString(R.string.foundation_profile))) {
                 bundle.putParcelable(getString(R.string.profile_parcelable), mFoundations.get(position));
                 mFoundationProfileFragment = new FoundationProfileFragment();
                 mFoundationProfileFragment.setArguments(bundle);
+                mFoundationProfileFragment.setImagesRecyclerViewPosition(mStoredImagesRecyclerViewPosition);
                 return mFoundationProfileFragment;
             }
+
+            mSelectedProfileIndex = position;
             return new DogProfileFragment();
         }
 
@@ -283,7 +307,8 @@ public class SearchResultsActivity extends AppCompatActivity implements
     //Communication with Search Screen Fragment
     @Override public void onProfileSelected(int selectedProfileIndex) {
         mActivatedDetailFragment = true;
-        setFragmentLayouts(selectedProfileIndex);
+        mSelectedProfileIndex = selectedProfileIndex;
+        setFragmentLayouts(mSelectedProfileIndex);
     }
     @Override public void onDogsFound(List<Dog> dogList) {
         mDogs = dogList;
@@ -293,6 +318,11 @@ public class SearchResultsActivity extends AppCompatActivity implements
     }
     @Override public void onFoundationsFound(List<Foundation> foundationList) {
         mFoundations = foundationList;
+    }
+
+    //Communication with Dog Profile Profile fragment
+    @Override public void onFragmentLayoutParametersCalculated(int imagesRecyclerViewPosition) {
+        mStoredImagesRecyclerViewPosition = imagesRecyclerViewPosition;
     }
 
 }

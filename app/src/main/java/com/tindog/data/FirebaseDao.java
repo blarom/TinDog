@@ -20,6 +20,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.tindog.BuildConfig;
+import com.tindog.resources.SharedMethods;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -594,18 +595,17 @@ public class FirebaseDao {
                     }
                 });
     }
+    public void getAllObjectImagesFromFirebaseStorage(Object object) {
+        getImageFromFirebaseStorage(object, "mainImage");
+        getImageFromFirebaseStorage(object, "image1");
+        getImageFromFirebaseStorage(object, "image2");
+        getImageFromFirebaseStorage(object, "image3");
+        getImageFromFirebaseStorage(object, "image4");
+        getImageFromFirebaseStorage(object, "image5");
+    }
     public void getImageFromFirebaseStorage(Object object, final String imageName) {
 
-        if (TextUtils.isEmpty(imageName)
-                || !(imageName.equals("mainImage")
-                    || imageName.equals("image1")
-                    || imageName.equals("image2")
-                    || imageName.equals("image3")
-                    || imageName.equals("image4")
-                    || imageName.equals("image5"))){
-            Log.i(DEBUG_TAG, "Invalid filename for image in FirebaseDao.getImageFromFirebaseStorage() method.");
-            return;
-        }
+        if (SharedMethods.nameIsInvalid(imageName)) return;
 
         String childPath;
         String folderPath;
@@ -657,7 +657,7 @@ public class FirebaseDao {
             }
 
             //If the local file is older than the Firebase file, then download the Firebase file to the cache directory
-            if (imageUploadTime!=0 && imageUploadTime > lastModifiedTime) {
+            if (imageUploadTime!=0 && imageUploadTime > lastModifiedTime && SharedMethods.internetIsAvailable(mContext)) {
                 downloadFromFirebase(internalStorageDir, imageName, childPath, localImageUri);
             }
             else {
@@ -692,6 +692,52 @@ public class FirebaseDao {
                         sendImageUriToInterface(localImageUri, imageName);
                         exception.printStackTrace();
                         //Toast.makeText(mContext, "Failed to retrieve image from Firebase storage, check log.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    public void deleteAllObjectImagesFromFirebaseStorage(Object object) {
+        deleteImageFromFirebaseStorage(object, "mainImage");
+        deleteImageFromFirebaseStorage(object, "image1");
+        deleteImageFromFirebaseStorage(object, "image2");
+        deleteImageFromFirebaseStorage(object, "image3");
+        deleteImageFromFirebaseStorage(object, "image4");
+        deleteImageFromFirebaseStorage(object, "image5");
+    }
+    public void deleteImageFromFirebaseStorage(Object object, final String imageName) {
+
+        if (SharedMethods.nameIsInvalid(imageName)) return;
+
+        String folderPath;
+
+        if (object instanceof Dog) {
+            Dog dog = (Dog) object;
+            folderPath = "dogs/" + dog.getUI() + "/images";
+        }
+        else if (object instanceof Family) {
+            Family family = (Family) object;
+            folderPath = "families/" + family.getUI() + "/images";
+        }
+        else if (object instanceof Foundation) {
+            Foundation foundation = (Foundation) object;
+            folderPath = "foundations/" + foundation.getUI() + "/images";
+        }
+        else return;
+
+        final String childPath = folderPath + "/" + imageName + ".jpg";
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        StorageReference imageRef = storageRef.child(childPath);
+        imageRef.delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(DEBUG_TAG, "Deleted image at: " + childPath);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.i(DEBUG_TAG, "Failed to delete image at: " + childPath);
                     }
                 });
     }

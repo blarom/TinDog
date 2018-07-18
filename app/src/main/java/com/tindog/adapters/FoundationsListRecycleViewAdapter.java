@@ -13,6 +13,7 @@ import com.squareup.picasso.Picasso;
 import com.tindog.R;
 import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Foundation;
+import com.tindog.resources.SharedMethods;
 
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class FoundationsListRecycleViewAdapter extends RecyclerView.Adapter<Foun
     private void updateItemImage(final FoundationViewHolder holder, int position) {
 
         Picasso.with(mContext)
-                .load(DatabaseUtilities.getImageUri(mContext, mFoundations.get(position), "mainImage"))
+                .load(SharedMethods.getImageUriForObject(mContext, mFoundations.get(position), "mainImage"))
                 .error(R.drawable.ic_image_not_available)
                 .into(holder.imageInRecycleView);
     }

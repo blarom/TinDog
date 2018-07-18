@@ -117,6 +117,9 @@ public class SearchScreenFragment extends Fragment implements
         initializeViews(rootView);
         setupRecyclerViews();
         showLoadingIndicator();
+        if (getContext()!=null && !SharedMethods.internetIsAvailable(getContext())) {
+            Toast.makeText(getContext(), R.string.no_internet_bad_results_warning, Toast.LENGTH_SHORT).show();
+        }
         startListeningForUserLocation();
 
         return rootView;
@@ -308,15 +311,15 @@ public class SearchScreenFragment extends Fragment implements
 
         if (mProfileType.equals(getString(R.string.dog_profile))) {
             if (mDogsAtDistance!=null && mDogsAtDistance.size()!=0)
-                SharedMethods.updateImageFromFirebaseIfRelevant(mDogsAtDistance.get(0), mCurrentImage, mFirebaseDao);
+                mFirebaseDao.getImageFromFirebaseStorage(mDogsAtDistance.get(0), mCurrentImage);
         }
         else if (mProfileType.equals(getString(R.string.family_profile))) {
             if (mFamiliesAtDistance!=null && mFamiliesAtDistance.size()!=0)
-                SharedMethods.updateImageFromFirebaseIfRelevant(mFamiliesAtDistance.get(0), mCurrentImage, mFirebaseDao);
+                mFirebaseDao.getImageFromFirebaseStorage(mFamiliesAtDistance.get(0), mCurrentImage);
         }
         else if (mProfileType.equals(getString(R.string.foundation_profile))) {
             if (mFoundationsAtDistance!=null && mFoundationsAtDistance.size()!=0)
-                SharedMethods.updateImageFromFirebaseIfRelevant(mFoundationsAtDistance.get(0), mCurrentImage, mFirebaseDao);
+                mFirebaseDao.getImageFromFirebaseStorage(mFoundationsAtDistance.get(0), mCurrentImage);
         }
     }
     private void sendObjectsAtDistanceToInterface() {
@@ -390,13 +393,13 @@ public class SearchScreenFragment extends Fragment implements
     }
     private void updateImageFromFirebase() {
         if (mProfileType.equals(getString(R.string.dog_profile))) {
-            SharedMethods.updateImageFromFirebaseIfRelevant(mDogsAtDistance.get(mFirebaseImageQueryIndex), mCurrentImage, mFirebaseDao);
+            mFirebaseDao.getImageFromFirebaseStorage(mDogsAtDistance.get(mFirebaseImageQueryIndex), mCurrentImage);
         }
         else if (mProfileType.equals(getString(R.string.family_profile))) {
-            SharedMethods.updateImageFromFirebaseIfRelevant(mFamiliesAtDistance.get(mFirebaseImageQueryIndex), mCurrentImage, mFirebaseDao);
+            mFirebaseDao.getImageFromFirebaseStorage(mFamiliesAtDistance.get(mFirebaseImageQueryIndex), mCurrentImage);
         }
         else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-            SharedMethods.updateImageFromFirebaseIfRelevant(mFoundationsAtDistance.get(mFirebaseImageQueryIndex), mCurrentImage, mFirebaseDao);
+            mFirebaseDao.getImageFromFirebaseStorage(mFoundationsAtDistance.get(mFirebaseImageQueryIndex), mCurrentImage);
         }
     }
     private void syncImageForCurrentObject(String imageName, Uri imageUri) {
@@ -433,8 +436,6 @@ public class SearchScreenFragment extends Fragment implements
     //Location methods
     private Object getObjectsWithinDistance(Object object, int distanceMeters) {
 
-        Address address;
-        String city;
         if (!(object instanceof List)) return object;
         List<Object> objectsList = (List<Object>) object;
 
@@ -443,12 +444,14 @@ public class SearchScreenFragment extends Fragment implements
                 List<Dog> dogsNearby = new ArrayList<>();
                 for (int i=0; i<objectsList.size(); i++) {
                     Dog dog = (Dog) objectsList.get(i);
-                    city = dog.getCt();
-                    if (TextUtils.isEmpty(city)) dogsNearby.add(dog);
-                    else {
-                        address = SharedMethods.getAddressFromCity(getContext(), dog.getCt());
-                        if (isNearby(address, distanceMeters) && isInCountry(address, dog.getCn())) dogsNearby.add(dog);
-                    }
+                    boolean isNearby = checkIfObjectIsNearby(
+                            dog.getCn(),
+                            dog.getCt(),
+                            dog.getGaC(),
+                            dog.getGaLt(),
+                            dog.getGaLg(),
+                            distanceMeters);
+                    if (isNearby) dogsNearby.add(dog);
                 }
                 return dogsNearby;
             }
@@ -456,12 +459,14 @@ public class SearchScreenFragment extends Fragment implements
                 List<Family> familiesNearby = new ArrayList<>();
                 for (int i=0; i<objectsList.size(); i++) {
                     Family family = (Family) objectsList.get(i);
-                    city = family.getCt();
-                    if (TextUtils.isEmpty(city)) familiesNearby.add(family);
-                    else {
-                        address = SharedMethods.getAddressFromCity(getContext(), family.getCt());
-                        if (isNearby(address, distanceMeters) && isInCountry(address, family.getCn())) familiesNearby.add(family);
-                    }
+                    boolean isNearby = checkIfObjectIsNearby(
+                            family.getCn(),
+                            family.getCt(),
+                            family.getGaC(),
+                            family.getGaLt(),
+                            family.getGaLg(),
+                            distanceMeters);
+                    if (isNearby) familiesNearby.add(family);
                 }
                 return familiesNearby;
             }
@@ -469,30 +474,59 @@ public class SearchScreenFragment extends Fragment implements
                 List<Foundation> foundationsNearby = new ArrayList<>();
                 for (int i=0; i<objectsList.size(); i++) {
                     Foundation foundation = (Foundation) objectsList.get(i);
-                    city = foundation.getCt();
-                    if (TextUtils.isEmpty(city)) foundationsNearby.add(foundation);
-                    else {
-                        address = SharedMethods.getAddressFromCity(getContext(), foundation.getCt());
-                        if (isNearby(address, distanceMeters) && isInCountry(address, foundation.getCn())) foundationsNearby.add(foundation);
-                    }
+                    boolean isNearby = checkIfObjectIsNearby(
+                            foundation.getCn(),
+                            foundation.getCt(),
+                            foundation.getGaC(),
+                            foundation.getGaLt(),
+                            foundation.getGaLg(),
+                            distanceMeters);
+                    if (isNearby) foundationsNearby.add(foundation);
                 }
                 return foundationsNearby;
             }
         }
         return objectsList;
     }
-    private boolean isNearby(Address address, int distanceMeters) {
+    private boolean checkIfObjectIsNearby(String country, String city, String geoAddressCountry, String latitudeAsString, String longitudeAsString, int distanceMeters) {
+
+        //If the city value is empty, return true anyway since the object may be relevant
+        if (TextUtils.isEmpty(city)) return true;
+
+        double geoAddressLatitude;
+        double geoAddressLongitude;
+
+        if (!TextUtils.isEmpty(latitudeAsString)) geoAddressLatitude = Double.parseDouble(latitudeAsString);
+        else geoAddressLatitude = 0.0;
+        if (!TextUtils.isEmpty(longitudeAsString)) geoAddressLongitude = Double.parseDouble(longitudeAsString);
+        else geoAddressLongitude = 0.0;
+
+        //If the device can obtain valid up-to-date geolocation data for the object's registered city, use it instead of the stored values,
+        // since these may possibly be have been updated when the user last saved the object's profile
+        Address address = SharedMethods.getAddressFromCity(getContext(), city);
         if (address!=null) {
+            geoAddressCountry = address.getCountryCode();
+            geoAddressLatitude = address.getLatitude();
+            geoAddressLongitude = address.getLongitude();
+        }
+
+        //If valid data is available, then check if the object is nearby. If it is, then add the object to the Nearby list
+        if (!TextUtils.isEmpty(geoAddressCountry) && !(geoAddressLatitude==0.0 && geoAddressLongitude==0.0)) {
+            return isWithinDistance(geoAddressLatitude, geoAddressLongitude, distanceMeters) && isInCountry(geoAddressCountry, country);
+        }
+        return false;
+    }
+    private boolean isWithinDistance(double latitude, double longitude, int distanceMeters) {
+        if (!(latitude == 0.0 && longitude == 0.0)) {
             float[] objectDistance = new float[1];
-            Location.distanceBetween(mUserLatitude, mUserLongitude, address.getLatitude(), address.getLongitude(), objectDistance);
+            Location.distanceBetween(mUserLatitude, mUserLongitude, latitude, longitude, objectDistance);
             boolean isWithinDistance = objectDistance[0] < distanceMeters;
             return isWithinDistance;
         }
         return false;
     }
-    private boolean isInCountry(Address address, String objectCountry) {
+    private boolean isInCountry(String code, String objectCountry) {
         if (mUser.getLC()) {
-            String code = address.getCountryCode();
             Locale locale = new Locale("", code);
             return locale.getDisplayCountry().equals(objectCountry);
         }

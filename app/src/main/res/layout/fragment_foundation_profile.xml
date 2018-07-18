@@ -23,16 +23,46 @@
             tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="201dp">
 
-            <TextView
-                android:id="@+id/family_profile_title_pictures"
-                android:layout_width="wrap_content"
+            <com.santalu.aspectratioimageview.AspectRatioImageView
+                android:id="@+id/foundation_profile_main_image"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/pictures"
+                android:contentDescription="@string/dog_main_image"
+                android:scaleType="centerInside"
+                app:ari_aspect="height"
+                app:ari_ratio="0.75"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/foundation_profile_contact_details"
-                tools:layout_editor_absoluteX="165dp"/>
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_image_not_available"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/foundation_profile_recyclerview_images"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/foundation_profile_main_image"/>
+
+            <TextView
+                android:id="@+id/foundation_profile_foundation_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/foundation_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/foundation_profile_recyclerview_images"/>
 
             <TextView
                 android:id="@+id/foundation_profile_address"
@@ -58,44 +88,14 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="12dp"
-                android:text="Contact details"
+                android:text="@string/contact_details"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.501"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/foundation_profile_address"/>
 
-            <com.santalu.aspectratioimageview.AspectRatioImageView
-                android:id="@+id/foundation_profile_main_image"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:contentDescription="@string/dog_main_image"
-                android:scaleType="centerInside"
-                app:ari_aspect="height"
-                app:ari_ratio="0.75"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_image_not_available"/>
 
-            <TextView
-                android:id="@+id/foundation_profile_foundation_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:text="Foundation name"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/foundation_profile_main_image"/>
 
         </android.support.constraint.ConstraintLayout>
 

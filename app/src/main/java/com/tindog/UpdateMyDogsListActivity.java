@@ -1,16 +1,20 @@
 package com.tindog;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
@@ -71,6 +75,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
     @Override protected void onResume() {
         super.onResume();
         getListsFromFirebase();
+        getDogsListSubsetAccordingToUserInput();
     }
     @Override protected void onDestroy() {
         super.onDestroy();
@@ -115,6 +120,9 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
             case R.id.action_add:
                 openDogProfile(new Dog());
                 return true;
+            case R.id.action_remove:
+                Toast.makeText(getApplicationContext(), R.string.slide_dog_to_remove, Toast.LENGTH_SHORT).show();
+                return true;
             case R.id.action_edit_preferences:
                 Intent intent = new Intent(this, PreferencesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -136,9 +144,43 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
     private void setupRecyclerView() {
-        mRecyclerViewProfileSelection.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerViewProfileSelection.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         if (mDogsListRecycleViewAdapter==null) mDogsListRecycleViewAdapter = new DogsListRecycleViewAdapter(this, this, null);
         mRecyclerViewProfileSelection.setAdapter(mDogsListRecycleViewAdapter);
+
+        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                Dog dog = mDogsList.get(viewHolder.getLayoutPosition());
+                showDeleteDialog(dog);
+            }
+
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerViewProfileSelection);
+    }
+    private void showDeleteDialog(final Dog dog) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.are_you_sure_delete_dog);
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                mFirebaseDao.deleteObjectFromFirebaseDb(dog);
+                mFirebaseDao.deleteAllObjectImagesFromFirebaseStorage(dog);
+                SharedMethods.deleteAllLocalObjectImages(getApplicationContext(), dog);
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
     private void getListsFromFirebase() {
         mRequestedFullList = true;

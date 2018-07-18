@@ -248,6 +248,30 @@ public class Family implements Parcelable {
         this.hDE = hDe;
     }
 
+    private String gac; //Geocoder address Country (requires internet to update)
+    public String getGaC() {
+        return gac;
+    }
+    public void setGaC(String gac) {
+        this.gac = gac;
+    }
+
+    private String galt = "0.0"; //Geocoder address Latitude (requires internet to update)
+    public String getGaLt() {
+        return galt;
+    }
+    public void setGaLt(String galt) {
+        this.galt = galt;
+    }
+
+    private String galg = "0.0"; //Geocoder address Longitude (requires internet to update)
+    public String getGaLg() {
+        return galg;
+    }
+    public void setGaLg(String galg) {
+        this.galg = galg;
+    }
+
     private List<String> iUT = Arrays.asList("","","","","",""); //Image upload times
     public List<String> getIUT() {
         return iUT;
