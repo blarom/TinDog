@@ -96,6 +96,8 @@ public class SearchScreenFragment extends Fragment implements
     private String mCurrentImage;
     private String mRequestedProfileUI;
     private String mRequestedFoundationProfileUI;
+    private final static int IMAGE_BLOCK_SIZE = 6;
+    private int imageDisplayCounter;
     //endregion
 
 
@@ -177,7 +179,7 @@ public class SearchScreenFragment extends Fragment implements
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    getObjectsAtDistance();
+                    getListsFromFirebase();
                 }
                 return false;
             }
@@ -271,6 +273,7 @@ public class SearchScreenFragment extends Fragment implements
         }
         else return;
 
+        imageDisplayCounter = 0;
         showLoadingIndicator();
     }
     private void updateRecyclerView() {
@@ -345,18 +348,22 @@ public class SearchScreenFragment extends Fragment implements
             onSearchScreenOperationsHandler.onFoundationsFound(mFoundationsAtDistance);
         }
     }
+    private boolean queryIndexHasReachedListSize() {
+        if (mProfileType.equals(getString(R.string.dog_profile))) {
+            return mFirebaseImageQueryIndex == mDogsAtDistance.size();
+        }
+        else if (mProfileType.equals(getString(R.string.family_profile))) {
+            return mFirebaseImageQueryIndex == mFamiliesAtDistance.size();
+        }
+        else if (mProfileType.equals(getString(R.string.foundation_profile))) {
+            return mFirebaseImageQueryIndex == mFoundationsAtDistance.size();
+        }
+        return false;
+    }
     private void syncNextImage(String currentImageName) {
 
         //Requesting the next image to sync, or if all the images are synced then go to the next element in the list to update its images
-        if (mProfileType.equals(getString(R.string.dog_profile))) {
-            if (mFirebaseImageQueryIndex == mDogsAtDistance.size()) return;
-        }
-        else if (mProfileType.equals(getString(R.string.family_profile))) {
-            if (mFirebaseImageQueryIndex == mFamiliesAtDistance.size()) return;
-        }
-        else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-            if (mFirebaseImageQueryIndex == mFoundationsAtDistance.size()) return;
-        }
+        if (queryIndexHasReachedListSize()) return;
 
         switch (currentImageName) {
             case "mainImage": {
@@ -415,33 +422,24 @@ public class SearchScreenFragment extends Fragment implements
         }
     }
     private void syncImageForCurrentObject(String imageName, Uri imageUri) {
+
         if (getContext()==null) return;
+        Object listElement = null;
+
         if (mProfileType.equals(getString(R.string.dog_profile))) {
             if (mFirebaseImageQueryIndex == mDogsAtDistance.size()) return;
-        }
-        else if (mProfileType.equals(getString(R.string.family_profile))) {
-            if (mFirebaseImageQueryIndex == mFamiliesAtDistance.size()) return;
-        }
-        else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-            if (mFirebaseImageQueryIndex == mFoundationsAtDistance.size()) return;
-        }
-
-        String imagesDirectory = "";
-        Object listElement = null;
-        if (mProfileType.equals(getString(R.string.dog_profile))) {
-            imagesDirectory = getContext().getFilesDir()+"/dogs/"+ mDogsAtDistance.get(mFirebaseImageQueryIndex).getUI()+"/images/";
             listElement = mDogsAtDistance.get(mFirebaseImageQueryIndex);
         }
         else if (mProfileType.equals(getString(R.string.family_profile))) {
-            imagesDirectory = getContext().getFilesDir()+"/families/"+ mFamiliesAtDistance.get(mFirebaseImageQueryIndex).getUI()+"/images/";
+            if (mFirebaseImageQueryIndex == mFamiliesAtDistance.size()) return;
             listElement = mFamiliesAtDistance.get(mFirebaseImageQueryIndex);
         }
         else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-            imagesDirectory = getContext().getFilesDir()+"/foundations/"+ mFoundationsAtDistance.get(mFirebaseImageQueryIndex).getUI()+"/images/";
+            if (mFirebaseImageQueryIndex == mFoundationsAtDistance.size()) return;
             listElement = mFoundationsAtDistance.get(mFirebaseImageQueryIndex);
         }
 
-        SharedMethods.synchronizeImageOnAllDevices(listElement, mFirebaseDao, imagesDirectory, imageName, imageUri);
+        SharedMethods.synchronizeImageOnAllDevices(getContext(), listElement, mFirebaseDao, imageName, imageUri);
     }
 
 
@@ -614,7 +612,10 @@ public class SearchScreenFragment extends Fragment implements
     @Override public void onImageAvailable(Uri imageUri, String currentImageName) {
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
         syncImageForCurrentObject(currentImageName, imageUri);
-        if (currentImageName.equals("mainImage")) updateRecyclerView();
+        if (queryIndexHasReachedListSize() || imageDisplayCounter%IMAGE_BLOCK_SIZE==0 && currentImageName.equals("mainImage")) {
+            if (imageDisplayCounter >0) updateRecyclerView();
+            imageDisplayCounter++;
+        }
         syncNextImage(currentImageName);
     }
     @Override public void onImageUploaded(List<String> uploadTimes) {

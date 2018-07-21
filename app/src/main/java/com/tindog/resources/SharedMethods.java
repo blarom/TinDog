@@ -25,7 +25,6 @@ import com.firebase.ui.auth.AuthUI;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.R;
-import com.tindog.adapters.ImagesRecycleViewAdapter;
 import com.tindog.data.Dog;
 import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
@@ -55,7 +54,8 @@ public class SharedMethods {
         return config.smallestScreenWidthDp;
     }
 
-    //File and Uri utilities
+
+    //File utilities
     public static Uri moveFile(Uri source, String destinationDirectory, String destinationFilename) {
 
         if (source == null) {
@@ -100,20 +100,6 @@ public class SharedMethods {
         }
         return Uri.fromFile(destinationFile);
     }
-    public static boolean nameIsInvalid(String imageName) {
-
-        if (TextUtils.isEmpty(imageName)
-                || !(imageName.equals("mainImage")
-                || imageName.equals("image1")
-                || imageName.equals("image2")
-                || imageName.equals("image3")
-                || imageName.equals("image4")
-                || imageName.equals("image5"))){
-            Log.i(DEBUG_TAG, "Invalid filename for image in FirebaseDao storage method.");
-            return true;
-        }
-        return false;
-    }
     public static void deleteFileAtUri(Uri uri) {
         if (uri==null) {
             Log.i(DEBUG_TAG, "Tried to delete an image with null Uri, aborting.");
@@ -127,14 +113,6 @@ public class SharedMethods {
                 Log.i(DEBUG_TAG, "file not deleted:" + uri.getPath());
             }
         }
-    }
-    public static void deleteAllLocalObjectImages(Context context, Object object) {
-        deleteFileAtUri(getImageUriForObject(context, object, "mainImage"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image1"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image2"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image3"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image4"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image5"));
     }
     public static String getImagesDirectoryForObject(Context context, Object object) {
         String imageDirectory;
@@ -153,102 +131,31 @@ public class SharedMethods {
         else return null;
         return imageDirectory;
     }
-    public static Uri getImageUriForObject(Context context, Object object, String imageName) {
-
-        String imageDirectory = getImagesDirectoryForObject(context, object);
-        if(directoryIsInvalid(imageDirectory)) return null;
-
-        return SharedMethods.getImageUriWithPath(imageDirectory,imageName);
-    }
-    public static Uri getImageUriWithPath(String directory, String imageName) {
-
-        if (directoryIsInvalid(directory)) return null;
-
-        File imagesDir = new File(directory);
-        if (!imagesDir.exists()) imagesDir.mkdirs();
-
-        File imageFile = getFileWithTrials(directory, imageName+".jpg");
-        long length = imageFile.length();
-        boolean exists = imageFile.exists();
-        if (exists && length>0) {
-            return Uri.fromFile(imageFile);
-        }
-        else return null;
-    }
-    public static List<Uri> getUrisForExistingImages(String directory, boolean skipMainImage) {
-
-        List<Uri> uris = new ArrayList<>();
-        if(directoryIsInvalid(directory)) return uris;
-        File imageFile;
-
-        if (!skipMainImage) {
-            imageFile = getFileWithTrials(directory, "mainImage.jpg");
-            if (imageFile.exists() && imageFile.length()>0) {
-                uris.add(Uri.fromFile(imageFile));
-            }
-        }
-
-        imageFile = getFileWithTrials(directory, "image1.jpg");
-        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
-
-        imageFile = getFileWithTrials(directory, "image2.jpg");
-        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
-
-        imageFile = getFileWithTrials(directory, "image3.jpg");
-        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
-
-        imageFile = getFileWithTrials(directory, "image4.jpg");
-        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
-
-        imageFile = getFileWithTrials(directory, "image5.jpg");
-        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
-
-        return uris;
-    }
-    private static File getFileWithTrials(String directory, String imageName) {
-        File imageFile = new File(directory, imageName);
+    private static File getFileWithTrials(String directory, String fileName) {
+        File imageFile = new File(directory, fileName);
 
         //If somehow the the app was not able to get the uri (e.g. sometimes file is not "found"), then try up to 4 more times before giving up
         int tries = 4;
         while (!(imageFile.exists() && imageFile.length()>0) && tries>0) {
-            imageFile = new File(directory, imageName);
+            imageFile = new File(directory, fileName);
             tries--;
         }
         return imageFile;
     }
-    public static String getNameOfFirstAvailableImageInImagesList(String directory) {
+    private static boolean directoryIsInvalid(String localDirectory) {
+        return (TextUtils.isEmpty((localDirectory)) || localDirectory.contains("//"));
+    }
 
-        if (directoryIsInvalid(directory)) return "";
 
-        File imagesDir = new File(directory);
-        if (!imagesDir.exists()) imagesDir.mkdirs();
+    //Image utilities
+    public static void loadGenericAppImageIntoImageView(Context context, ImageView image) {
 
-        File image1File = new File(directory, "image1.jpg");
-        long length = image1File.length();
-        boolean exists = image1File.exists();
-        if (!exists || length==0) return "image1";
-
-        File image2File = new File(directory, "image2.jpg");
-        length = image2File.length();
-        exists = image2File.exists();
-        if (!exists || length==0) return "image2";
-
-        File image3File = new File(directory, "image3.jpg");
-        length = image3File.length();
-        exists = image3File.exists();
-        if (!exists || length==0) return "image3";
-
-        File image4File = new File(directory, "image4.jpg");
-        length = image4File.length();
-        exists = image4File.exists();
-        if (!exists || length==0) return "image4";
-
-        File image5File = new File(directory, "image5.jpg");
-        length = image5File.length();
-        exists = image5File.exists();
-        if (!exists || length==0) return "image5";
-
-        return "image1";
+        Uri imageUri = Uri.fromFile(new File("//android_asset/splashscreen_intro_image.jpg"));
+        Picasso.with(context)
+                .load(imageUri)
+                .error(R.drawable.ic_image_not_available)
+                .noFade()
+                .into(image);
     }
     public static boolean shrinkImageWithUri(Context context, Uri uri, int width, int height){
 
@@ -303,22 +210,100 @@ public class SharedMethods {
         return true;
 
     }
-    public static Uri updateImageInLocalDirectory(Uri originalImageUri, String directory, String imageName) {
+    public static Uri updateLocalObjectImage(Context context, Uri originalImageUri, Object object, String imageName) {
 
-        if (directoryIsInvalid(directory)) return null;
+        String directory = getImagesDirectoryForObject(context, object);
+        if(directoryIsInvalid(directory)) return null;
+
         Uri copiedImageUri = moveFile(originalImageUri, directory, imageName);
         return copiedImageUri;
     }
-    public static void synchronizeImageOnAllDevices(Object object, FirebaseDao firebaseDao, String localDirectory, String imageName, Uri downloadedImageUri) {
+    public static List<Uri> getExistingImageUriListForObject(Context context, Object object, boolean skipMainImage) {
 
-        if (directoryIsInvalid(localDirectory)) return;
+        String directory = getImagesDirectoryForObject(context, object);
+        List<Uri> uris = new ArrayList<>();
+        if(directoryIsInvalid(directory)) return uris;
+
+        File imageFile;
+
+        if (!skipMainImage) {
+            imageFile = getFileWithTrials(directory, "mainImage.jpg");
+            if (imageFile.exists() && imageFile.length()>0) {
+                uris.add(Uri.fromFile(imageFile));
+            }
+        }
+
+        imageFile = getFileWithTrials(directory, "image1.jpg");
+        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
+
+        imageFile = getFileWithTrials(directory, "image2.jpg");
+        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
+
+        imageFile = getFileWithTrials(directory, "image3.jpg");
+        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
+
+        imageFile = getFileWithTrials(directory, "image4.jpg");
+        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
+
+        imageFile = getFileWithTrials(directory, "image5.jpg");
+        if (imageFile.exists() && imageFile.length()>0) uris.add(Uri.fromFile(imageFile));
+
+        return uris;
+    }
+    public static String getNameOfFirstAvailableImageInImagesList(Context context, Object object) {
+
+        String directory = getImagesDirectoryForObject(context, object);
+        if(directoryIsInvalid(directory)) return "";
+
+        File imagesDir = new File(directory);
+        if (!imagesDir.exists()) imagesDir.mkdirs();
+
+        File image1File = new File(directory, "image1.jpg");
+        long length = image1File.length();
+        boolean exists = image1File.exists();
+        if (!exists || length==0) return "image1";
+
+        File image2File = new File(directory, "image2.jpg");
+        length = image2File.length();
+        exists = image2File.exists();
+        if (!exists || length==0) return "image2";
+
+        File image3File = new File(directory, "image3.jpg");
+        length = image3File.length();
+        exists = image3File.exists();
+        if (!exists || length==0) return "image3";
+
+        File image4File = new File(directory, "image4.jpg");
+        length = image4File.length();
+        exists = image4File.exists();
+        if (!exists || length==0) return "image4";
+
+        File image5File = new File(directory, "image5.jpg");
+        length = image5File.length();
+        exists = image5File.exists();
+        if (!exists || length==0) return "image5";
+
+        return "image1";
+    }
+    public static void synchronizeAllObjectImagesOnAllDevices(Context context, Object object, FirebaseDao firebaseDao, Uri downloadedImageUri) {
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "mainImage", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image1", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image2", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image3", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image4", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image5", downloadedImageUri);
+    }
+    public static void synchronizeImageOnAllDevices(Context context, Object object, FirebaseDao firebaseDao, String imageName, Uri downloadedImageUri) {
+
+        String localDirectory = getImagesDirectoryForObject(context, object);
+        if(directoryIsInvalid(localDirectory)) return;
 
         //The image was downloaded only if it was newer than the local image (If it wasn't downloaded, the downloadedImageUri is the same as the local image Uri)
         Uri localImageUri = SharedMethods.getImageUriWithPath(localDirectory, imageName);
 
         if (downloadedImageUri != null) {
             if (localImageUri == null) {
-                SharedMethods.updateImageInLocalDirectory(downloadedImageUri, localDirectory, imageName);
+                SharedMethods.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
             }
             else {
                 String localUriPath = localImageUri.getPath();
@@ -326,7 +311,7 @@ public class SharedMethods {
 
                 //If the downloaded image is newer, then update the image in the local directory
                 if (!downloadedUriPath.equals(localUriPath)) {
-                    SharedMethods.updateImageInLocalDirectory(downloadedImageUri, localDirectory, imageName);
+                    SharedMethods.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
                 }
 
                 //If the local image is newer, then upload it to Firebase to replace the older image
@@ -341,33 +326,49 @@ public class SharedMethods {
             }
         }
     }
-    private static boolean directoryIsInvalid(String localDirectory) {
-        return (TextUtils.isEmpty((localDirectory)) || localDirectory.contains("//"));
+    public static Uri getImageUriForObject(Context context, Object object, String imageName) {
+
+        String imageDirectory = getImagesDirectoryForObject(context, object);
+        if(directoryIsInvalid(imageDirectory)) return null;
+
+        return SharedMethods.getImageUriWithPath(imageDirectory,imageName);
     }
-    public static void synchronizeAllObjectImagesOnAllDevices(Object object, FirebaseDao firebaseDao, String localDirectory, Uri downloadedImageUri) {
-        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "mainImage", downloadedImageUri);
-        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image1", downloadedImageUri);
-        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image2", downloadedImageUri);
-        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image3", downloadedImageUri);
-        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image4", downloadedImageUri);
-        synchronizeImageOnAllDevices(object, firebaseDao, localDirectory, "image5", downloadedImageUri);
+    public static Uri getImageUriWithPath(String directory, String imageName) {
+
+        if (directoryIsInvalid(directory)) return null;
+
+        File imagesDir = new File(directory);
+        if (!imagesDir.exists()) imagesDir.mkdirs();
+
+        File imageFile = getFileWithTrials(directory, imageName+".jpg");
+        long length = imageFile.length();
+        boolean exists = imageFile.exists();
+        if (exists && length>0) {
+            return Uri.fromFile(imageFile);
+        }
+        else return null;
     }
+    public static void deleteAllLocalObjectImages(Context context, Object object) {
+        deleteFileAtUri(getImageUriForObject(context, object, "mainImage"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image1"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image2"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image3"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image4"));
+        deleteFileAtUri(getImageUriForObject(context, object, "image5"));
+    }
+    public static boolean imageNameIsInvalid(String imageName) {
 
-    //UI utilities
-    public static void displayImages(Context context, String localDirectory, String imageName, ImageView imageViewMain, ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
-
-        if (directoryIsInvalid(localDirectory)) {
-            Log.i(DEBUG_TAG, "Tried to access an invalid directory, aborting.");
-            return;
+        if (TextUtils.isEmpty(imageName)
+                || !(imageName.equals("mainImage")
+                || imageName.equals("image1")
+                || imageName.equals("image2")
+                || imageName.equals("image3")
+                || imageName.equals("image4")
+                || imageName.equals("image5"))){
+            Log.i(DEBUG_TAG, "Invalid filename for image in FirebaseDao storage method.");
+            return true;
         }
-
-        if (imageName.equals("mainImage")) {
-            Uri localImageUri = SharedMethods.getImageUriWithPath(localDirectory, imageName);
-            if (localImageUri!=null) refreshMainImageShownToUser(context, localDirectory, imageViewMain);
-        }
-        else {
-            if (imagesRecycleViewAdapter!=null) refreshImagesListShownToUser(localDirectory, imagesRecycleViewAdapter);
-        }
+        return false;
     }
     public static void displayObjectImageInImageView(Context context, Object object, String imageName, ImageView imageView) {
 
@@ -385,29 +386,16 @@ public class SharedMethods {
                     .load(uri.toString())
                     .error(R.drawable.ic_image_not_available)
                     .memoryPolicy(MemoryPolicy.NO_CACHE)
+                    .noFade()
                     .into(imageView);
         }
         else {
             loadGenericAppImageIntoImageView(context, imageView);
         }
     }
-    public static void refreshMainImageShownToUser(Context context, String directory, ImageView imageViewMain) {
-        if (directoryIsInvalid(directory)) return;
 
-        Uri mainImageUri = SharedMethods.getImageUriWithPath(directory,"mainImage");
-        if (imageViewMain==null) return;
-        Picasso.with(context)
-                .load(mainImageUri)
-                .error(R.drawable.ic_image_not_available)
-                .memoryPolicy(MemoryPolicy.NO_CACHE) //This is required here, since picasso doesn't detect that an image with identical path has changed
-                .into(imageViewMain);
-    }
-    public static void refreshImagesListShownToUser(String directory, ImagesRecycleViewAdapter imagesRecycleViewAdapter) {
-        if (directoryIsInvalid(directory)) return;
 
-        List<Uri> uris = SharedMethods.getUrisForExistingImages(directory, true);
-        imagesRecycleViewAdapter.setContents(uris);
-    }
+    //UI utilities
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =(InputMethodManager) activity.getBaseContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (inputMethodManager != null && activity.getCurrentFocus() != null) {
@@ -477,14 +465,7 @@ public class SharedMethods {
                         .build(),
                 SharedMethods.FIREBASE_SIGN_IN_KEY);
     }
-    public static void loadGenericAppImageIntoImageView(Context context, ImageView image) {
 
-        Uri imageUri = Uri.fromFile(new File("//android_asset/splashscreen_intro_image.jpg"));
-        Picasso.with(context)
-                .load(imageUri)
-                .error(R.drawable.ic_image_not_available)
-                .into(image);
-    }
 
     //Location utlities
     public static Address getAddressFromCity(Context context, String location) {
@@ -527,6 +508,7 @@ public class SharedMethods {
         return "";
     }
 
+
     //Internet utilities
     public static boolean internetIsAvailable(Context context) {
         //adapted from https://stackoverflow.com/questions/43315393/android-internet-connection-timeout
@@ -568,6 +550,7 @@ public class SharedMethods {
             e.printStackTrace();
         }
     }
+
 
     //Preferences
     public static void setAppPreferenceSignInRequestState(Context context, boolean requestedSignInState) {

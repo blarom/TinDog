@@ -608,7 +608,7 @@ public class FirebaseDao {
     }
     public void getImageFromFirebaseStorage(Object object, final String imageName) {
 
-        if (SharedMethods.nameIsInvalid(imageName)) return;
+        if (SharedMethods.imageNameIsInvalid(imageName)) return;
 
         String childPath;
         String folderPath;
@@ -708,7 +708,7 @@ public class FirebaseDao {
     }
     public void deleteImageFromFirebaseStorage(Object object, final String imageName) {
 
-        if (SharedMethods.nameIsInvalid(imageName)) return;
+        if (SharedMethods.imageNameIsInvalid(imageName)) return;
 
         String folderPath;
 

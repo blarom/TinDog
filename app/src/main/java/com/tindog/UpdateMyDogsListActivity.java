@@ -278,7 +278,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
 
     //Communication with Firebase Dao handler
     @Override public void onDogsListFound(List<Dog> dogsList) {
-        mDogsList = dogsList; //check why list is not updated
+        mDogsList = dogsList;
         getDogsListSubsetAccordingToUserInput();
     }
     @Override public void onFamiliesListFound(List<Family> familiesList) {

@@ -202,7 +202,10 @@ public class SearchResultsActivity extends AppCompatActivity implements
         mFragmentManager = getSupportFragmentManager();
         if (getSupportActionBar()!=null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.profile_finder);
+            if (mProfileType.equals(getString(R.string.dog_profile))) getSupportActionBar().setTitle(R.string.dog_finder);
+            else if (mProfileType.equals(getString(R.string.family_profile))) getSupportActionBar().setTitle(R.string.family_finder);
+            else if (mProfileType.equals(getString(R.string.foundation_profile))) getSupportActionBar().setTitle(R.string.foundation_finder);
+            else getSupportActionBar().setTitle(R.string.profile_finder);
         }
 
         mBinding =  ButterKnife.bind(this);

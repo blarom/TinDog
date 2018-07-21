@@ -142,12 +142,9 @@ public class FoundationProfileFragment extends Fragment implements ImagesRecycle
         }
 
         if (getContext()==null) return;
-        String imagesDirectory = getContext().getFilesDir() + "/foundations/" + mFoundation.getUI() + "/images/";
-        SharedMethods.displayImages(getContext(), imagesDirectory, "mainImage", mImageViewMainImage, mImagesRecycleViewAdapter);
-
-        //Updating the images with the video links to display to the user
-        mDisplayedImageList = SharedMethods.getUrisForExistingImages(imagesDirectory, false);
-        mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
+        SharedMethods.displayObjectImageInImageView(getContext(), mFoundation, "mainImage", mImageViewMainImage);
+        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getContext(), mFoundation, true);
+        mImagesRecycleViewAdapter.setContents(uris);
     }
     private void storeFragmentLayout() {
         if (mRecyclerViewImages!=null) {

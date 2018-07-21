@@ -131,12 +131,9 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
         mCheckBoxDogWalkingEvening.setChecked(mFamily.getHDE());
 
         if (getContext()==null) return;
-        String imagesDirectory = getContext().getFilesDir() + "/families/" + mFamily.getUI() + "/images/";
-        SharedMethods.displayImages(getContext(), imagesDirectory, "mainImage", mImageViewMainImage, mImagesRecycleViewAdapter);
-
-        //Updating the images with the video links to display to the user
-        mDisplayedImageList = SharedMethods.getUrisForExistingImages(imagesDirectory, false);
-        mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
+        SharedMethods.displayObjectImageInImageView(getContext(), mFamily, "mainImage", mImageViewMainImage);
+        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getContext(), mFamily, true);
+        mImagesRecycleViewAdapter.setContents(uris);
     }
     private void storeFragmentLayout() {
         if (mRecyclerViewImages!=null) {

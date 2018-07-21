@@ -316,4 +316,7 @@
     <string name="preferences_limit_to_country_state">preferences_limit_to_country_state</string>
     <string name="error_processing_request">Error while trying to process request, please try again</string>
     <string name="first_time_preferences">Since this is your first time using the app, how about setting your preferences?</string>
+    <string name="dog_finder">Dog Finder</string>
+    <string name="family_finder">Family Finder</string>
+    <string name="foundation_finder">Foundation Finder</string>
 </resources>

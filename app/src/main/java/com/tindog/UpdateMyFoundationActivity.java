@@ -71,6 +71,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     private String mFirebaseUid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private String mFoundationImagesDirectory;
+    private boolean[] mImagesReady;
     //endregion
 
 
@@ -82,8 +83,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         initializeParameters();
         getFoundationProfileFromFirebase();
         setupFoundationImagesRecyclerView();
-        SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mFoundationImagesDirectory, mImageViewMain);
-        mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFoundation);
+        SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -107,11 +107,17 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 boolean succeeded = SharedMethods.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
 
                 if (succeeded) {
-                    Uri copiedImageUri = SharedMethods.updateImageInLocalDirectory(croppedImageTempUri, mFoundationImagesDirectory, mImageName);
-                    SharedMethods.displayImages(getApplicationContext(), mFoundationImagesDirectory, mImageName, mImageViewMain, mFoundationImagesRecycleViewAdapter);
-
-                    if (copiedImageUri != null)
+                    Uri copiedImageUri = SharedMethods.updateLocalObjectImage(getApplicationContext(), croppedImageTempUri, mFoundation, mImageName);
+                    if (copiedImageUri != null) {
+                        if (mImageName.equals("mainImage")) {
+                            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
+                        }
+                        else {
+                            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
+                            mFoundationImagesRecycleViewAdapter.setContents(uris);
+                        }
                         mFirebaseDao.putImageInFirebaseStorage(mFoundation, copiedImageUri, mImageName);
+                    }
                 }
             }
             else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -184,6 +190,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             getSupportActionBar().setTitle(R.string.foundation_profile);
         }
         mBinding =  ButterKnife.bind(this);
+        mImagesReady = new boolean[]{false, false, false, false, false, false};
         mFoundation = new Foundation();
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -226,7 +233,8 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     private void setupFoundationImagesRecyclerView() {
         mRecyclerViewFoundationImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewFoundationImages.setNestedScrollingEnabled(true);
-        mFoundationImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getUrisForExistingImages(mFoundationImagesDirectory, true));
+        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
+        mFoundationImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, uris);
         mRecyclerViewFoundationImages.setAdapter(mFoundationImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
@@ -241,14 +249,16 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             @Override
             public void onClick(View view) {
 
-                if (SharedMethods.getUrisForExistingImages(mFoundationImagesDirectory, true).size() == 5) {
+                List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
+                if (uris.size() == 5) {
                     Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mFoundationImagesDirectory);
+                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFoundation);
                     if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
                     else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
     }
@@ -361,10 +371,31 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     }
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
 
-        if (getBaseContext()==null) return;
+        if (mImageViewMain==null
+                || mFoundationImagesRecycleViewAdapter==null
+                || mFoundation==null) return;
 
-        SharedMethods.synchronizeImageOnAllDevices(mFoundation, mFirebaseDao, mFoundationImagesDirectory, imageName, downloadedImageUri);
-        SharedMethods.displayImages(getApplicationContext(), mFoundationImagesDirectory, imageName, mImageViewMain, mFoundationImagesRecycleViewAdapter);
+        SharedMethods.synchronizeImageOnAllDevices(getApplicationContext(), mFoundation, mFirebaseDao, imageName, downloadedImageUri);
+
+        //Only showing the images if all images are ready (prevents image flickering)
+        switch (imageName) {
+            case "mainImage": mImagesReady[0] = true; break;
+            case "image1": mImagesReady[1] = true; break;
+            case "image2": mImagesReady[2] = true; break;
+            case "image3": mImagesReady[3] = true; break;
+            case "image4": mImagesReady[4] = true; break;
+            case "image5": mImagesReady[5] = true; break;
+        }
+        boolean allImagesReady = true;
+        for (boolean isReady : mImagesReady) {
+            if (!isReady) { allImagesReady = false; break; }
+        }
+        if (allImagesReady) {
+            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
+            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
+            mFoundationImagesRecycleViewAdapter.setContents(uris);
+        }
+
     }
     @Override public void onImageUploaded(List<String> uploadTimes) {
         mFoundation.setIUT(uploadTimes);

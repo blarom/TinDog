@@ -115,8 +115,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         getDogProfileFromFirebase();
         setupVideoLinksRecyclerView();
         setupDogImagesRecyclerView();
-        SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mDogImagesDirectory, mImageViewMain);
-        if (!TextUtils.isEmpty(mDog.getUI())) mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mDog);
+        SharedMethods.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -140,9 +139,15 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 boolean succeeded = SharedMethods.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
 
                 if (succeeded) {
-                    Uri copiedImageUri = SharedMethods.updateImageInLocalDirectory(croppedImageTempUri, mDogImagesDirectory, mImageName);
+                    Uri copiedImageUri = SharedMethods.updateLocalObjectImage(getApplicationContext(), croppedImageTempUri, mDog, mImageName);
                     if (copiedImageUri!=null) {
-                        SharedMethods.displayImages(getApplicationContext(), mDogImagesDirectory, mImageName, mImageViewMain, mDogImagesRecycleViewAdapter);
+                        if (mImageName.equals("mainImage")) {
+                            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
+                        }
+                        else {
+                            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
+                            mDogImagesRecycleViewAdapter.setContents(uris);
+                        }
                         mFirebaseDao.putImageInFirebaseStorage(mDog, copiedImageUri, mImageName);
                     }
                 }
@@ -360,7 +365,8 @@ public class UpdateDogActivity extends AppCompatActivity implements
     private void setupDogImagesRecyclerView() {
         mRecyclerViewDogImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewDogImages.setNestedScrollingEnabled(true);
-        mDogImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getUrisForExistingImages(mDogImagesDirectory, true));
+        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
+        mDogImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, uris);
         mRecyclerViewDogImages.setAdapter(mDogImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
@@ -375,11 +381,12 @@ public class UpdateDogActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
 
-                if (SharedMethods.getUrisForExistingImages(mDogImagesDirectory, true).size() == 5) {
+                List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
+                if (uris.size() == 5) {
                     Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mDogImagesDirectory);
+                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mDog);
                     if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
                     else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
                 }
@@ -590,9 +597,11 @@ public class UpdateDogActivity extends AppCompatActivity implements
     }
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
 
-        if (getBaseContext()==null) return;
+        if (mImageViewMain==null
+                || mDogImagesRecycleViewAdapter==null
+                || mDog==null) return;
 
-        SharedMethods.synchronizeImageOnAllDevices(mDog, mFirebaseDao, mDogImagesDirectory, imageName, downloadedImageUri);
+        SharedMethods.synchronizeImageOnAllDevices(getApplicationContext(), mDog, mFirebaseDao, imageName, downloadedImageUri);
 
         //Only showing the images if all images are ready (prevents image flickering)
         switch (imageName) {
@@ -607,7 +616,11 @@ public class UpdateDogActivity extends AppCompatActivity implements
         for (boolean isReady : mImagesReady) {
             if (!isReady) { allImagesReady = false; break; }
         }
-        if (allImagesReady) SharedMethods.displayImages(getApplicationContext(), mDogImagesDirectory, imageName, mImageViewMain, mDogImagesRecycleViewAdapter);
+        if (allImagesReady) {
+            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
+            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
+            mDogImagesRecycleViewAdapter.setContents(uris);
+        }
     }
     @Override public void onImageUploaded(List<String> uploadTimes) {
         mDog.setIUT(uploadTimes);

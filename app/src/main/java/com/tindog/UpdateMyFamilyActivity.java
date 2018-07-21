@@ -92,6 +92,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private boolean mFamilyFound;
     private ArrayAdapter<CharSequence> mSpinnerAdapterDogwalkingWhere;
     private ArrayAdapter<CharSequence> mSpinnerAdapterFosterPeriod;
+    private boolean[] mImagesReady;
     //endregion
 
 
@@ -103,8 +104,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         initializeParameters();
         getFamilyProfileFromFirebase();
         setupPetImagesRecyclerView();
-        SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mFamilyImagesDirectory, mImageViewMain);
-        mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFamily);
+        SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -128,10 +128,15 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 boolean succeeded = SharedMethods.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
 
                 if (succeeded) {
-                    Uri copiedImageUri = SharedMethods.updateImageInLocalDirectory(croppedImageTempUri, mFamilyImagesDirectory, mImageName);
-                    SharedMethods.displayImages(getApplicationContext(), mFamilyImagesDirectory, mImageName, mImageViewMain, mPetImagesRecycleViewAdapter);
-
+                    Uri copiedImageUri = SharedMethods.updateLocalObjectImage(getApplicationContext(), croppedImageTempUri, mFamily, mImageName);
                     if (copiedImageUri != null)
+                        if (mImageName.equals("mainImage")) {
+                            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
+                        }
+                        else {
+                            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
+                            mPetImagesRecycleViewAdapter.setContents(uris);
+                        }
                         mFirebaseDao.putImageInFirebaseStorage(mFamily, copiedImageUri, mImageName);
                 }
             }
@@ -214,6 +219,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mFirebaseAuth = FirebaseAuth.getInstance();
 
+        mImagesReady = new boolean[]{false, false, false, false, false, false};
         mFamilyFound = false;
 
         mSpinnerAdapterDogwalkingWhere = ArrayAdapter.createFromResource(this, R.array.dogwalking_location, android.R.layout.simple_spinner_item);
@@ -277,7 +283,8 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private void setupPetImagesRecyclerView() {
         mRecyclerViewPetImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewPetImages.setNestedScrollingEnabled(true);
-        mPetImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, SharedMethods.getUrisForExistingImages(mFamilyImagesDirectory, true));
+        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
+        mPetImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, uris);
         mRecyclerViewPetImages.setAdapter(mPetImagesRecycleViewAdapter);
     }
     private void setButtonBehaviors() {
@@ -293,11 +300,12 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             @Override
             public void onClick(View view) {
 
-                if (SharedMethods.getUrisForExistingImages(mFamilyImagesDirectory, true).size() == 5) {
+                List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
+                if (uris.size() == 5) {
                     Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mFamilyImagesDirectory);
+                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFamily);
                     if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
                     else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
                 }
@@ -432,10 +440,32 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     }
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
 
-        if (getBaseContext()==null) return;
+        if (mImageViewMain==null
+                || mPetImagesRecycleViewAdapter==null
+                || mFamily==null) return;
 
-        SharedMethods.synchronizeImageOnAllDevices(mFamily, mFirebaseDao, mFamilyImagesDirectory, imageName, downloadedImageUri);
-        SharedMethods.displayImages(getApplicationContext(), mFamilyImagesDirectory, imageName, mImageViewMain, mPetImagesRecycleViewAdapter);
+        SharedMethods.synchronizeImageOnAllDevices(getApplicationContext(), mFamily, mFirebaseDao, imageName, downloadedImageUri);
+
+        //Display the images
+
+        //Only showing the images if all images are ready (prevents image flickering)
+        switch (imageName) {
+            case "mainImage": mImagesReady[0] = true; break;
+            case "image1": mImagesReady[1] = true; break;
+            case "image2": mImagesReady[2] = true; break;
+            case "image3": mImagesReady[3] = true; break;
+            case "image4": mImagesReady[4] = true; break;
+            case "image5": mImagesReady[5] = true; break;
+        }
+        boolean allImagesReady = true;
+        for (boolean isReady : mImagesReady) {
+            if (!isReady) { allImagesReady = false; break; }
+        }
+        if (allImagesReady) {
+            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
+            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
+            mPetImagesRecycleViewAdapter.setContents(uris);
+        }
 
     }
     @Override public void onImageUploaded(List<String> uploadTimes) {

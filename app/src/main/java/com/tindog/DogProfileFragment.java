@@ -12,8 +12,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.URLSpan;
-import android.text.style.UnderlineSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +20,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
@@ -137,16 +134,15 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         else mTextViewDogHistory.setText(mDog.getHs());
 
         if (getContext()==null) return;
-        String imagesDirectory = getContext().getFilesDir() + "/dogs/" + mDog.getUI() + "/images/";
-        SharedMethods.displayImages(getContext(), imagesDirectory, "mainImage", mImageViewMainImage, mImagesRecycleViewAdapter);
+        SharedMethods.displayObjectImageInImageView(getContext(), mDog, "mainImage", mImageViewMainImage);
 
         //Updating the images with the video links to display to the user
-        mDisplayedImageList = SharedMethods.getUrisForExistingImages(imagesDirectory, false);
+        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getContext(), mDog, true);
         List<String> videoUrls = mDog.getVU();
         for (String videoUrl : videoUrls) {
-            mDisplayedImageList.add(Uri.parse(videoUrl));
+            uris.add(Uri.parse(videoUrl));
         }
-        mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
+        mImagesRecycleViewAdapter.setContents(uris);
     }
     private void showFoundation() {
         if (getContext()!=null) {
