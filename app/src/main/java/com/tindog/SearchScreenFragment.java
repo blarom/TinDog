@@ -29,6 +29,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Picasso;
 import com.tindog.adapters.DogsListRecycleViewAdapter;
 import com.tindog.adapters.FamiliesListRecycleViewAdapter;
 import com.tindog.adapters.FoundationsListRecycleViewAdapter;
@@ -40,6 +41,7 @@ import com.tindog.data.TinDogUser;
 import com.tindog.resources.SharedMethods;
 import com.tindog.resources.TinDogLocationListener;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -85,8 +87,6 @@ public class SearchScreenFragment extends Fragment implements
     private LocationManager mLocationManager;
     private TinDogLocationListener mLocationListener;
     private int mFirebaseImageQueryIndex;
-    private int mFirebaseFamilyImageQueryIndex;
-    private int mFirebaseFoundationImageQueryIndex;
     private List<Dog> mDogsAtDistance;
     private List<Family> mFamiliesAtDistance;
     private List<Foundation> mFoundationsAtDistance;
@@ -94,6 +94,8 @@ public class SearchScreenFragment extends Fragment implements
     private boolean mSwitchedTabs;
     private String mProfileType;
     private String mCurrentImage;
+    private String mRequestedProfileUI;
+    private String mRequestedFoundationProfileUI;
     //endregion
 
 
@@ -109,14 +111,13 @@ public class SearchScreenFragment extends Fragment implements
         getExtras();
         initializeParameters();
         getUserInfoFromFirebase();
-        getListsFromFirebase();
     }
     @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_search_screen, container, false);
 
         initializeViews(rootView);
         setupRecyclerViews();
-        showLoadingIndicator();
+        getListsFromFirebase();
         startListeningForUserLocation();
 
         return rootView;
@@ -142,8 +143,11 @@ public class SearchScreenFragment extends Fragment implements
 
     //Functionality methods
     private void getExtras() {
+        mRequestedProfileUI = "";
         if (getArguments() != null) {
             mProfileType = getArguments().getString(getString(R.string.profile_type));
+            mRequestedProfileUI = getArguments().getString(getString(R.string.dog_profile_requested_by_widget));
+            mRequestedFoundationProfileUI = getArguments().getString(getString(R.string.foundation_profile_requested_by_user));
         }
     }
     private void initializeParameters() {
@@ -179,17 +183,21 @@ public class SearchScreenFragment extends Fragment implements
             }
         });
 
+        Uri imageUri = Uri.fromFile(new File("//android_asset/magnifying_glass.png"));
+        Picasso.with(getContext())
+                .load(imageUri)
+                .error(R.drawable.ic_image_not_available)
+                .into(mImageViewMagnifyingGlass);
+
         mImageViewMagnifyingGlass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getObjectsAtDistance();
+                getListsFromFirebase();
             }
         });
     }
     private void showLoadingIndicator() {
-        if (mUserLatitude == 0.0 && mUserLongitude == 0.0) {
-            if (mProgressBarLoadingIndicator!=null) mProgressBarLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+        if (mProgressBarLoadingIndicator!=null) mProgressBarLoadingIndicator.setVisibility(View.VISIBLE);
     }
     private void hideLoadingIndicator() {
         if (mProgressBarLoadingIndicator!=null) mProgressBarLoadingIndicator.setVisibility(View.INVISIBLE);
@@ -248,16 +256,22 @@ public class SearchScreenFragment extends Fragment implements
         }
     }
     private void getListsFromFirebase() {
+
         //Setting up the item lists (results are received through the FirebaseDao interface, see methods below)
         if (mProfileType.equals(getString(R.string.dog_profile))) {
-            mFirebaseDao.getFullObjectsListFromFirebaseDb(new Dog());
+            if (TextUtils.isEmpty(mRequestedProfileUI)) mFirebaseDao.getFullObjectsListFromFirebaseDb(new Dog());
+            else mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(new Dog(mRequestedProfileUI));
         }
         else if (mProfileType.equals(getString(R.string.family_profile))) {
             mFirebaseDao.getFullObjectsListFromFirebaseDb(new Family());
         }
         else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-            mFirebaseDao.getFullObjectsListFromFirebaseDb(new Foundation());
+            if (TextUtils.isEmpty(mRequestedFoundationProfileUI)) mFirebaseDao.getFullObjectsListFromFirebaseDb(new Foundation());
+            else mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(new Foundation(mRequestedFoundationProfileUI));
         }
+        else return;
+
+        showLoadingIndicator();
     }
     private void updateRecyclerView() {
 
@@ -270,6 +284,7 @@ public class SearchScreenFragment extends Fragment implements
         else if (mProfileType.equals(getString(R.string.foundation_profile))) {
             mFoundationsListRecycleViewAdapter.setContents(mFoundationsAtDistance);
         }
+        hideLoadingIndicator();
     }
     private boolean checkLocationPermission() {
         if (getContext()!=null && ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -548,7 +563,17 @@ public class SearchScreenFragment extends Fragment implements
     @Override public void onDogsListFound(List<Dog> dogsList) {
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
         mDogsList = dogsList;
-        updateObjectListAccordingToDistance();
+
+        //If the user requested a dogs list, then show the list at the requested distance
+        if (TextUtils.isEmpty(mRequestedProfileUI)) updateObjectListAccordingToDistance();
+
+        //If the user requested a specific dog, then update its index in the list for the parent activity.
+        else {
+            if (mDogsList!=null && mDogsList.size()>0) {
+                onSearchScreenOperationsHandler.onDogsFound(mDogsList);
+                onSearchScreenOperationsHandler.onProfileSelected(0);
+            }
+        }
     }
     @Override public void onFamiliesListFound(List<Family> familiesList) {
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
@@ -558,7 +583,17 @@ public class SearchScreenFragment extends Fragment implements
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
         mFoundationsList = foundationsList;
-        updateObjectListAccordingToDistance();
+
+        //If the user requested a foundations list, then show the list at the requested distance
+        if (TextUtils.isEmpty(mRequestedFoundationProfileUI)) updateObjectListAccordingToDistance();
+
+        //If the user requested a specific foundation, then update its index in the list for the parent activity.
+        else {
+            if (mFoundationsList!=null && mFoundationsList.size()>0) {
+                onSearchScreenOperationsHandler.onFoundationsFound(mFoundationsList);
+                onSearchScreenOperationsHandler.onProfileSelected(0);
+            }
+        }
     }
     @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast

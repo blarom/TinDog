@@ -1,14 +1,14 @@
 package com.tindog;
 
-//TODO: Fix the missing profile fields when showing the profiles to the user
-//TODO: update the preference activity options
+//TODO: update the preference activity options with better dog characteristics
 //TODO: restore recyclerview positions and parameters on resume in all activities/fragments
-//TODO: create the widget
 //TODO: search for dog profiles according to the user preferences
-//TODO: create landscape mode profile views and profile update views
-//TODO: add a FAB to dogslist activity
-//TODO: fix image flickering in dog update activity
 //TODO: make the app look good in landscape mode
+//TODO: family images are leaked between profiles when shown to user
+//TODO: populate map with pins
+//TODO: consider adding swiperefreshlayout
+//TODO: optional: fix image flickering in dog update activity (requires revamp of how images are displayed in the recyclerview)
+//TODO: fix dogs list activity not refreshing search when returning to it
 
 import android.Manifest;
 import android.content.Intent;
@@ -94,8 +94,6 @@ public class TaskSelectionActivity extends AppCompatActivity {
         setupFirebaseAuthentication();
         hasStoragePermissions = checkStoragePermission();
         hasLocationPermissions = checkLocationPermission();
-
-        doThisIfFirstTimeUsingApp();
     }
     @Override public void onStart() {
         super.onStart();
@@ -165,7 +163,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
                 return true;
             case R.id.action_signin:
                 SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), true);
-                showSignInScreen();
+                SharedMethods.showSignInScreen(TaskSelectionActivity.this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -196,6 +194,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
             } else {
                 hasLocationPermissions = false;
             }
+            doThisIfFirstTimeUsingApp();
         }
     }
 
@@ -226,26 +225,12 @@ public class TaskSelectionActivity extends AppCompatActivity {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    if (SharedMethods.getAppPreferenceSignInRequestState(getApplicationContext())) showSignInScreen();
+                    if (SharedMethods.getAppPreferenceSignInRequestState(getApplicationContext()))
+                        SharedMethods.showSignInScreen(TaskSelectionActivity.this);
                 }
             }
         };
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-    private void showSignInScreen() {
-
-        SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), false);
-
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build());
-
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                SharedMethods.FIREBASE_SIGN_IN_KEY);
     }
     public boolean checkStoragePermission() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -291,8 +276,8 @@ public class TaskSelectionActivity extends AppCompatActivity {
     private void doThisIfFirstTimeUsingApp() {
         boolean firstTime = SharedMethods.getAppPreferenceFirstTimeUsingApp(this);
         if (firstTime) {
+            Toast.makeText(this, R.string.first_time_preferences, Toast.LENGTH_SHORT).show();
             SharedMethods.setAppPreferenceFirstTimeUsingApp(this, false);
-            Toast.makeText(this, R.string.set_preferred_characteristics, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, PreferencesActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);

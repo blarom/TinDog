@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout android:id="@+id/frameLayout2"
+                                             xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             tools:context=".FoundationProfileFragment">
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="vertical">
+
+            <com.santalu.aspectratioimageview.AspectRatioImageView
+                android:id="@+id/foundation_profile_main_image"
+                style="@style/MainImageStyleLandscape"
+                app:ari_aspect="height"
+                app:ari_ratio="0.75"
+                app:srcCompat="@drawable/ic_image_not_available"
+                android:contentDescription="@string/foundation_main_image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/foundation_profile_recyclerview_images"
+                style="@style/ImagesRecyclerViewStyle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/foundation_profile_main_image"/>
+
+            <TextView
+                android:id="@+id/foundation_profile_foundation_name"
+                style="@style/TitleStyle"
+                android:text="@string/foundation_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/foundation_profile_recyclerview_images"/>
+
+            <TextView
+                android:id="@+id/foundation_profile_address"
+                style="@style/TitleStyle"
+                android:text="@string/default_address"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/foundation_profile_foundation_name"/>
+
+            <TextView
+                android:id="@+id/foundation_profile_phone_number"
+                style="@style/TitleStyle"
+                android:text="@string/no_contact_phone_available"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/foundation_profile_address"/>
+
+            <TextView
+                android:id="@+id/foundation_profile_email"
+                style="@style/TitleStyle"
+                android:text="@string/no_email_available"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/foundation_profile_phone_number"/>
+
+            <TextView
+                android:id="@+id/foundation_profile_website"
+                style="@style/TitleStyle"
+                android:text="@string/no_website_available"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/foundation_profile_email"/>
+
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+</android.support.constraint.ConstraintLayout>

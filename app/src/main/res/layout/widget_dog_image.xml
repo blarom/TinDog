@@ -1,0 +1,29 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:padding="@dimen/widget_margin">
+
+    <ImageView
+        android:id="@+id/widget_dog_image_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="32dp"
+        android:contentDescription="@string/dog_main_image"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/ic_image_not_available"/>
+
+    <TextView
+        android:id="@+id/widget_dog_name"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:text="@string/appwidget_text"
+        android:gravity="center"
+        android:background="@color/colorPrimary"
+        android:textColor="#ffffff"
+        android:textSize="24sp"
+        android:textStyle="bold|italic"/>
+
+</RelativeLayout>

@@ -13,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
 import com.tindog.data.Family;
@@ -153,6 +154,7 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
         Picasso.with(getContext())
                 .load(clickedImageUri)
                 .error(R.drawable.ic_image_not_available)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .into(mImageViewMainImage);
     }
 

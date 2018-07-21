@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout android:id="@+id/frameLayout"
+                                             xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             tools:context=".FamilyProfileFragment">
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.santalu.aspectratioimageview.AspectRatioImageView
+                android:id="@+id/family_profile_main_image"
+                style="@style/MainImageStyleLandscape"
+                app:ari_aspect="height"
+                app:ari_ratio="0.75"
+                app:srcCompat="@drawable/ic_image_not_available"
+                android:contentDescription="@string/family_main_image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/family_profile_recyclerview_images"
+                style="@style/ImagesRecyclerViewStyle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/family_profile_main_image"/>
+
+            <TextView
+                android:id="@+id/family_profile_pseudonym"
+                style="@style/TitleStyle"
+                android:text="@string/family_s_pseudonym"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/family_profile_recyclerview_images"/>
+
+            <TextView
+                android:id="@+id/family_profile_address"
+                style="@style/TitleStyle"
+                android:text="@string/default_address"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/family_profile_pseudonym"/>
+
+            <TextView
+                android:id="@+id/family_profile_title_experience"
+                style="@style/ProfileSubtitleStyle"
+                android:text="@string/our_experience_with_dogs"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/family_profile_address"/>
+
+            <TextView
+                android:id="@+id/family_profile_value_experience"
+                style="@style/ProfileValueStyle"
+                android:text="@string/default_experience"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/family_profile_title_experience"
+                app:layout_constraintTop_toBottomOf="@+id/family_profile_title_experience"/>
+
+
+            <LinearLayout
+                android:layout_width="@dimen/layout_width_for_large_screens"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:elevation="4dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/family_profile_value_experience">
+
+                <TextView
+                    android:id="@+id/family_profile_title_how_want_help"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="@string/how_we_want_to_help"/>
+
+                <TextView
+                    android:id="@+id/family_profile_title_providing_a_home"
+                    style="@style/ProfileListSubtitleStyle"
+                    android:text="@string/providing_a_home"/>
+
+                <CheckBox
+                    android:id="@+id/family_profile_checkbox_foster"
+                    style="@style/ListCheckBoxNonCheckableStyle"
+                    android:text="@string/foster_a_dog"/>
+
+                <CheckBox
+                    android:id="@+id/family_profile_checkbox_foster_and_adopt"
+                    style="@style/ListCheckBoxNonCheckableStyle"
+                    android:text="@string/adopt_a_dog"/>
+
+                <CheckBox
+                    android:id="@+id/family_profile_checkbox_adopt"
+                    style="@style/ListCheckBoxNonCheckableStyle"
+                    android:text="@string/foster_and_possibly_adopt_a_dog"/>
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp">
+
+                    <TextView
+                        android:id="@+id/family_profile_title_foster_period"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:text="@string/foster_period"/>
+
+                    <TextView
+                        android:id="@+id/family_profile_value_foster_period"
+                        style="@style/ProfileValueStyle"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/family_profile_title_foster_period"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+                </android.support.constraint.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/family_profile_title_help_organize"
+                    style="@style/ProfileListSubtitleStyle"
+                    android:text="@string/help_organize_adoption_events"/>
+
+                <CheckBox
+                    android:id="@+id/family_profile_checkbox_help_organize_move_equipment"
+                    style="@style/ListCheckBoxNonCheckableStyle"
+                    android:text="@string/moving_equipment_around"/>
+
+                <CheckBox
+                    android:id="@+id/family_profile_checkbox_help_organize_move_dogs"
+                    style="@style/ListCheckBoxNonCheckableStyle"
+                    android:text="@string/moving_dogs_around"/>
+
+                <CheckBox
+                    android:id="@+id/family_profile_checkbox_help_organize_coordinating"
+                    style="@style/ListCheckBoxNonCheckableStyle"
+                    android:text="@string/coordinating_and_scheduling"/>
+
+                <CheckBox
+                    android:id="@+id/family_profile_checkbox_help_organize_lending_hand"
+                    style="@style/ListCheckBoxNonCheckableStyle"
+                    android:text="@string/lending_a_hand_at_events"/>
+
+                <TextView
+                    android:id="@+id/family_profile_title_other"
+                    style="@style/ProfileListSubtitleStyle"
+                    android:text="@string/helping_in_other_ways"/>
+
+                <CheckBox
+                    android:id="@+id/family_profile_checkbox_dogwalking"
+                    style="@style/ListCheckBoxNonCheckableStyle"
+                    android:text="@string/dogwalking"/>
+
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/family_profile_title_where_dogwalking"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:text="@string/where"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/family_profile_value_where_dogwalking"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
+                        android:textSize="16sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintLeft_toLeftOf="@id/family_profile_title_where_dogwalking"
+                        app:layout_constraintStart_toEndOf="@id/family_profile_title_where_dogwalking"/>
+
+                    <TextView
+                        android:id="@+id/family_profile_title_when_dogwalking"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="16sp"
+                        android:text="@string/when"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/family_profile_value_where_dogwalking"/>
+
+                    <GridLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="8dp"
+                        android:columnCount="2"
+                        android:rowCount="2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintLeft_toLeftOf="@id/family_profile_title_when_dogwalking"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/family_profile_title_when_dogwalking"
+                        app:layout_constraintTop_toBottomOf="@id/family_profile_value_where_dogwalking">
+
+                        <CheckBox
+                            android:id="@+id/family_profile_checkbox_dogwalking_morning"
+                            style="@style/GridCheckBoxNonCheckableStyle"
+                            android:text="@string/morning"/>
+
+                        <CheckBox
+                            android:id="@+id/family_profile_checkbox_dogwalking_noon"
+                            style="@style/GridCheckBoxNonCheckableStyle"
+                            android:text="@string/noon"/>
+
+                        <CheckBox
+                            android:id="@+id/family_profile_checkbox_dogwalking_evening"
+                            style="@style/GridCheckBoxNonCheckableStyle"
+                            android:text="@string/evening"/>
+
+                        <CheckBox
+                            android:id="@+id/family_profile_checkbox_dogwalking_afternoon"
+                            style="@style/GridCheckBoxNonCheckableStyle"
+                            android:text="@string/afternoon"/>
+
+                    </GridLayout>
+                </android.support.constraint.ConstraintLayout>
+
+            </LinearLayout>
+
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+</android.support.constraint.ConstraintLayout>

@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -245,7 +246,8 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 }
                 else {
                     mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mFoundationImagesDirectory);
-                    performImageCaptureAndCrop();
+                    if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
+                    else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -358,6 +360,8 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
 
     }
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
+
+        if (getBaseContext()==null) return;
 
         SharedMethods.synchronizeImageOnAllDevices(mFoundation, mFirebaseDao, mFoundationImagesDirectory, imageName, downloadedImageUri);
         SharedMethods.displayImages(getApplicationContext(), mFoundationImagesDirectory, imageName, mImageViewMain, mFoundationImagesRecycleViewAdapter);

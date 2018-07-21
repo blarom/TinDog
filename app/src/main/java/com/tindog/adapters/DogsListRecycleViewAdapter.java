@@ -1,14 +1,18 @@
 package com.tindog.adapters;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.R;
 import com.tindog.data.DatabaseUtilities;
@@ -50,12 +54,7 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
         detailsTV.setText(details);
     }
     private void updateItemImage(final DogViewHolder holder, int position) {
-
-        //SharedMethods.refreshMainImageShownToUser(mContext, directory, holder.imageInRecycleView);
-        Picasso.with(mContext)
-                .load(SharedMethods.getImageUriForObject(mContext, mDogs.get(position), "mainImage"))
-                .error(R.drawable.ic_image_not_available)
-                .into(holder.imageInRecycleView);
+        SharedMethods.displayObjectImageInImageView(mContext, mDogs.get(position), "mainImage", holder.imageInRecycleView);
     }
 
     @Override public int getItemCount() {

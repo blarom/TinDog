@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             tools:context=".DogProfileFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.santalu.aspectratioimageview.AspectRatioImageView
+                android:id="@+id/dog_profile_main_image"
+                style="@style/MainImageStyleLandscape"
+                app:ari_aspect="height"
+                app:ari_ratio="0.75"
+                app:srcCompat="@drawable/ic_image_not_available"
+                android:contentDescription="@string/dog_main_image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/dog_profile_recyclerview_images"
+                style="@style/ImagesRecyclerViewStyle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dog_profile_main_image"/>
+
+            <TextView
+                android:id="@+id/dog_profile_dog_name"
+                style="@style/TitleStyle"
+                android:text="@string/dog_s_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dog_profile_recyclerview_images"/>
+
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/dog_profile_characteristics_container"
+                android:layout_width="@dimen/layout_width_for_large_screens"
+                android:layout_height="wrap_content"
+                android:elevation="4dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dog_profile_dog_name" >
+
+                <TextView
+                    android:id="@+id/dog_profile_title_foundation"
+                    style="@style/ProfileSubtitleStyle"
+                    android:text="@string/foundationPref"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_title_age"
+                    style="@style/ProfileSubtitleStyle"
+                    android:text="@string/agePref"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dog_profile_title_foundation"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_title_size"
+                    style="@style/ProfileSubtitleStyle"
+                    android:text="@string/sizePref"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dog_profile_title_age"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_title_gender"
+                    style="@style/ProfileSubtitleStyle"
+                    android:text="@string/genderPref"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dog_profile_title_size"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_title_behavior"
+                    style="@style/ProfileSubtitleStyle"
+                    android:text="@string/behaviorPref"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dog_profile_title_gender"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_title_interactions"
+                    style="@style/ProfileSubtitleStyle"
+                    android:text="@string/interactions"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dog_profile_title_behavior"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_title_history"
+                    style="@style/ProfileSubtitleStyle"
+                    android:text="@string/history"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dog_profile_title_interactions"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_value_foundation"
+                    style="@style/ProfileValueStyle"
+                    android:text="@string/no_associated_foundation"
+                    app:layout_constraintBottom_toBottomOf="@+id/dog_profile_title_foundation"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/dog_profile_title_foundation"
+                    app:layout_constraintTop_toTopOf="@+id/dog_profile_title_foundation"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_value_age"
+                    style="@style/ProfileValueStyle"
+                    android:text="@string/default_age"
+                    app:layout_constraintBottom_toBottomOf="@+id/dog_profile_title_age"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/dog_profile_title_interactions"
+                    app:layout_constraintTop_toTopOf="@+id/dog_profile_title_age"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_value_size"
+                    style="@style/ProfileValueStyle"
+                    android:text="@string/default_size"
+                    app:layout_constraintBottom_toBottomOf="@+id/dog_profile_title_size"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/dog_profile_title_interactions"
+                    app:layout_constraintTop_toTopOf="@+id/dog_profile_title_size"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_value_gender"
+                    style="@style/ProfileValueStyle"
+                    android:text="@string/default_gender"
+                    app:layout_constraintBottom_toBottomOf="@+id/dog_profile_title_gender"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/dog_profile_title_interactions"
+                    app:layout_constraintTop_toTopOf="@+id/dog_profile_title_gender"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_value_behavior"
+                    style="@style/ProfileValueStyle"
+                    android:text="@string/default_behavior"
+                    app:layout_constraintBottom_toBottomOf="@+id/dog_profile_title_behavior"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/dog_profile_title_interactions"
+                    app:layout_constraintTop_toTopOf="@+id/dog_profile_title_behavior"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_value_interactions"
+                    style="@style/ProfileValueStyle"
+                    android:text="@string/default_interactions"
+                    app:layout_constraintBottom_toBottomOf="@+id/dog_profile_title_interactions"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/dog_profile_title_interactions"
+                    app:layout_constraintTop_toTopOf="@+id/dog_profile_title_interactions"/>
+
+                <TextView
+                    android:id="@+id/dog_profile_value_history"
+                    style="@style/ProfileValueStyle"
+                    android:text="@string/default_history"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/dog_profile_title_interactions"
+                    app:layout_constraintTop_toTopOf="@+id/dog_profile_title_history"/>
+
+                <Button
+                    android:id="@+id/dog_profile_show_in_widget_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/show_this_dog_in_the_app_widget"
+                    app:layout_constraintTop_toBottomOf="@+id/dog_profile_value_history"/>
+
+            </android.support.constraint.ConstraintLayout>
+
+
+        </android.support.constraint.ConstraintLayout>
+
+    </ScrollView>
+
+</android.support.constraint.ConstraintLayout>

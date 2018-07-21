@@ -33,9 +33,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_username"
-                    android:maxLength="140"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -48,9 +46,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_pseudonym"
-                    android:maxLength="140"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -63,9 +59,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_cell"
-                    android:maxLength="140"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -76,9 +70,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_email"
-                    android:maxLength="140"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -89,10 +81,8 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_country"
-                    android:maxLength="140"
-                    android:inputType="textCapWords"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -103,10 +93,8 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_city"
-                    android:maxLength="140"
-                    android:inputType="textCapWords"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
             </android.support.design.widget.TextInputLayout>
 
 
@@ -118,10 +106,8 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_family_value_street"
-                    android:maxLength="140"
-                    android:inputType="textCapWords"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -141,42 +127,27 @@
                 android:id="@+id/family_profile_title_how_want_help"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_weight="1"
+                android:textSize="16sp"
                 android:text="@string/how_we_want_to_help"/>
 
             <TextView
                 android:id="@+id/family_profile_title_providing_a_home"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
+                style="@style/ProfileListSubtitleStyle"
                 android:text="@string/providing_a_home"/>
 
             <CheckBox
                 android:id="@+id/update_my_family_checkbox_foster"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                style="@style/ListCheckBoxCheckableStyle"
                 android:text="@string/foster_a_dog"/>
 
             <CheckBox
                 android:id="@+id/update_my_family_checkbox_foster_and_adopt"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                style="@style/ListCheckBoxCheckableStyle"
                 android:text="@string/adopt_a_dog"/>
 
             <CheckBox
                 android:id="@+id/update_my_family_checkbox_adopt"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                style="@style/ListCheckBoxCheckableStyle"
                 android:text="@string/foster_and_possibly_adopt_a_dog"/>
 
             <LinearLayout
@@ -190,6 +161,7 @@
                     android:id="@+id/update_my_family_title_foster_period"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="16sp"
                     android:text="@string/foster_period"/>
 
                 <Spinner
@@ -200,79 +172,63 @@
 
             <TextView
                 android:id="@+id/update_my_family_title_help_organize"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                style="@style/ProfileListSubtitleStyle"
                 android:text="@string/help_organize_adoption_events"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_help_organize_move_equipment"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/moving_equipment_around"/>
 
-                <TextView
-                    android:id="@+id/update_my_family_title_how_help"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/how_we_can_help"/>
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_help_organize_move_dogs"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/moving_dogs_around"/>
 
-                <CheckBox
-                    android:id="@+id/update_my_family_checkbox_help_organize_move_equipment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/moving_equipment_around"/>
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_help_organize_coordinating"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/coordinating_and_scheduling"/>
 
-                <CheckBox
-                    android:id="@+id/update_my_family_checkbox_help_organize_move_dogs"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/moving_dogs_around"/>
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_help_organize_lending_hand"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/lending_a_hand_at_events"/>
 
-                <CheckBox
-                    android:id="@+id/update_my_family_checkbox_help_organize_coordinating"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/coordinating_and_scheduling"/>
-
-                <CheckBox
-                    android:id="@+id/update_my_family_checkbox_help_organize_lending_hand"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/lending_a_hand_at_events"/>
-
-            </LinearLayout>
+            <TextView
+                android:id="@+id/family_profile_title_other"
+                style="@style/ProfileListSubtitleStyle"
+                android:text="@string/helping_in_other_ways"/>
 
             <CheckBox
                 android:id="@+id/update_my_family_checkbox_dogwalking"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                style="@style/ListCheckBoxNonCheckableStyle"
                 android:text="@string/dogwalking"/>
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp">
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp">
 
                 <TextView
                     android:id="@+id/update_my_family_title_where_dogwalking"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="16sp"
                     android:text="@string/where"
-                    />
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Spinner
                     android:id="@+id/update_my_family_spinner_where_dogwalking"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -284,6 +240,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:textSize="16sp"
                     android:text="@string/when"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -292,6 +249,8 @@
                 <GridLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
                     android:layout_marginTop="8dp"
                     android:columnCount="2"
                     android:rowCount="2"
@@ -303,26 +262,22 @@
 
                     <CheckBox
                         android:id="@+id/update_my_family_checkbox_dogwalking_morning"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/GridCheckBoxCheckableStyle"
                         android:text="@string/morning"/>
 
                     <CheckBox
                         android:id="@+id/update_my_family_checkbox_dogwalking_noon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/GridCheckBoxCheckableStyle"
                         android:text="@string/noon"/>
 
                     <CheckBox
                         android:id="@+id/update_my_family_checkbox_dogwalking_evening"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/GridCheckBoxCheckableStyle"
                         android:text="@string/evening"/>
 
                     <CheckBox
                         android:id="@+id/update_my_family_checkbox_dogwalking_afternoon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/GridCheckBoxCheckableStyle"
                         android:text="@string/afternoon"/>
 
                 </GridLayout>

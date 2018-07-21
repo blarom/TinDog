@@ -8,13 +8,22 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.URLSpan;
+import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.URLUtil;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
 import com.tindog.data.Dog;
@@ -31,12 +40,14 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
     @BindView(R.id.dog_profile_main_image) ImageView mImageViewMainImage;
     @BindView(R.id.dog_profile_recyclerview_images) RecyclerView mRecyclerViewImages;
     @BindView(R.id.dog_profile_dog_name) TextView mTextViewDogName;
+    @BindView(R.id.dog_profile_value_foundation) TextView mTextViewFoundation;
     @BindView(R.id.dog_profile_value_age) TextView mTextViewDogAge;
     @BindView(R.id.dog_profile_value_size) TextView mTextViewDogSize;
     @BindView(R.id.dog_profile_value_gender) TextView mTextViewDogGender;
     @BindView(R.id.dog_profile_value_behavior) TextView mTextViewDogBehavior;
     @BindView(R.id.dog_profile_value_interactions) TextView mTextViewDogInteractions;
     @BindView(R.id.dog_profile_value_history) TextView mTextViewDogHistory;
+    @BindView(R.id.dog_profile_show_in_widget_button) Button mButtonShowInWidget;
     private ImagesRecycleViewAdapter mImagesRecycleViewAdapter;
     private Unbinder mBinding;
     private Dog mDog;
@@ -85,6 +96,12 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
     private void initializeViews(View rootView) {
         mBinding = ButterKnife.bind(this, rootView);
         setupImagesRecyclerView();
+        mButtonShowInWidget.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateDogImageWidgetWithCurrentDog();
+            }
+        });
     }
     private void setupImagesRecyclerView() {
         mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -95,6 +112,20 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
     private void updateProfileFieldsOnScreen() {
 
         mTextViewDogName.setText(mDog.getNm());
+
+        String foundation = mDog.getFN();
+        if (!TextUtils.isEmpty(foundation)) {
+            //Make the foundation name a hyperlink
+            SpannableString foundationSpan = new SpannableString(foundation);
+            foundationSpan.setSpan(new URLSpan(""), 0, foundationSpan.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mTextViewFoundation.setText(foundationSpan);
+            mTextViewFoundation.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showFoundation();
+                }
+            });
+        }
 
         mTextViewDogAge.setText(mDog.getAg());
         mTextViewDogSize.setText(mDog.getSz());
@@ -117,9 +148,16 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         }
         mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
     }
+    private void showFoundation() {
+        if (getContext()!=null) {
+            Intent intent = new Intent(getContext(), SearchResultsActivity.class);
+            intent.putExtra(getString(R.string.profile_type), getString(R.string.foundation_profile));
+            intent.putExtra(getString(R.string.foundation_profile_requested_by_user), mDog.getAFid());
+            startActivity(intent);
+        }
+    }
     private void playVideoInBrowser(int clickedItemIndex) {
-        Intent webIntent = new Intent(Intent.ACTION_VIEW, mDisplayedImageList.get(clickedItemIndex));
-        if (getContext()!=null) getContext().startActivity(webIntent);
+        SharedMethods.goToWebLink(getContext(), mDisplayedImageList.get(clickedItemIndex).toString());
     }
     private void storeFragmentLayout() {
         if (mRecyclerViewImages!=null) {
@@ -127,13 +165,21 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
             onDogProfileFragmentOperationsHandler.onDogLayoutParametersCalculated(imagesRecyclerViewPosition);
         }
     }
+    private void updateDogImageWidgetWithCurrentDog() {
+        Intent intent = new Intent(getContext(), WidgetUpdateJobIntentService.class);
+        intent.putExtra(getString(R.string.intent_extra_specific_dog), mDog);
+        intent.setAction(getString(R.string.action_update_widget_specific_dog));
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        //startService(intent);
+        WidgetUpdateJobIntentService.enqueueWork(getContext(), intent);
+    }
 
 
     //Communication with other activities/fragments:
 
     //Communication with RecyclerView adapters
     @Override public void onImageClick(int clickedItemIndex) {
-        String clickedImageUri = mDisplayedImageList.get(clickedItemIndex).toString();
+        final String clickedImageUri = mDisplayedImageList.get(clickedItemIndex).toString();
         if (URLUtil.isNetworkUrl(clickedImageUri)) {
             playVideoInBrowser(clickedItemIndex);
         }
@@ -141,6 +187,7 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
             Picasso.with(getContext())
                     .load(clickedImageUri)
                     .error(R.drawable.ic_image_not_available)
+                    .memoryPolicy(MemoryPolicy.NO_CACHE)
                     .into(mImageViewMainImage);
         }
     }

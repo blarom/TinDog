@@ -1,7 +1,7 @@
 package com.tindog;
 
 import android.content.Intent;
-import android.os.PersistableBundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,6 +11,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import com.tindog.data.Family;
 import com.tindog.data.Foundation;
 import com.tindog.resources.SharedMethods;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,8 +40,9 @@ public class SearchResultsActivity extends AppCompatActivity implements
         SearchScreenFragment.OnSearchScreenOperationsHandler,
         DogProfileFragment.OnDogProfileFragmentOperationsHandler,
         FamilyProfileFragment.OnFamilyProfileFragmentOperationsHandler,
-        FoundationProfileFragment.OnFoundationProfileFragmentOperationsHandler {
+        FoundationProfileFragment.OnFoundationProfileFragmentOperationsHandler{
 
+    //region Parameters
     @BindView(R.id.master_fragment_container) FrameLayout mMasterFragmentContainer;
     @BindView(R.id.profiles_pager) ViewPager mPager;
     private static final String DEBUG_TAG = "TinDog Search Results";
@@ -60,6 +63,9 @@ public class SearchResultsActivity extends AppCompatActivity implements
     private String mProfileType;
     private int mStoredImagesRecyclerViewPosition;
     private int mSelectedProfileIndex;
+    private String mRequestedDogProfileUI;
+    private String mRequestedFoundationProfileUI;
+    //endregion
 
 
     //Lifecycle methods
@@ -114,7 +120,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
         Intent intent;
         switch (itemThatWasClickedId) {
             case android.R.id.home:
-                this.finish();
+                onBackPressed();
                 return true;
             case R.id.action_edit_my_family_profile:
                 intent = new Intent(this, UpdateMyFamilyActivity.class);
@@ -125,6 +131,9 @@ public class SearchResultsActivity extends AppCompatActivity implements
                 intent = new Intent(this, PreferencesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
+                return true;
+            case R.id.action_show_in_widget:
+                updateDogImageWidgetWithDogsList(mDogs);
                 return true;
             case R.id.action_signout:
                 if (mCurrentFirebaseUser!=null) mFirebaseAuth.signOut();
@@ -139,19 +148,21 @@ public class SearchResultsActivity extends AppCompatActivity implements
     }
     @Override public void onBackPressed() {
 
-        //inspired by: https://stackoverflow.com/questions/5448653/how-to-implement-onbackpressed-in-fragments
-        if (getFragmentManager().getBackStackEntryCount() == 0) {
+        //Returns to the SearchScreenFragment only if the user cliked on a profile in the SearchScreenFragment
+        if (!mActivatedDetailFragment || !TextUtils.isEmpty(mRequestedDogProfileUI) || !TextUtils.isEmpty(mRequestedFoundationProfileUI)) {
             super.onBackPressed();
         } else {
-            getFragmentManager().popBackStack();
+            mActivatedDetailFragment = false;
+            setFragmentLayouts(mSelectedProfileIndex);
         }
 
     }
-    @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+    @Override public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putInt(getString(R.string.search_results_profile_fragment_rv_position), mStoredImagesRecyclerViewPosition);
+        if (mPager!=null) mSelectedProfileIndex = mPager.getCurrentItem();
         outState.putInt(getString(R.string.search_results_selected_profile), mSelectedProfileIndex);
         outState.putBoolean(getString(R.string.search_results_activated_detail_fragment), mActivatedDetailFragment);
-        super.onSaveInstanceState(outState, outPersistentState);
     }
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -171,6 +182,20 @@ public class SearchResultsActivity extends AppCompatActivity implements
         if (intent.hasExtra(getString(R.string.profile_type))) {
             mProfileType = intent.getStringExtra(getString(R.string.profile_type));
         }
+        mRequestedDogProfileUI = "";
+        if (intent.hasExtra(getString(R.string.dog_profile_requested_by_widget))) {
+            //If the user requested a profile by clicking on the widget, the activity sends this request to the SearchScreenFragment,
+            //which registers it as an automatic click on the relevant profile if it's available.
+            //This in turn activates the profiles pager on the correct profile
+            mRequestedDogProfileUI = intent.getStringExtra(getString(R.string.dog_profile_requested_by_widget));
+        }
+        mRequestedFoundationProfileUI = "";
+        if (intent.hasExtra(getString(R.string.foundation_profile_requested_by_user))) {
+            //If the user requested a foundation profile by clicking on its name in the dog profile, the activity sends this request to the SearchScreenFragment,
+            //which registers it as an automatic click on the relevant profile if it's available.
+            //This in turn activates the profiles pager on the correct profile
+            mRequestedFoundationProfileUI = intent.getStringExtra(getString(R.string.foundation_profile_requested_by_user));
+        }
     }
     private void initializeParameters() {
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -182,6 +207,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
 
         mBinding =  ButterKnife.bind(this);
         SharedMethods.hideSoftKeyboard(this);
+
     }
     private void setFragmentLayouts(int selectedProfileIndex) {
 
@@ -208,16 +234,31 @@ public class SearchResultsActivity extends AppCompatActivity implements
     private void setupSearchScreenFragment() {
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         if (mSearchScreenFragment==null) mSearchScreenFragment = new SearchScreenFragment();
+
         Bundle bundle = new Bundle();
         bundle.putString(getString(R.string.profile_type), mProfileType);
+        if (!TextUtils.isEmpty(mRequestedDogProfileUI))
+            bundle.putString(getString(R.string.dog_profile_requested_by_widget), mRequestedDogProfileUI);
+        else if (!TextUtils.isEmpty(mRequestedFoundationProfileUI))
+            bundle.putString(getString(R.string.foundation_profile_requested_by_user), mRequestedFoundationProfileUI);
+
         mSearchScreenFragment.setArguments(bundle);
         fragmentTransaction.replace(R.id.master_fragment_container, mSearchScreenFragment);
         fragmentTransaction.commit();
     }
-    private void setupProfilesPager(int selectedProfileIndex) {
+    private void setupProfilesPager(final int selectedProfileIndex) {
         mPagerAdapter = new ProfilesPagerAdapter(mFragmentManager);
         mPager.setAdapter(mPagerAdapter);
+
         mPager.setCurrentItem(selectedProfileIndex);
+        //inspired by: https://stackoverflow.com/questions/19316729/android-viewpager-setcurrentitem-not-working-after-onresume
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                //Setting the current item again after a delay since all the fragment may not have yet been loaded
+                mPager.setCurrentItem(selectedProfileIndex);
+            }
+        });
     }
     private void removeSearchScreenFragment() {
         mSearchScreenFragment = null;
@@ -290,27 +331,38 @@ public class SearchResultsActivity extends AppCompatActivity implements
                 return mFoundationProfileFragment;
             }
 
-            mSelectedProfileIndex = position;
             return new DogProfileFragment();
         }
 
         @Override
         public int getCount() {
             if (mProfileType.equals(getString(R.string.dog_profile))) {
-                return mDogs.size();
+                return (mDogs!=null) ? mDogs.size() : 0;
             }
             else if (mProfileType.equals(getString(R.string.family_profile))) {
-                return mFamilies.size();
+                return (mFamilies!=null) ? mFamilies.size() : 0;
             }
             else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-                return mFoundations.size();
+                return (mFoundations!=null) ? mFoundations.size() : 0;
             }
             else return 0;
+        }
+
+    }
+    private void updateDogImageWidgetWithDogsList(List<Dog> dogList) {
+        if (dogList!=null && dogList.size()>0) {
+            Intent intent = new Intent(this, WidgetUpdateJobIntentService.class);
+            ArrayList<Dog> dogs = new ArrayList<>(mDogs);
+            intent.putParcelableArrayListExtra(getString(R.string.intent_extra_dogs_list), dogs);
+            intent.setAction(getString(R.string.action_update_widget_random_dog));
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            //startService(intent);
+            WidgetUpdateJobIntentService.enqueueWork(this, intent);
         }
     }
 
 
-    //Communication with other activities/fragments
+    //Communication with other classes
 
     //Communication with Search Screen Fragment
     @Override public void onProfileSelected(int selectedProfileIndex) {
@@ -320,6 +372,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
     }
     @Override public void onDogsFound(List<Dog> dogList) {
         mDogs = dogList;
+        if (mPagerAdapter!=null) mPagerAdapter.notifyDataSetChanged();
     }
     @Override public void onFamiliesFound(List<Family> familyList) {
         mFamilies = familyList;
@@ -338,6 +391,5 @@ public class SearchResultsActivity extends AppCompatActivity implements
     @Override public void onFoundationLayoutParametersCalculated(int imagesRecyclerViewPosition) {
         mStoredImagesRecyclerViewPosition = imagesRecyclerViewPosition;
     }
-
 
 }

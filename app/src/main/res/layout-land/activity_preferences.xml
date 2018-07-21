@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:id="@+id/activity_preferences"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/layout_width_for_large_screens"
+    android:layout_gravity="center_horizontal"
+    android:layout_height="match_parent"
+    tools:context=".PreferencesActivity">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <TextView
+            android:id="@+id/preferences_email_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:textSize="16sp"
+            android:gravity="start"
+            android:text="@string/no_email_available"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_change_email"
+            app:layout_constraintEnd_toStartOf="@+id/preferences_change_email"
+            app:layout_constraintStart_toEndOf="@+id/preferences_password_title"
+            app:layout_constraintTop_toTopOf="@+id/preferences_change_email"/>
+
+        <TextView
+            android:id="@+id/preferences_email_title"
+            style="@style/SpinerTitleStyle"
+            android:text="@string/email"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_change_email"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/preferences_change_email"/>
+
+        <TextView
+            android:id="@+id/preferences_name_title"
+            style="@style/SpinerTitleStyle"
+            android:text="@string/name"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_change_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/preferences_change_name"/>
+
+        <TextView
+            android:id="@+id/preferences_password_value"
+            style="@style/PreferencesValueStyle"
+            android:text="@string/hidden_password"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_change_password"
+            app:layout_constraintEnd_toStartOf="@+id/preferences_change_password"
+            app:layout_constraintStart_toEndOf="@+id/preferences_password_title"
+            app:layout_constraintTop_toTopOf="@+id/preferences_change_password"/>
+
+        <TextView
+            android:id="@+id/preferences_name_value"
+            style="@style/PreferencesValueStyle"
+            android:text="@string/no_name_available"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_change_name"
+            app:layout_constraintEnd_toStartOf="@+id/preferences_change_name"
+            app:layout_constraintStart_toEndOf="@+id/preferences_password_title"
+            app:layout_constraintTop_toTopOf="@+id/preferences_change_name"/>
+
+        <TextView
+            android:id="@+id/preferences_password_title"
+            style="@style/SpinerTitleStyle"
+            android:text="@string/password"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_change_password"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/preferences_change_password"/>
+
+        <ImageView
+            android:id="@+id/preferences_change_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@string/edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_change_email"
+            app:srcCompat="@drawable/ic_edit_black_24dp"/>
+
+        <ImageView
+            android:id="@+id/preferences_change_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@string/edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_change_name"
+            app:srcCompat="@drawable/ic_edit_black_24dp"/>
+
+        <ImageView
+            android:id="@+id/preferences_change_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="24dp"
+            android:contentDescription="@string/edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_title_who_am_i"
+            app:srcCompat="@drawable/ic_edit_black_24dp"/>
+
+        <TextView
+            android:id="@+id/preferences_interactions_title"
+            style="@style/SpinerTitleStyle"
+            android:text="@string/interactions"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_interactions_spinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/preferences_interactions_spinner"/>
+
+        <TextView
+            android:id="@+id/preferences_behavior_title"
+            style="@style/SpinerTitleStyle"
+            android:text="@string/behavior"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_behavior_spinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/preferences_behavior_spinner"/>
+
+
+        <TextView
+            android:id="@+id/preferences_race_title"
+            style="@style/SpinerTitleStyle"
+            android:text="@string/race"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_race_spinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/preferences_race_spinner"/>
+
+        <TextView
+            android:id="@+id/preferences_gender_title"
+            style="@style/SpinerTitleStyle"
+            android:text="@string/gender"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_gender_spinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/preferences_gender_spinner"/>
+
+        <TextView
+            android:id="@+id/preferences_size_title"
+            style="@style/SpinerTitleStyle"
+            android:text="@string/size"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_size_spinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/preferences_size_spinner"/>
+
+        <TextView
+            android:id="@+id/preferences_age_title"
+            style="@style/SpinerTitleStyle"
+            android:text="@string/age"
+            app:layout_constraintBottom_toBottomOf="@+id/preferences_age_spinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/preferences_age_spinner"/>
+
+        <TextView
+            android:id="@+id/preferences_title_who_am_i"
+            style="@style/TitleStyle"
+            android:text="@string/who_i_am"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/preferences_title_want_doggy_be"
+            style="@style/TitleStyle"
+            android:text="@string/i_want_my_doggy_to_be"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.502"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_change_password"/>
+
+        <Spinner
+            android:id="@+id/preferences_age_spinner"
+            style="@style/SpinnerStyle"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.955"
+            app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_title_want_doggy_be"/>
+
+        <Spinner
+            android:id="@+id/preferences_size_spinner"
+            style="@style/SpinnerStyle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_age_spinner"/>
+
+        <Spinner
+            android:id="@+id/preferences_gender_spinner"
+            style="@style/SpinnerStyle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_size_spinner"/>
+
+        <Spinner
+            android:id="@+id/preferences_race_spinner"
+            style="@style/SpinnerStyle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_gender_spinner"/>
+
+        <Spinner
+            android:id="@+id/preferences_behavior_spinner"
+            style="@style/SpinnerStyle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.955"
+            app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_race_spinner"/>
+
+        <Spinner
+            android:id="@+id/preferences_interactions_spinner"
+            style="@style/SpinnerStyle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_behavior_spinner"/>
+
+        <Button
+            android:id="@+id/preferences_find"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/find_my_perfect_friend"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/preferences_search_country_only_checkbox"/>
+
+        <CheckBox
+            android:id="@+id/preferences_search_country_only_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:textSize="14sp"
+            android:checked="true"
+            android:text="@string/search_only_in_my_country"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/preferences_interactions_spinner"/>
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

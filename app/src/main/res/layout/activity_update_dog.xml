@@ -33,9 +33,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_dog_value_foundation"
-                    android:maxLength="140"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -48,9 +46,7 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_dog_value_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLength="140"/>
+                    style="@style/TextInputEditTextParametersStyle"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -62,10 +58,9 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_dog_value_country"
-                    android:maxLength="140"
+                    style="@style/TextInputEditTextParametersStyle"
                     android:inputType="textCapWords"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_width="match_parent"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -76,10 +71,8 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_dog_value_city"
-                    android:maxLength="140"
-                    android:inputType="textCapWords"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.constraint.ConstraintLayout
@@ -88,10 +81,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_interactions_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
+                    style="@style/SpinerTitleStyle"
                     android:text="@string/interactions"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_interactions_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -99,10 +89,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_behavior_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
+                    style="@style/SpinerTitleStyle"
                     android:text="@string/behavior"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_behavior_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -110,10 +97,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_race_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
+                    style="@style/SpinerTitleStyle"
                     android:text="@string/race"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_race_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -121,10 +105,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_gender_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
+                    style="@style/SpinerTitleStyle"
                     android:text="@string/gender"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_gender_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -132,10 +113,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_size_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
+                    style="@style/SpinerTitleStyle"
                     android:text="@string/size"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_size_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -143,10 +121,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_age_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
+                    style="@style/SpinerTitleStyle"
                     android:text="@string/age"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_age_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -155,12 +130,7 @@
 
                 <Spinner
                     android:id="@+id/update_dog_age_spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="26dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginStart="8dp"
+                    style="@style/SpinnerStyle"
                     android:layout_marginTop="16dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/update_dog_interactions_title"
@@ -168,52 +138,28 @@
 
                 <Spinner
                     android:id="@+id/update_dog_size_spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
+                    style="@style/SpinnerStyle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/update_dog_interactions_title"
                     app:layout_constraintTop_toBottomOf="@+id/update_dog_age_spinner"/>
 
                 <Spinner
                     android:id="@+id/update_dog_gender_spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
+                    style="@style/SpinnerStyle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/update_dog_interactions_title"
                     app:layout_constraintTop_toBottomOf="@+id/update_dog_size_spinner"/>
 
                 <Spinner
                     android:id="@+id/update_dog_race_spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
+                    style="@style/SpinnerStyle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/update_dog_interactions_title"
                     app:layout_constraintTop_toBottomOf="@+id/update_dog_gender_spinner"/>
 
                 <Spinner
                     android:id="@+id/update_dog_behavior_spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
+                    style="@style/SpinnerStyle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.955"
                     app:layout_constraintStart_toEndOf="@+id/update_dog_interactions_title"
@@ -221,13 +167,7 @@
 
                 <Spinner
                     android:id="@+id/update_dog_interactions_spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
+                    style="@style/SpinnerStyle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/update_dog_interactions_title"
                     app:layout_constraintTop_toBottomOf="@+id/update_dog_behavior_spinner"/>

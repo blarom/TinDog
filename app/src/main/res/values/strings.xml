@@ -36,7 +36,6 @@
     <string name="families">Families</string>
     <string name="foundations">Foundations</string>
     <string name="profile_image">Profile image</string>
-    <string name="no_name_available">No name available</string>
     <string name="family_profile">Family Profile</string>
     <string name="dog_profile">Dog Profile</string>
     <string name="selected_profile_index">selected_profile_index</string>
@@ -97,6 +96,7 @@
     <string name="country">Country</string>
     <string name="street">Street</string>
     <string name="foundation">Foundation</string>
+    <string name="foundationPref">Foundation:</string>
     <string name="upload_dog_pics">Upload dog pics</string>
     <string name="choose_dog_s_main_pic">Choose dog\'s main pic</string>
     <string name="dog_s_history">Dog\'s history</string>
@@ -188,7 +188,6 @@
     <string name="are_you_sure_delete_dog">Are you sure you want to delete this dog? This cannot be undone.</string>
     <string name="yes">Yes</string>
     <string name="first_time_using_app">first_time_using_app</string>
-    <string name="set_preferred_characteristics">Please set your preferred dog characteristics.</string>
     <string-array name="dog_age">
         <item>Newborn pup (up to 6 months)</item>
         <item>Young troublemaker (0.5–3 yrs old)</item>
@@ -291,4 +290,30 @@
         <item>A short drive away</item>
         <item>A long drive away</item>
     </string-array>
+    <string name="appwidget_text">My Future Dog</string>
+    <string name="add_widget">Add widget</string>
+    <string name="no_dog_available">No dog available</string>
+    <string name="dog_profile_requested_by_widget">dog_profile_requested_by_widget</string>
+    <string name="no_name_available">No name available</string>
+    <string name="intent_extra_specific_dog">intent_extra_specific_dog</string>
+    <string name="intent_extra_dogs_list">intent_extra_dogs_list</string>
+    <string name="action_update_widget_random_dog">action_update_widget_random_dog</string>
+    <string name="action_update_widget_specific_dog">action_update_widget_specific_dog</string>
+    <string name="show_dogs_in_the_app_s_widget">Show random nearby dogs in the app\'s widget</string>
+    <string name="show_this_dog_in_the_app_widget">Show this dog in the app\'s widget</string>
+    <string name="error_dog_not_found_in_list">Error: the dog you wanted was not found in the list.</string>
+    <string name="helping_in_other_ways">Helping in other ways</string>
+    <string name="no_associated_foundation">No associated foundation</string>
+    <string name="foundation_profile_requested_by_user">foundation_profile_requested_by_user</string>
+    <string name="no_contact_phone_available">No contact phone available</string>
+    <string name="no_website_available">No website available</string>
+    <string name="age_spinner_position">preferences_age_spinner_position</string>
+    <string name="size_spinner_position">preferences_size_spinner_position</string>
+    <string name="gender_spinner_position">preferences_gender_spinner_position</string>
+    <string name="race_spinner_position">preferences_race_spinner_position</string>
+    <string name="behavior_spinner_position">preferences_behavior_spinner_position</string>
+    <string name="interactions_spinner_position">preferences_interactions_spinner_position</string>
+    <string name="preferences_limit_to_country_state">preferences_limit_to_country_state</string>
+    <string name="error_processing_request">Error while trying to process request, please try again</string>
+    <string name="first_time_preferences">Since this is your first time using the app, how about setting your preferences?</string>
 </resources>

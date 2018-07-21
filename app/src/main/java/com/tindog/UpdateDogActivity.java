@@ -1,5 +1,6 @@
 package com.tindog;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -115,7 +116,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         setupVideoLinksRecyclerView();
         setupDogImagesRecyclerView();
         SharedMethods.refreshMainImageShownToUser(getApplicationContext(), mDogImagesDirectory, mImageViewMain);
-        mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mDog);
+        if (!TextUtils.isEmpty(mDog.getUI())) mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mDog);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -140,9 +141,10 @@ public class UpdateDogActivity extends AppCompatActivity implements
 
                 if (succeeded) {
                     Uri copiedImageUri = SharedMethods.updateImageInLocalDirectory(croppedImageTempUri, mDogImagesDirectory, mImageName);
-                    SharedMethods.displayImages(getApplicationContext(), mDogImagesDirectory, mImageName, mImageViewMain, mDogImagesRecycleViewAdapter);
-
-                    if (copiedImageUri != null) mFirebaseDao.putImageInFirebaseStorage(mDog, copiedImageUri, mImageName);
+                    if (copiedImageUri!=null) {
+                        SharedMethods.displayImages(getApplicationContext(), mDogImagesDirectory, mImageName, mImageViewMain, mDogImagesRecycleViewAdapter);
+                        mFirebaseDao.putImageInFirebaseStorage(mDog, copiedImageUri, mImageName);
+                    }
                 }
             }
             else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -174,6 +176,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
 
         switch (itemThatWasClickedId) {
             case android.R.id.home:
+                setResult(Activity.RESULT_OK, new Intent());
                 this.finish();
                 return true;
             case R.id.action_save:
@@ -181,7 +184,10 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 return true;
             case R.id.action_done:
                 updateDogWithUserInput();
-                if (mDogSaved) finish();
+                if (mDogSaved) {
+                    setResult(Activity.RESULT_OK, new Intent());
+                    finish();
+                }
                 return true;
             case R.id.action_edit_preferences:
                 Intent intent = new Intent(this, PreferencesActivity.class);
@@ -286,9 +292,6 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 mDogImagesDirectory = getFilesDir()+"/dogs/"+ mDog.getUI()+"/images/";
                 mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mDog);
             }
-            else {
-                if (!mCreatedDog) createNewDogInFirebaseDb();
-            }
         }
     }
     private void createNewDogInFirebaseDb() {
@@ -377,7 +380,8 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 }
                 else {
                     mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mDogImagesDirectory);
-                    performImageCaptureAndCrop();
+                    if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
+                    else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -460,6 +464,8 @@ public class UpdateDogActivity extends AppCompatActivity implements
     }
     private void updateDogWithUserInput() {
 
+        if (!mCreatedDog) createNewDogInFirebaseDb();
+
         mDog.setFN(mEditTextFoundation.getText().toString());
         mDog.setAFid(mFirebaseUid);
         mDog.setNm(mEditTextName.getText().toString());
@@ -533,7 +539,10 @@ public class UpdateDogActivity extends AppCompatActivity implements
 
     //Communication with VideoLinkRecyclerView adapter
     @Override public void onTextClick(int clickedItemIndex) {
-        //TODO make the link open youtube or a media player
+        mVideoLinks = mDog.getVU();
+        if (mVideoLinks==null || mVideoLinks.size()==0) return;
+        String url = mVideoLinks.get(clickedItemIndex);
+        SharedMethods.goToWebLink(this, url);
     }
 
     //Communication with Firebase Dao handler
@@ -554,7 +563,6 @@ public class UpdateDogActivity extends AppCompatActivity implements
             Log.i(DEBUG_TAG, "Warning! Multiple dogs found with the same characteristics.");
         }
         else {
-            if (!mCreatedDog) createNewDogInFirebaseDb();
             Toast.makeText(getBaseContext(), "No dog found for your foundation, press DONE to create a new dog.", Toast.LENGTH_SHORT).show();
         }
 
@@ -581,6 +589,8 @@ public class UpdateDogActivity extends AppCompatActivity implements
 
     }
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
+
+        if (getBaseContext()==null) return;
 
         SharedMethods.synchronizeImageOnAllDevices(mDog, mFirebaseDao, mDogImagesDirectory, imageName, downloadedImageUri);
 

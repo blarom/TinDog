@@ -298,7 +298,8 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 }
                 else {
                     mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(mFamilyImagesDirectory);
-                    performImageCaptureAndCrop();
+                    if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
+                    else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -430,6 +431,8 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
 
     }
     @Override public void onImageAvailable(Uri downloadedImageUri, String imageName) {
+
+        if (getBaseContext()==null) return;
 
         SharedMethods.synchronizeImageOnAllDevices(mFamily, mFirebaseDao, mFamilyImagesDirectory, imageName, downloadedImageUri);
         SharedMethods.displayImages(getApplicationContext(), mFamilyImagesDirectory, imageName, mImageViewMain, mPetImagesRecycleViewAdapter);

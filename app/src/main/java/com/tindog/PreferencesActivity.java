@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -46,6 +47,7 @@ import butterknife.Unbinder;
 
 public class PreferencesActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler, AdapterView.OnItemSelectedListener {
 
+    //region Parameters
     private static final String DEBUG_TAG = "TinDog Preferences";
     @BindView(R.id.preferences_find) Button mButtonSearchForDog;
     @BindView(R.id.preferences_age_spinner) Spinner mSpinnerAge;
@@ -77,16 +79,26 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     private ArrayAdapter<CharSequence> mSpinnerAdapterBehavior;
     private ArrayAdapter<CharSequence> mSpinnerAdapterInteractions;
     private boolean mUserFound;
+    private int mAgeSpinnerPosition;
+    private int mSizeSpinnerPosition;
+    private int mGenderSpinnerPosition;
+    private int mRaceSpinnerPosition;
+    private int mBehaviorSpinnerPosition;
+    private int mInteractionsSpinnerPosition;
+    private boolean mLimitToCountry;
+    private Bundle mSavedInstanceState;
+    //endregion
 
     //Lifecycle methods
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preferences);
 
+        mSavedInstanceState = savedInstanceState;
         initializeParameters();
         getUserInfoFromFirebase();
         getTinDogUserProfileFromFirebase();
-        updateProfileFields();
+        if (mSavedInstanceState==null) updateProfileFields();
     }
     @Override public void onStart() {
         super.onStart();
@@ -110,7 +122,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 mCurrentFirebaseUser = mFirebaseAuth.getCurrentUser();
                 getUserInfoFromFirebase();
                 getTinDogUserProfileFromFirebase();
-                updateProfileFields();
+                if (mSavedInstanceState==null) updateProfileFields();
                 // ...
             } else {
                 // Sign in failed. If response is null the user canceled the
@@ -146,7 +158,36 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         }
         return super.onOptionsItemSelected(item);
     }
+    @Override protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(getString(R.string.age_spinner_position),mAgeSpinnerPosition);
+        outState.putInt(getString(R.string.size_spinner_position),mSizeSpinnerPosition);
+        outState.putInt(getString(R.string.gender_spinner_position),mGenderSpinnerPosition);
+        outState.putInt(getString(R.string.race_spinner_position),mRaceSpinnerPosition);
+        outState.putInt(getString(R.string.behavior_spinner_position),mBehaviorSpinnerPosition);
+        outState.putInt(getString(R.string.interactions_spinner_position),mInteractionsSpinnerPosition);
+        outState.putBoolean(getString(R.string.preferences_limit_to_country_state), mLimitToCountry);
+    }
+    @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState!=null) {
+            mAgeSpinnerPosition = savedInstanceState.getInt(getString(R.string.age_spinner_position));
+            mSizeSpinnerPosition = savedInstanceState.getInt(getString(R.string.size_spinner_position));
+            mGenderSpinnerPosition = savedInstanceState.getInt(getString(R.string.gender_spinner_position));
+            mRaceSpinnerPosition = savedInstanceState.getInt(getString(R.string.race_spinner_position));
+            mBehaviorSpinnerPosition = savedInstanceState.getInt(getString(R.string.behavior_spinner_position));
+            mInteractionsSpinnerPosition = savedInstanceState.getInt(getString(R.string.interactions_spinner_position));
+            mLimitToCountry = savedInstanceState.getBoolean(getString(R.string.preferences_limit_to_country_state), true);
 
+            mSpinnerAge.setSelection(mAgeSpinnerPosition);
+            mSpinnerSize.setSelection(mSizeSpinnerPosition);
+            mSpinnerGender.setSelection(mGenderSpinnerPosition);
+            mSpinnerRace.setSelection(mRaceSpinnerPosition);
+            mSpinnerBehavior.setSelection(mBehaviorSpinnerPosition);
+            mSpinnerInteractions.setSelection(mInteractionsSpinnerPosition);
+            mCheckBoxLimitToCountry.setChecked(mLimitToCountry);
+        }
+    }
 
     //Structural methods
     private void initializeParameters() {
@@ -211,6 +252,13 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
             }
         });
 
+        mCheckBoxLimitToCountry.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mLimitToCountry = b;
+            }
+        });
+
         mButtonSearchForDog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -223,13 +271,23 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     private void updateProfileFields() {
         mTextViewUserName.setText(mNameFromFirebase);
         mTextViewUserEmail.setText(mEmailFromFirebase);
-        mSpinnerAge.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerAge, mUser.getAP()));
-        mSpinnerSize.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerSize, mUser.getSP()));
-        mSpinnerGender.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerGender, mUser.getGP()));
-        mSpinnerRace.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerRace, mUser.getRP()));
-        mSpinnerBehavior.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerBehavior, mUser.getBP()));
-        mSpinnerInteractions.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerInteractions, mUser.getIP()));
-        mCheckBoxLimitToCountry.setChecked(mUser.getLC());
+
+        mAgeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerAge, mUser.getAP());
+        mSizeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerSize, mUser.getSP());
+        mGenderSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerGender, mUser.getGP());
+        mRaceSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerRace, mUser.getRP());
+        mBehaviorSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerBehavior, mUser.getBP());
+        mInteractionsSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerInteractions, mUser.getIP());
+
+        mSpinnerAge.setSelection(mAgeSpinnerPosition);
+        mSpinnerSize.setSelection(mSizeSpinnerPosition);
+        mSpinnerGender.setSelection(mGenderSpinnerPosition);
+        mSpinnerRace.setSelection(mRaceSpinnerPosition);
+        mSpinnerBehavior.setSelection(mBehaviorSpinnerPosition);
+        mSpinnerInteractions.setSelection(mInteractionsSpinnerPosition);
+
+        mLimitToCountry = mUser.getLC();
+        mCheckBoxLimitToCountry.setChecked(mLimitToCountry);
     }
     private void getUserInfoFromFirebase() {
         if (mCurrentFirebaseUser != null) {
@@ -272,6 +330,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
+                    SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), true);
                     getUserInfoFromFirebase();
                     getTinDogUserProfileFromFirebase();
                     updateProfileFields();
@@ -280,16 +339,8 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    List<AuthUI.IdpConfig> providers = Arrays.asList(
-                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                            new AuthUI.IdpConfig.GoogleBuilder().build());
-
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setAvailableProviders(providers)
-                                    .build(),
-                            SharedMethods.FIREBASE_SIGN_IN_KEY);
+                    if (SharedMethods.getAppPreferenceSignInRequestState(getApplicationContext()))
+                        SharedMethods.showSignInScreen(PreferencesActivity.this);
                 }
             }
         };
@@ -419,7 +470,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
             //Toast.makeText(getBaseContext(), "No user found for your entered email, press DONE to create a new user.", Toast.LENGTH_SHORT).show();
         }
 
-        updateProfileFields();
+        if (mSavedInstanceState==null) updateProfileFields();
     }
     @Override public void onImageAvailable(Uri imageUri, String imageName) {
 
@@ -432,21 +483,27 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     @Override public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
         switch (adapterView.getId()) {
             case R.id.preferences_age_spinner:
+                mAgeSpinnerPosition = pos;
                 mUser.setAP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_size_spinner:
+                mSizeSpinnerPosition = pos;
                 mUser.setSP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_gender_spinner:
+                mGenderSpinnerPosition = pos;
                 mUser.setGP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_race_spinner:
+                mRaceSpinnerPosition = pos;
                 mUser.setRP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_behavior_spinner:
+                mBehaviorSpinnerPosition = pos;
                 mUser.setBP((String) adapterView.getItemAtPosition(pos));
                 break;
             case R.id.preferences_interactions_spinner:
+                mInteractionsSpinnerPosition = pos;
                 mUser.setIP((String) adapterView.getItemAtPosition(pos));
                 break;
         }

@@ -18,6 +18,9 @@ public class Dog implements Parcelable {
         this.cn = country;
         this.ag = age;
     }
+    public Dog(String uI) {
+        this.uI = uI;
+    }
     protected Dog(Parcel in) {
         nm = in.readString();
         uI = in.readString();

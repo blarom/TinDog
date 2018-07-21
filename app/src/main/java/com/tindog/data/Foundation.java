@@ -78,7 +78,7 @@ public class Foundation implements Parcelable {
     public String getWb() {
         return wb;
     }
-    public void setWb(String nm) {
+    public void setWb(String wb) {
         this.wb = wb;
     }
 

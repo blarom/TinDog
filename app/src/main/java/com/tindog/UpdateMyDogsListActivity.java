@@ -2,7 +2,9 @@ package com.tindog;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +16,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -43,8 +46,10 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
 
     //region Parameters
     private static final String DEBUG_TAG = "TinDog DogsList";
+    private static final int UPDATE_DOG_KEY = 222;
     @BindView(R.id.update_my_dogs_results_list) RecyclerView mRecyclerViewProfileSelection;
     @BindView(R.id.update_my_dogs_user_input) TextInputEditText mEditTextUserInput;
+    @BindView(R.id.update_my_dogs_add_fab) FloatingActionButton mFabAddDog;
     private DogsListRecycleViewAdapter mDogsListRecycleViewAdapter;
     private DatabaseReference mFirebaseDbReference;
     private FirebaseDao mFirebaseDao;
@@ -53,8 +58,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
     private String mFirebaseUid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private List<Dog> mDogsList;
-    private List<Dog> mDogsListSubset;
-    private boolean mRequestedFullList;
+    private List<Dog> mDogsListShownToUser;
     private Unbinder mBinding;
     //endregion
 
@@ -75,7 +79,6 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
     @Override protected void onResume() {
         super.onResume();
         getListsFromFirebase();
-        getDogsListSubsetAccordingToUserInput();
     }
     @Override protected void onDestroy() {
         super.onDestroy();
@@ -98,6 +101,17 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
                 // ...
             }
         }
+        else if (requestCode == UPDATE_DOG_KEY) {
+            //Delay the search so that Firebase can have enough time to add/update the dog in the database
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    getListsFromFirebase();
+                }
+            };
+            Handler handler = new Handler();
+            handler.postDelayed(runnable, 500);
+        }
     }
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.update_my_dogs_list_menu, menu);
@@ -112,7 +126,6 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
                 return true;
             case R.id.action_search:
                 getListsFromFirebase();
-                getDogsListSubsetAccordingToUserInput();
                 return true;
             case R.id.action_done:
                 finish();
@@ -142,6 +155,13 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         mFirebaseDao = new FirebaseDao(this, this);
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mFirebaseAuth = FirebaseAuth.getInstance();
+
+        mFabAddDog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDogProfile(new Dog());
+            }
+        });
     }
     private void setupRecyclerView() {
         mRecyclerViewProfileSelection.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -169,6 +189,8 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         builder.setMessage(R.string.are_you_sure_delete_dog);
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                mDogsListShownToUser.remove(dog);
+                mDogsListRecycleViewAdapter.setContents(mDogsListShownToUser);
                 mFirebaseDao.deleteObjectFromFirebaseDb(dog);
                 mFirebaseDao.deleteAllObjectImagesFromFirebaseStorage(dog);
                 SharedMethods.deleteAllLocalObjectImages(getApplicationContext(), dog);
@@ -183,7 +205,6 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         dialog.show();
     }
     private void getListsFromFirebase() {
-        mRequestedFullList = true;
         mFirebaseDao.getObjectsByKeyValuePairFromFirebaseDb(new Dog(), "afid", mFirebaseUid);
     }
     private void getFoundationFirebaseId() {
@@ -224,19 +245,19 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
     private void getDogsListSubsetAccordingToUserInput() {
-        mDogsListSubset = new ArrayList<>();
+        mDogsListShownToUser = new ArrayList<>();
         String userInput = mEditTextUserInput.getText().toString();
         if (TextUtils.isEmpty(userInput)) {
-            mDogsListSubset = mDogsList;
+            mDogsListShownToUser = mDogsList;
         }
         else {
             for (Dog dog : mDogsList) {
                 if (dog.getNm().contains(userInput)) {
-                    mDogsListSubset.add(dog);
+                    mDogsListShownToUser.add(dog);
                 }
             }
         }
-        mDogsListRecycleViewAdapter.setContents(mDogsListSubset);
+        mDogsListRecycleViewAdapter.setContents(mDogsListShownToUser);
     }
     private void openDogProfile(Dog dog) {
         Intent intent = new Intent(this, UpdateDogActivity.class);
@@ -244,7 +265,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         bundle.putString(getString(R.string.selected_dog_id), dog.getUI());
         intent.putExtras(bundle);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
+        startActivityForResult(intent, UPDATE_DOG_KEY);
     }
 
 
@@ -252,20 +273,13 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
 
     //Communication with RecyclerView adapters
     @Override public void onDogsListItemClick(int clickedItemIndex) {
-        if (mRequestedFullList) {
-            openDogProfile(mDogsList.get(clickedItemIndex));
-        }
-        else {
-            openDogProfile(mDogsListSubset.get(clickedItemIndex));
-        }
+        openDogProfile(mDogsListShownToUser.get(clickedItemIndex));
     }
 
     //Communication with Firebase Dao handler
     @Override public void onDogsListFound(List<Dog> dogsList) {
-        mDogsList = dogsList;
-        if (mRequestedFullList) {
-            mDogsListRecycleViewAdapter.setContents(dogsList);
-        }
+        mDogsList = dogsList; //check why list is not updated
+        getDogsListSubsetAccordingToUserInput();
     }
     @Override public void onFamiliesListFound(List<Family> familiesList) {
     }

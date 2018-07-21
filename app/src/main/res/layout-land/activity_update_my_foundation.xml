@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/layout_width_for_large_screens"
+    android:layout_gravity="center_horizontal"
+    android:layout_height="match_parent"
+    tools:context=".UpdateMyFamilyActivity">
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical">
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_foundation_container_name"
+                android:hint="@string/foundation_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_foundation_value_name"
+                    android:maxLength="140"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_foundation_container_website"
+                android:hint="@string/website"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_foundation_value_website"
+                    android:maxLength="140"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_foundation_container_contact_phone"
+                android:hint="@string/contact_phone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_foundation_value_contact_phone"
+                    android:maxLength="140"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_foundation_container_contact_email"
+                android:hint="@string/contact_email"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_foundation_value_contact_email"
+                    android:maxLength="140"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_foundation_container_country"
+                android:hint="@string/country"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layout_editor_absoluteX="16dp"
+                tools:layout_editor_absoluteY="159dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_foundation_value_country"
+                    android:maxLength="140"
+                    android:inputType="textCapWords"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_foundation_container_city"
+                android:hint="@string/city"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layout_editor_absoluteX="16dp"
+                tools:layout_editor_absoluteY="159dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_foundation_value_city"
+                    android:maxLength="140"
+                    android:inputType="textCapWords"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_foundation_container_street"
+                android:hint="@string/street"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layout_editor_absoluteX="16dp"
+                tools:layout_editor_absoluteY="159dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_foundation_value_street"
+                    android:maxLength="140"
+                    android:inputType="textCapWords"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_foundation_container_street_number"
+                android:hint="@string/street_number"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layout_editor_absoluteX="16dp"
+                tools:layout_editor_absoluteY="159dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_foundation_value_street_number"
+                    android:maxLength="140"
+                    android:inputType="number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </android.support.design.widget.TextInputLayout>
+
+
+            <Button
+                android:id="@+id/update_my_foundation_button_upload_pics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/upload_foundation_pics"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/update_my_foundation_recyclerview_images"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                />
+
+            <Button
+                android:id="@+id/update_my_foundation_button_choose_main_pic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/foundation_main_pic"/>
+
+            <com.santalu.aspectratioimageview.AspectRatioImageView
+                android:id="@+id/update_my_foundation_image_main"
+                android:scaleType="centerCrop"
+                app:ari_aspect="height"
+                app:ari_ratio="0.75"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/foundation_main_image"
+                app:srcCompat="@drawable/ic_image_not_available"/>
+
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</android.support.constraint.ConstraintLayout>

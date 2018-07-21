@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/layout_width_for_large_screens"
+    android:layout_gravity="center_horizontal"
+    android:layout_height="match_parent"
+    tools:context=".UpdateMyFamilyActivity">
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical">
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_username"
+                android:hint="@string/my_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_family_value_username"
+                    style="@style/TextInputEditTextParametersStyle" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_pseudonym"
+                android:hint="@string/my_family_s_pseudonym"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_family_value_pseudonym"
+                    style="@style/TextInputEditTextParametersStyle" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_cell"
+                android:hint="@string/my_cell_number_not_shown_to_others"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_family_value_cell"
+                    style="@style/TextInputEditTextParametersStyle" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_email"
+                android:hint="@string/my_email_not_shown_to_others"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_family_value_email"
+                    style="@style/TextInputEditTextParametersStyle" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_country"
+                android:hint="@string/country_where_i_live"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_family_value_country"
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_city"
+                android:hint="@string/city_where_i_live"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_family_value_city"
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_street"
+                android:hint="@string/street_where_i_live"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_family_value_street"
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_history"
+                android:hint="@string/my_experience_with_fostering_adoption"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_family_value_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:id="@+id/family_profile_title_how_want_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:text="@string/how_we_want_to_help"/>
+
+            <TextView
+                android:id="@+id/family_profile_title_providing_a_home"
+                style="@style/ProfileListSubtitleStyle"
+                android:text="@string/providing_a_home"/>
+
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_foster"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/foster_a_dog"/>
+
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_foster_and_adopt"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/adopt_a_dog"/>
+
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_adopt"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/foster_and_possibly_adopt_a_dog"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/update_my_family_title_foster_period"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="@string/foster_period"/>
+
+                <Spinner
+                    android:id="@+id/update_my_family_spinner_foster_period"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/update_my_family_title_help_organize"
+                style="@style/ProfileListSubtitleStyle"
+                android:text="@string/help_organize_adoption_events"/>
+
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_help_organize_move_equipment"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/moving_equipment_around"/>
+
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_help_organize_move_dogs"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/moving_dogs_around"/>
+
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_help_organize_coordinating"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/coordinating_and_scheduling"/>
+
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_help_organize_lending_hand"
+                style="@style/ListCheckBoxCheckableStyle"
+                android:text="@string/lending_a_hand_at_events"/>
+
+            <TextView
+                android:id="@+id/family_profile_title_other"
+                style="@style/ProfileListSubtitleStyle"
+                android:text="@string/helping_in_other_ways"/>
+
+            <CheckBox
+                android:id="@+id/update_my_family_checkbox_dogwalking"
+                style="@style/ListCheckBoxNonCheckableStyle"
+                android:text="@string/dogwalking"/>
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/update_my_family_title_where_dogwalking"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="@string/where"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Spinner
+                    android:id="@+id/update_my_family_spinner_where_dogwalking"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintLeft_toLeftOf="@id/update_my_family_title_where_dogwalking"
+                    app:layout_constraintStart_toEndOf="@id/update_my_family_title_where_dogwalking"/>
+
+                <TextView
+                    android:id="@+id/update_my_family_title_when_dogwalking"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="16sp"
+                    android:text="@string/when"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/update_my_family_spinner_where_dogwalking"/>
+
+                <GridLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="8dp"
+                    android:columnCount="2"
+                    android:rowCount="2"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintLeft_toLeftOf="@id/update_my_family_title_when_dogwalking"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/update_my_family_title_when_dogwalking"
+                    app:layout_constraintTop_toBottomOf="@id/update_my_family_spinner_where_dogwalking">
+
+                    <CheckBox
+                        android:id="@+id/update_my_family_checkbox_dogwalking_morning"
+                        style="@style/GridCheckBoxCheckableStyle"
+                        android:text="@string/morning"/>
+
+                    <CheckBox
+                        android:id="@+id/update_my_family_checkbox_dogwalking_noon"
+                        style="@style/GridCheckBoxCheckableStyle"
+                        android:text="@string/noon"/>
+
+                    <CheckBox
+                        android:id="@+id/update_my_family_checkbox_dogwalking_evening"
+                        style="@style/GridCheckBoxCheckableStyle"
+                        android:text="@string/evening"/>
+
+                    <CheckBox
+                        android:id="@+id/update_my_family_checkbox_dogwalking_afternoon"
+                        style="@style/GridCheckBoxCheckableStyle"
+                        android:text="@string/afternoon"/>
+
+                </GridLayout>
+            </android.support.constraint.ConstraintLayout>
+
+            <Button
+                android:id="@+id/update_my_family_button_upload_pics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/upload_pics_of_my_current_pets"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/update_my_family_recyclerview_pet_images"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                />
+
+            <Button
+                android:id="@+id/update_my_family_button_choose_main_pic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_my_family_page_picture"/>
+
+            <com.santalu.aspectratioimageview.AspectRatioImageView
+                android:id="@+id/update_my_family_image_main"
+                android:scaleType="centerCrop"
+                app:ari_aspect="height"
+                app:ari_ratio="0.75"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/family_main_image"
+                app:srcCompat="@drawable/ic_image_not_available"/>
+
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</android.support.constraint.ConstraintLayout>
