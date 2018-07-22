@@ -148,7 +148,7 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         if (getContext()!=null) {
             Intent intent = new Intent(getContext(), SearchResultsActivity.class);
             intent.putExtra(getString(R.string.profile_type), getString(R.string.foundation_profile));
-            intent.putExtra(getString(R.string.foundation_profile_requested_by_user), mDog.getAFid());
+            intent.putExtra(getString(R.string.requested_specific_foundation_profile), mDog.getAFid());
             startActivity(intent);
         }
     }

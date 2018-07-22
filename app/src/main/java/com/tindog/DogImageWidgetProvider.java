@@ -83,7 +83,7 @@ public class DogImageWidgetProvider extends AppWidgetProvider {
     private static void setWidgetImageClickListener(Context context, RemoteViews views, Dog dog) {
         Intent intent = new Intent(context, SearchResultsActivity.class);
         intent.putExtra(context.getString(R.string.profile_type), context.getString(R.string.dog_profile));
-        intent.putExtra(context.getString(R.string.dog_profile_requested_by_widget), dog.getUI());
+        intent.putExtra(context.getString(R.string.requested_specific_dog_profile), dog.getUI());
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         //Note: FLAG_UPDATE_CURRENT makes sure that the updated extras are send with the pendingIntent, instead of using old ones
         views.setOnClickPendingIntent(R.id.widget_dog_image_container, pendingIntent);

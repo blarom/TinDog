@@ -97,7 +97,8 @@ public class SearchScreenFragment extends Fragment implements
     private boolean mSwitchedTabs;
     private String mProfileType;
     private String mCurrentImage;
-    private String mRequestedProfileUI;
+    private String mRequestedDogProfileUI;
+    private String mRequestedFamilyProfileUI;
     private String mRequestedFoundationProfileUI;
     private final static int IMAGE_BLOCK_SIZE = 6;
     private int imageDisplayCounter;
@@ -149,11 +150,14 @@ public class SearchScreenFragment extends Fragment implements
 
     //Functionality methods
     private void getExtras() {
-        mRequestedProfileUI = "";
+        mRequestedDogProfileUI = "";
+        mRequestedFamilyProfileUI = "";
+        mRequestedFoundationProfileUI = "";
         if (getArguments() != null) {
             mProfileType = getArguments().getString(getString(R.string.profile_type));
-            mRequestedProfileUI = getArguments().getString(getString(R.string.dog_profile_requested_by_widget));
-            mRequestedFoundationProfileUI = getArguments().getString(getString(R.string.foundation_profile_requested_by_user));
+            mRequestedDogProfileUI = getArguments().getString(getString(R.string.requested_specific_dog_profile));
+            mRequestedFamilyProfileUI = getArguments().getString(getString(R.string.requested_specific_family_profile));
+            mRequestedFoundationProfileUI = getArguments().getString(getString(R.string.requested_specific_foundation_profile));
         }
     }
     private void initializeParameters() {
@@ -292,11 +296,12 @@ public class SearchScreenFragment extends Fragment implements
 
         //Setting up the item lists (results are received through the FirebaseDao interface, see methods below)
         if (mProfileType.equals(getString(R.string.dog_profile))) {
-            if (TextUtils.isEmpty(mRequestedProfileUI)) mFirebaseDao.getFullObjectsListFromFirebaseDb(new Dog());
-            else mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(new Dog(mRequestedProfileUI));
+            if (TextUtils.isEmpty(mRequestedDogProfileUI)) mFirebaseDao.getFullObjectsListFromFirebaseDb(new Dog());
+            else mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(new Dog(mRequestedDogProfileUI));
         }
         else if (mProfileType.equals(getString(R.string.family_profile))) {
-            mFirebaseDao.getFullObjectsListFromFirebaseDb(new Family());
+            if (TextUtils.isEmpty(mRequestedFamilyProfileUI)) mFirebaseDao.getFullObjectsListFromFirebaseDb(new Family());
+            else mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(new Family(mRequestedFamilyProfileUI));
         }
         else if (mProfileType.equals(getString(R.string.foundation_profile))) {
             if (TextUtils.isEmpty(mRequestedFoundationProfileUI)) mFirebaseDao.getFullObjectsListFromFirebaseDb(new Foundation());
@@ -595,7 +600,7 @@ public class SearchScreenFragment extends Fragment implements
         mFoundResults = true;
 
         //If the user requested a dogs list, then show the list at the requested distance
-        if (TextUtils.isEmpty(mRequestedProfileUI)) updateObjectListAccordingToDistance();
+        if (TextUtils.isEmpty(mRequestedDogProfileUI)) updateObjectListAccordingToDistance();
 
         //If the user requested a specific dog, then update its index in the list for the parent activity.
         else {
@@ -609,7 +614,17 @@ public class SearchScreenFragment extends Fragment implements
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
         mFamiliesList = familiesList;
         mFoundResults = true;
-        updateObjectListAccordingToDistance();
+
+        //If the user requested a family list, then show the list at the requested distance
+        if (TextUtils.isEmpty(mRequestedFamilyProfileUI)) updateObjectListAccordingToDistance();
+
+        //If the user requested a specific family, then update its index in the list for the parent activity.
+        else {
+            if (mFamiliesList!=null && mFamiliesList.size()>0) {
+                onSearchScreenOperationsHandler.onFamiliesFound(mFamiliesList);
+                onSearchScreenOperationsHandler.onProfileSelected(0);
+            }
+        }
     }
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast

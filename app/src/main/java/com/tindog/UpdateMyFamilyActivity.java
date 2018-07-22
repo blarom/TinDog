@@ -92,6 +92,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private boolean[] mImagesReady;
     private int mScrollPosition;
     private Bundle mSavedInstanceState;
+    private boolean mFamilyCriticalParametersSet;
     //endregion
 
 
@@ -173,11 +174,15 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 return true;
             case R.id.action_save:
                 updateFamilyWithUserInput();
-                if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
+                if (mFamilyCriticalParametersSet) {
+                    if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
+                }
                 return true;
             case R.id.action_done:
                 updateFamilyWithUserInput();
-                if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
+                if (mFamilyCriticalParametersSet) {
+                    if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
+                }
                 finish();
                 return true;
             case R.id.action_edit_preferences:
@@ -238,6 +243,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mFirebaseAuth = FirebaseAuth.getInstance();
 
+        mFamilyCriticalParametersSet = false;
         mImagesReady = new boolean[]{false, false, false, false, false, false};
         mFamilyFound = false;
 
@@ -365,14 +371,22 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     }
     private void updateFamilyWithUserInput() {
         mFamily.setOFid(mFirebaseUid);
-        mFamily.setPn(mEditTextPseudonym.getText().toString());
         mFamily.setCp(mEditTextCell.getText().toString());
         mFamily.setEm(mEditTextEmail.getText().toString());
         mFamily.setCn(mEditTextCountry.getText().toString());
 
+        String pseudonym = mEditTextPseudonym.getText().toString();
+        String country = mEditTextCountry.getText().toString();
         String city = mEditTextCity.getText().toString();
+        String street = mEditTextStreet.getText().toString();
+
+        mFamily.setPn(pseudonym);
+        mFamily.setCn(country);
         mFamily.setCt(city);
-        Address address = SharedMethods.getAddressObjectFromAddressString(this, city);
+        mFamily.setSt(street);
+
+        String addressString = street + ", " + city + ", " + country;
+        Address address = SharedMethods.getAddressObjectFromAddressString(this, addressString);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();
             double geoAddressLatitude = address.getLatitude();
@@ -400,6 +414,14 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mFamily.setHDN(mCheckBoxDogWalkingNoon.isChecked());
         mFamily.getHDA(mCheckBoxDogWalkingAfternoon.isChecked());
         mFamily.setHDE(mCheckBoxDogWalkingEvening.isChecked());
+
+        if (pseudonym.length() < 2 || country.length() < 2 || city.length() < 1) {
+            Toast.makeText(getApplicationContext(), R.string.family_not_saved, Toast.LENGTH_SHORT).show();
+            mFamilyCriticalParametersSet = false;
+        }
+        else {
+            mFamilyCriticalParametersSet = true;
+        }
 
         if (TextUtils.isEmpty(mFamily.getUI())) Log.i(DEBUG_TAG, "Error: TinDog Family has empty unique ID!");
 

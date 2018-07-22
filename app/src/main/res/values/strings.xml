@@ -101,6 +101,7 @@
     <string name="choose_dog_s_main_pic">Choose dog\'s main pic</string>
     <string name="dog_s_history">Dog\'s history</string>
     <string name="foundation_name">Foundation Name</string>
+    <string name="foundation_name_required">Foundation Name (*required)</string>
     <string name="website">Website</string>
     <string name="contact_email">Contact Email</string>
     <string name="contact_phone">Contact phone</string>
@@ -133,6 +134,8 @@
     <string name="preferences">Preferences</string>
     <string name="profile_finder">Profile Finder</string>
     <string name="dog_not_saved">Dog not saved! Please fill in valid values for the fields marked with *.</string>
+    <string name="family_not_saved">Family not saved! Please fill in valid values for the fields marked with *.</string>
+    <string name="foundation_not_saved">Foundation not saved! Please fill in valid values for the fields marked with *.</string>
     <string name="dog_s_name_required">Dog\'s name (*required)</string>
     <string name="country_required">Country (*required)</string>
     <string name="city_required">City (*required)</string>
@@ -295,7 +298,7 @@
     <string name="appwidget_text">My Future Dog</string>
     <string name="add_widget">Add widget</string>
     <string name="no_dog_available">No dog available</string>
-    <string name="dog_profile_requested_by_widget">dog_profile_requested_by_widget</string>
+    <string name="requested_specific_dog_profile">requested_specific_dog_profile</string>
     <string name="no_name_available">No name available</string>
     <string name="intent_extra_specific_dog">intent_extra_specific_dog</string>
     <string name="intent_extra_dogs_list">intent_extra_dogs_list</string>
@@ -306,7 +309,7 @@
     <string name="error_dog_not_found_in_list">Error: the dog you wanted was not found in the list.</string>
     <string name="helping_in_other_ways">Helping in other ways</string>
     <string name="no_associated_foundation">No associated foundation</string>
-    <string name="foundation_profile_requested_by_user">foundation_profile_requested_by_user</string>
+    <string name="requested_specific_foundation_profile">requested_specific_foundation_profile</string>
     <string name="no_contact_phone_available">No contact phone available</string>
     <string name="no_website_available">No website available</string>
     <string name="age_spinner_position">preferences_age_spinner_position</string>
@@ -339,4 +342,6 @@
     <string name="search_results_foundations_list">search_results_foundations_list</string>
     <string name="saved_foundation_street">saved_foundation_street</string>
     <string name="saved_foundation_street_number">saved_foundation_street_number</string>
+    <string name="requested_specific_family_profile">requested_specific_family_profile</string>
+    <string name="click_on_pin_to_show_profile">Click on a pin to show the item\'s name, then click on it to see its profile</string>
 </resources>

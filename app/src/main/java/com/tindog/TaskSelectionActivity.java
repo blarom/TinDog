@@ -8,7 +8,7 @@ package com.tindog;
 //TODO: fix dogs list activity not refreshing search when returning to it
 //TODO: Add option to delete pictures in dog/famiy/foundation profile updaters
 //TODO: Fix failed to find image problem
-//TODO: add zoom-in, select pin to show profile and set address from map pin functionality
+//TODO: add set address from map pin functionality
 
 import android.Manifest;
 import android.content.Intent;

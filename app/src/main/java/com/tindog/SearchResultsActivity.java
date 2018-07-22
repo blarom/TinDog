@@ -64,6 +64,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
     private int mStoredImagesRecyclerViewPosition;
     private int mSelectedProfileIndex;
     private String mRequestedDogProfileUI;
+    private String mRequestedFamilyProfileUI;
     private String mRequestedFoundationProfileUI;
     //endregion
 
@@ -149,7 +150,10 @@ public class SearchResultsActivity extends AppCompatActivity implements
     @Override public void onBackPressed() {
 
         //Returns to the SearchScreenFragment only if the user cliked on a profile in the SearchScreenFragment
-        if (!mActivatedDetailFragment || !TextUtils.isEmpty(mRequestedDogProfileUI) || !TextUtils.isEmpty(mRequestedFoundationProfileUI)) {
+        if (!mActivatedDetailFragment
+                || !TextUtils.isEmpty(mRequestedDogProfileUI)
+                || !TextUtils.isEmpty(mRequestedFamilyProfileUI)
+                || !TextUtils.isEmpty(mRequestedFoundationProfileUI)) {
             super.onBackPressed();
         } else {
             mActivatedDetailFragment = false;
@@ -183,18 +187,25 @@ public class SearchResultsActivity extends AppCompatActivity implements
             mProfileType = intent.getStringExtra(getString(R.string.profile_type));
         }
         mRequestedDogProfileUI = "";
-        if (intent.hasExtra(getString(R.string.dog_profile_requested_by_widget))) {
-            //If the user requested a profile by clicking on the widget, the activity sends this request to the SearchScreenFragment,
+        if (intent.hasExtra(getString(R.string.requested_specific_dog_profile))) {
+            //If the user requested a dog profile, the activity sends this request to the SearchScreenFragment,
             //which registers it as an automatic click on the relevant profile if it's available.
             //This in turn activates the profiles pager on the correct profile
-            mRequestedDogProfileUI = intent.getStringExtra(getString(R.string.dog_profile_requested_by_widget));
+            mRequestedDogProfileUI = intent.getStringExtra(getString(R.string.requested_specific_dog_profile));
+        }
+        mRequestedFamilyProfileUI = "";
+        if (intent.hasExtra(getString(R.string.requested_specific_family_profile))) {
+            //If the user requested a family profile, the activity sends this request to the SearchScreenFragment,
+            //which registers it as an automatic click on the relevant profile if it's available.
+            //This in turn activates the profiles pager on the correct profile
+            mRequestedFoundationProfileUI = intent.getStringExtra(getString(R.string.requested_specific_family_profile));
         }
         mRequestedFoundationProfileUI = "";
-        if (intent.hasExtra(getString(R.string.foundation_profile_requested_by_user))) {
-            //If the user requested a foundation profile by clicking on its name in the dog profile, the activity sends this request to the SearchScreenFragment,
+        if (intent.hasExtra(getString(R.string.requested_specific_foundation_profile))) {
+            //If the user requested a foundation profile, the activity sends this request to the SearchScreenFragment,
             //which registers it as an automatic click on the relevant profile if it's available.
             //This in turn activates the profiles pager on the correct profile
-            mRequestedFoundationProfileUI = intent.getStringExtra(getString(R.string.foundation_profile_requested_by_user));
+            mRequestedFoundationProfileUI = intent.getStringExtra(getString(R.string.requested_specific_foundation_profile));
         }
     }
     private void initializeParameters() {
@@ -241,9 +252,11 @@ public class SearchResultsActivity extends AppCompatActivity implements
         Bundle bundle = new Bundle();
         bundle.putString(getString(R.string.profile_type), mProfileType);
         if (!TextUtils.isEmpty(mRequestedDogProfileUI))
-            bundle.putString(getString(R.string.dog_profile_requested_by_widget), mRequestedDogProfileUI);
+            bundle.putString(getString(R.string.requested_specific_dog_profile), mRequestedDogProfileUI);
+        else if (!TextUtils.isEmpty(mRequestedFamilyProfileUI))
+            bundle.putString(getString(R.string.requested_specific_family_profile), mRequestedFamilyProfileUI);
         else if (!TextUtils.isEmpty(mRequestedFoundationProfileUI))
-            bundle.putString(getString(R.string.foundation_profile_requested_by_user), mRequestedFoundationProfileUI);
+            bundle.putString(getString(R.string.requested_specific_foundation_profile), mRequestedFoundationProfileUI);
 
         mSearchScreenFragment.setArguments(bundle);
         fragmentTransaction.replace(R.id.master_fragment_container, mSearchScreenFragment);

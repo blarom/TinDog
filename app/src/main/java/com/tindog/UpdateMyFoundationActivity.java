@@ -66,14 +66,13 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     private String mNameFromFirebase;
     private String mEmailFromFirebase;
     private Uri mPhotoUriFromFirebase;
-    private String mChosenAction;
     private String mFirebaseUid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private String mFoundationImagesDirectory;
     private boolean[] mImagesReady;
     private int mScrollPosition;
     private Bundle mSavedInstanceState;
     private boolean mFoundationFound;
+    private boolean mFoundationCriticalParametersSet;
     //endregion
 
 
@@ -156,11 +155,15 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 return true;
             case R.id.action_save:
                 updateFoundationWithUserInput();
-                if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFoundation);
+                if (mFoundationCriticalParametersSet) {
+                    if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFoundation);
+                }
                 return true;
             case R.id.action_done:
                 updateFoundationWithUserInput();
-                if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFoundation);
+                if (mFoundationCriticalParametersSet) {
+                    if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFoundation);
+                }
                 finish();
                 return true;
             case R.id.action_edit_preferences:
@@ -214,6 +217,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         mBinding =  ButterKnife.bind(this);
         mImagesReady = new boolean[]{false, false, false, false, false, false};
         mFoundationFound = false;
+        mFoundationCriticalParametersSet = false;
         mFoundation = new Foundation();
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -319,15 +323,25 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     }
     private void updateFoundationWithUserInput() {
         mFoundation.setOFId(mFirebaseUid);
-        mFoundation.setNm(mEditTextName.getText().toString());
         mFoundation.setCP(mEditTextContactPhone.getText().toString());
         mFoundation.setCE(mEditTextContactEmail.getText().toString());
         mFoundation.setWb(mEditTextWebsite.getText().toString());
         mFoundation.setCn(mEditTextCountry.getText().toString());
 
+        String name = mEditTextName.getText().toString();
+        String country = mEditTextCountry.getText().toString();
         String city = mEditTextCity.getText().toString();
+        String street = mEditTextStreet.getText().toString();
+        String streeNumber = mEditTextStreetNumber.getText().toString();
+
+        mFoundation.setNm(name);
+        mFoundation.setCn(country);
         mFoundation.setCt(city);
-        Address address = SharedMethods.getAddressObjectFromAddressString(this, city);
+        mFoundation.setSt(street);
+        mFoundation.setStN(streeNumber);
+
+        String addressString = streeNumber + "" + street + ", " + city + ", " + country;
+        Address address = SharedMethods.getAddressObjectFromAddressString(this, addressString);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();
             double geoAddressLatitude = address.getLatitude();
@@ -342,6 +356,15 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         mFoundation.setStN(mEditTextStreetNumber.getText().toString());
 
         mFoundation.setUniqueIdentifierFromDetails();
+
+        if (name.length() < 2 || country.length() < 2 || city.length() < 1) {
+            Toast.makeText(getApplicationContext(), R.string.foundation_not_saved, Toast.LENGTH_SHORT).show();
+            mFoundationCriticalParametersSet = false;
+        }
+        else {
+            mFoundationCriticalParametersSet = true;
+        }
+
         if (TextUtils.isEmpty(mFoundation.getUI())) Log.i(DEBUG_TAG, "Error: TinDog Foundation has empty unique ID!");
     }
 
