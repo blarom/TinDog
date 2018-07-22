@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.location.Address;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,7 +36,6 @@ import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
 import com.tindog.resources.SharedMethods;
 
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -74,6 +72,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     @BindView(R.id.update_my_family_checkbox_dogwalking_noon) CheckBox mCheckBoxDogWalkingNoon;
     @BindView(R.id.update_my_family_image_main) ImageView mImageViewMain;
     @BindView(R.id.update_my_family_recyclerview_pet_images) RecyclerView mRecyclerViewPetImages;
+    @BindView(R.id.update_my_family_scroll_container) NestedScrollView mScrollViewContainer;
     private Unbinder mBinding;
     private Family mFamily;
     private FirebaseDao mFirebaseDao;
@@ -85,14 +84,14 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     private String mNameFromFirebase;
     private String mEmailFromFirebase;
     private Uri mPhotoUriFromFirebase;
-    private String mChosenAction;
     private String mFirebaseUid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private String mFamilyImagesDirectory;
     private boolean mFamilyFound;
     private ArrayAdapter<CharSequence> mSpinnerAdapterDogwalkingWhere;
     private ArrayAdapter<CharSequence> mSpinnerAdapterFosterPeriod;
     private boolean[] mImagesReady;
+    private int mScrollPosition;
+    private Bundle mSavedInstanceState;
     //endregion
 
 
@@ -101,6 +100,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_my_family);
 
+        mSavedInstanceState = savedInstanceState;
         initializeParameters();
         getFamilyProfileFromFirebase();
         setupPetImagesRecyclerView();
@@ -173,9 +173,11 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 return true;
             case R.id.action_save:
                 updateFamilyWithUserInput();
+                if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
                 return true;
             case R.id.action_done:
                 updateFamilyWithUserInput();
+                if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
                 finish();
                 return true;
             case R.id.action_edit_preferences:
@@ -186,11 +188,18 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         }
         return super.onOptionsItemSelected(item);
     }
-    @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+    @Override public void onSaveInstanceState(Bundle outState) {
         mStoredPetImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewPetImages);
         outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredPetImagesRecyclerViewPosition);
         outState.putString(getString(R.string.profile_update_image_name), mImageName);
-        super.onSaveInstanceState(outState, outPersistentState);
+        mScrollPosition = mScrollViewContainer.getScrollY();
+        outState.putInt(getString(R.string.scroll_position),mScrollPosition);
+        outState.putString(getString(R.string.saved_firebase_email), mEmailFromFirebase);
+        outState.putString(getString(R.string.saved_firebase_name), mNameFromFirebase);
+        outState.putString(getString(R.string.saved_firebase_id), mFirebaseUid);
+        updateFamilyWithUserInput();
+        outState.putParcelable(getString(R.string.saved_profile), mFamily);
+        super.onSaveInstanceState(outState);
 
     }
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -199,6 +208,16 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             mStoredPetImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.profile_update_pet_images_rv_position));
             mRecyclerViewPetImages.scrollToPosition(mStoredPetImagesRecyclerViewPosition);
             mImageName = savedInstanceState.getString(getString(R.string.profile_update_image_name));
+            mFamily = savedInstanceState.getParcelable(getString(R.string.saved_profile));
+            mScrollPosition = savedInstanceState.getInt(getString(R.string.scroll_position));
+            mEmailFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_email));
+            mNameFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_name));
+            mFirebaseUid = savedInstanceState.getString(getString(R.string.saved_firebase_id));
+
+            mScrollViewContainer.setScrollY(mScrollPosition);
+            updateProfileFieldsOnScreen();
+            setupPetImagesRecyclerView();
+            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
         }
     }
 
@@ -247,7 +266,6 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             mFamily.setOFid(mFirebaseUid);
 
             //Initializing the local parameters that depend on this family, used in the rest of the activity
-            mFamilyImagesDirectory = getFilesDir()+"/families/"+mFamily.getUI()+"/images/";
             mImageName = "mainImage";
 
             //Getting the rest of the family's parameters
@@ -266,13 +284,13 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mCheckBoxFoster.setChecked(mFamily.getFD());
         mCheckBoxAdopt.setChecked(mFamily.getAD());
         mCheckBoxFosterAndAdopt.setChecked(mFamily.getFAD());
-        mSpinnerFosterPeriod.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerFosterPeriod, mFamily.getFP()));
+        mSpinnerFosterPeriod.setSelection(SharedMethods.getSpinnerPositionFromText(mSpinnerFosterPeriod, mFamily.getFP()));
         mCheckBoxHelpOrganizeMovingEquipment.setChecked(mFamily.getHOE());
         mCheckBoxHelpOrganizeMovingDogs.setChecked(mFamily.getHOD());
         mCheckBoxHelpOrganizeCoordinating.setChecked(mFamily.getHOC());
         mCheckBoxHelpOrganizeLendingHand.setChecked(mFamily.getHOL());
         mCheckBoxDogWalking.setChecked(mFamily.getHD());
-        mSpinnerDogWalkingWhere.setSelection(SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerDogWalkingWhere, mFamily.getHDW()));
+        mSpinnerDogWalkingWhere.setSelection(SharedMethods.getSpinnerPositionFromText(mSpinnerDogWalkingWhere, mFamily.getHDW()));
         mCheckBoxDogWalkingMorning.setChecked(mFamily.getHDM());
         mCheckBoxDogWalkingNoon.setChecked(mFamily.getHDN());
         mCheckBoxDogWalkingAfternoon.setChecked(mFamily.setHDA());
@@ -326,22 +344,17 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
+                    SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                     //getFamilyProfileFromFirebase();
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    List<AuthUI.IdpConfig> providers = Arrays.asList(
-                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                            new AuthUI.IdpConfig.GoogleBuilder().build());
-
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setAvailableProviders(providers)
-                                    .build(),
-                            SharedMethods.FIREBASE_SIGN_IN_KEY);
+                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
+                        mSavedInstanceState = null;
+                        SharedMethods.showSignInScreen(UpdateMyFamilyActivity.this);
+                    }
                 }
             }
         };
@@ -359,7 +372,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
 
         String city = mEditTextCity.getText().toString();
         mFamily.setCt(city);
-        Address address = SharedMethods.getAddressFromCity(this, city);
+        Address address = SharedMethods.getAddressObjectFromAddressString(this, city);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();
             double geoAddressLatitude = address.getLatitude();
@@ -388,8 +401,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mFamily.getHDA(mCheckBoxDogWalkingAfternoon.isChecked());
         mFamily.setHDE(mCheckBoxDogWalkingEvening.isChecked());
 
-        if (!TextUtils.isEmpty(mFamily.getUI())) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFamily);
-        else Log.i(DEBUG_TAG, "Error: TinDog Family has empty unique ID!");
+        if (TextUtils.isEmpty(mFamily.getUI())) Log.i(DEBUG_TAG, "Error: TinDog Family has empty unique ID!");
 
     }
 
@@ -426,10 +438,10 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         }
         else {
             mFamily = new Family(mFirebaseUid);
-            Toast.makeText(getBaseContext(), "No user found for your entered email, press DONE to create a new user.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Your family doesn't exist yet, press DONE to create your family.", Toast.LENGTH_SHORT).show();
         }
 
-        updateProfileFieldsOnScreen();
+        if (mSavedInstanceState==null) updateProfileFieldsOnScreen();
         mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFamily);
     }
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {

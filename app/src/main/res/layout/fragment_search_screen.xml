@@ -60,14 +60,25 @@
     </LinearLayout>
 
 
+    <Button
+        android:id="@+id/search_screen_show_in_map_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_results_on_the_map"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_screen_distance_layout"
+        />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/search_screen_profile_selection_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:elevation="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_screen_distance_layout"
+        app:layout_constraintTop_toBottomOf="@id/search_screen_show_in_map_button"
         />
 
     <ProgressBar

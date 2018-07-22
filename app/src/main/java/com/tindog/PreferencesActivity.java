@@ -26,7 +26,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,7 +37,6 @@ import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
 import com.tindog.resources.SharedMethods;
 
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -89,6 +87,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     private Bundle mSavedInstanceState;
     //endregion
 
+
     //Lifecycle methods
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,7 +97,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         initializeParameters();
         getUserInfoFromFirebase();
         getTinDogUserProfileFromFirebase();
-        if (mSavedInstanceState==null) updateProfileFields();
     }
     @Override public void onStart() {
         super.onStart();
@@ -122,7 +120,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 mCurrentFirebaseUser = mFirebaseAuth.getCurrentUser();
                 getUserInfoFromFirebase();
                 getTinDogUserProfileFromFirebase();
-                if (mSavedInstanceState==null) updateProfileFields();
                 // ...
             } else {
                 // Sign in failed. If response is null the user canceled the
@@ -145,9 +142,11 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 return true;
             case R.id.action_save:
                 updatePreferencesWithUserInput();
+                mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser);
                 return true;
             case R.id.action_done:
                 updatePreferencesWithUserInput();
+                mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser);
                 finish();
                 return true;
             case R.id.action_edit_family_profile:
@@ -160,36 +159,25 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     }
     @Override protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(getString(R.string.age_spinner_position),mAgeSpinnerPosition);
-        outState.putInt(getString(R.string.size_spinner_position),mSizeSpinnerPosition);
-        outState.putInt(getString(R.string.gender_spinner_position),mGenderSpinnerPosition);
-        outState.putInt(getString(R.string.race_spinner_position),mRaceSpinnerPosition);
-        outState.putInt(getString(R.string.behavior_spinner_position),mBehaviorSpinnerPosition);
-        outState.putInt(getString(R.string.interactions_spinner_position),mInteractionsSpinnerPosition);
-        outState.putBoolean(getString(R.string.preferences_limit_to_country_state), mLimitToCountry);
+        outState.putString(getString(R.string.saved_firebase_email), mEmailFromFirebase);
+        outState.putString(getString(R.string.saved_firebase_name), mNameFromFirebase);
+        outState.putString(getString(R.string.saved_firebase_id), mFirebaseUid);
+        outState.putParcelable(getString(R.string.saved_profile), mUser);
     }
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState!=null) {
-            mAgeSpinnerPosition = savedInstanceState.getInt(getString(R.string.age_spinner_position));
-            mSizeSpinnerPosition = savedInstanceState.getInt(getString(R.string.size_spinner_position));
-            mGenderSpinnerPosition = savedInstanceState.getInt(getString(R.string.gender_spinner_position));
-            mRaceSpinnerPosition = savedInstanceState.getInt(getString(R.string.race_spinner_position));
-            mBehaviorSpinnerPosition = savedInstanceState.getInt(getString(R.string.behavior_spinner_position));
-            mInteractionsSpinnerPosition = savedInstanceState.getInt(getString(R.string.interactions_spinner_position));
-            mLimitToCountry = savedInstanceState.getBoolean(getString(R.string.preferences_limit_to_country_state), true);
-
-            mSpinnerAge.setSelection(mAgeSpinnerPosition);
-            mSpinnerSize.setSelection(mSizeSpinnerPosition);
-            mSpinnerGender.setSelection(mGenderSpinnerPosition);
-            mSpinnerRace.setSelection(mRaceSpinnerPosition);
-            mSpinnerBehavior.setSelection(mBehaviorSpinnerPosition);
-            mSpinnerInteractions.setSelection(mInteractionsSpinnerPosition);
-            mCheckBoxLimitToCountry.setChecked(mLimitToCountry);
+            mEmailFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_email));
+            mNameFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_name));
+            mFirebaseUid = savedInstanceState.getString(getString(R.string.saved_firebase_id));
+            mUser = savedInstanceState.getParcelable(getString(R.string.saved_profile));
+            updateUserInfoShownToUser();
+            updatePreferencesShownToUser();
         }
     }
 
-    //Structural methods
+
+    //Functional methods
     private void initializeParameters() {
 
         if (getSupportActionBar()!=null) {
@@ -268,16 +256,18 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
 
         SharedMethods.hideSoftKeyboard(this);
     }
-    private void updateProfileFields() {
+    private void updateUserInfoShownToUser() {
         mTextViewUserName.setText(mNameFromFirebase);
         mTextViewUserEmail.setText(mEmailFromFirebase);
+    }
+    private void updatePreferencesShownToUser() {
 
-        mAgeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerAge, mUser.getAP());
-        mSizeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerSize, mUser.getSP());
-        mGenderSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerGender, mUser.getGP());
-        mRaceSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerRace, mUser.getRP());
-        mBehaviorSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerBehavior, mUser.getBP());
-        mInteractionsSpinnerPosition = SharedMethods.getSpinnerPositionFromText(getApplicationContext(), mSpinnerInteractions, mUser.getIP());
+        mAgeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerAge, mUser.getAP());
+        mSizeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerSize, mUser.getSP());
+        mGenderSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerGender, mUser.getGP());
+        mRaceSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerRace, mUser.getRP());
+        mBehaviorSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerBehavior, mUser.getBP());
+        mInteractionsSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerInteractions, mUser.getIP());
 
         mSpinnerAge.setSelection(mAgeSpinnerPosition);
         mSpinnerSize.setSelection(mSizeSpinnerPosition);
@@ -288,12 +278,13 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
 
         mLimitToCountry = mUser.getLC();
         mCheckBoxLimitToCountry.setChecked(mLimitToCountry);
+
     }
     private void getUserInfoFromFirebase() {
         if (mCurrentFirebaseUser != null) {
             mNameFromFirebase = mCurrentFirebaseUser.getDisplayName();
             mEmailFromFirebase = mCurrentFirebaseUser.getEmail();
-            mPhotoUriFromFirebase = mCurrentFirebaseUser.getPhotoUrl();
+            //mPhotoUriFromFirebase = mCurrentFirebaseUser.getPhotoUrl();
             mFirebaseUid = mCurrentFirebaseUser.getUid();
         }
     }
@@ -317,8 +308,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         mUser.setIP(mSpinnerInteractions.getSelectedItem().toString());
         mUser.setLC(mCheckBoxLimitToCountry.isChecked());
 
-        if (!TextUtils.isEmpty(mUser.getUI())) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser);
-        else Log.i(DEBUG_TAG, "Error: TinDog User has empty unique ID!");
+        if (TextUtils.isEmpty(mUser.getUI())) Log.i(DEBUG_TAG, "Error: TinDog User has empty unique ID!");
     }
     private void setupFirebaseAuthentication() {
         // Check if user is signed in (non-null) and update UI accordingly.
@@ -330,17 +320,18 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
-                    SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), true);
-                    getUserInfoFromFirebase();
-                    getTinDogUserProfileFromFirebase();
-                    updateProfileFields();
+                    SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
+                    //getUserInfoFromFirebase();
+                    //getTinDogUserProfileFromFirebase();
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    if (SharedMethods.getAppPreferenceSignInRequestState(getApplicationContext()))
+                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
+                        mSavedInstanceState = null;
                         SharedMethods.showSignInScreen(PreferencesActivity.this);
+                    }
                 }
             }
         };
@@ -470,7 +461,10 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
             //Toast.makeText(getBaseContext(), "No user found for your entered email, press DONE to create a new user.", Toast.LENGTH_SHORT).show();
         }
 
-        if (mSavedInstanceState==null) updateProfileFields();
+        updateUserInfoShownToUser();
+        if (mSavedInstanceState==null) {
+            updatePreferencesShownToUser();
+        }
     }
     @Override public void onImageAvailable(Uri imageUri, String imageName) {
 

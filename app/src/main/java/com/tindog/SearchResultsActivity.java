@@ -137,10 +137,10 @@ public class SearchResultsActivity extends AppCompatActivity implements
                 return true;
             case R.id.action_signout:
                 if (mCurrentFirebaseUser!=null) mFirebaseAuth.signOut();
-                SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), false);
+                SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), false);
                 return true;
             case R.id.action_signin:
-                SharedMethods.setAppPreferenceSignInRequestState(getApplicationContext(), true);
+                SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
                 showSignInScreen();
                 return true;
         }
@@ -283,7 +283,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
-                    if (SharedMethods.getAppPreferenceSignInRequestState(getApplicationContext())) showSignInScreen();
+                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) showSignInScreen();
                 }
             }
         };

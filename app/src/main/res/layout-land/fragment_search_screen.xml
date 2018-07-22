@@ -7,69 +7,89 @@
     android:layout_height="match_parent"
     tools:context=".SearchScreenFragment">
 
-    <ImageView
-        android:id="@+id/search_screen_magnifying_glass_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:contentDescription="@string/magnifying_glass"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_image_not_available"/>
 
-    <LinearLayout
-        android:id="@+id/search_screen_distance_layout"
-        android:layout_width="wrap_content"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/search_screen_top_layout_container"
+        android:layout_width="367dp"
         android:layout_height="wrap_content"
-        android:focusableInTouchMode="true"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_screen_magnifying_glass_image">
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toStartOf="@+id/search_screen_center_guideline"
+        app:layout_constraintEnd_toEndOf="@id/search_screen_center_guideline"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/search_screen_text_distance_from_me"
+        <ImageView
+            android:id="@+id/search_screen_magnifying_glass_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/magnifying_glass"
+            app:layout_constraintEnd_toStartOf="@+id/search_screen_distance_layout"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_image_not_available"/>
+
+        <LinearLayout
+            android:id="@+id/search_screen_distance_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:text="@string/distance_from_me"
-            android:textSize="18sp"/>
+            android:layout_marginTop="8dp"
+            android:focusableInTouchMode="true"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <EditText
-            android:id="@+id/search_screen_distance_edittext"
-            android:layout_width="64dp"
+            <TextView
+                android:id="@+id/search_screen_text_distance_from_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="@string/distance_from_me"
+                android:textSize="18sp"/>
+
+            <EditText
+                android:id="@+id/search_screen_distance_edittext"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="start"
+                android:hint="@string/zero"
+                android:inputType="numberSigned"
+                android:textAlignment="textStart"/>
+
+            <TextView
+                android:id="@+id/search_screen_text_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/unit_km"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/search_screen_show_in_map_button"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:gravity="start"
-            android:hint="@string/zero"
-            android:inputType="numberSigned"
-            android:textAlignment="textStart"/>
+            android:text="@string/show_results_on_the_map"
+            app:layout_constraintEnd_toEndOf="@id/search_screen_distance_layout"
+            app:layout_constraintStart_toStartOf="@+id/search_screen_distance_layout"
+            app:layout_constraintTop_toBottomOf="@id/search_screen_distance_layout"/>
 
-        <TextView
-            android:id="@+id/search_screen_text_unit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/unit_km"
-            android:textSize="18sp"/>
-    </LinearLayout>
-
+    </android.support.constraint.ConstraintLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/search_screen_profile_selection_recycler_view"
-        android:layout_width="@dimen/layout_width_for_large_screens"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:elevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_screen_distance_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_screen_top_layout_container"
         />
 
     <ProgressBar
@@ -81,6 +101,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_screen_distance_layout"/>
+        app:layout_constraintTop_toBottomOf="@id/search_screen_top_layout_container"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/search_screen_center_guideline"
+        android:layout_width="0dp"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        app:layout_constraintGuide_percent="0.5"
+        />
 
 </android.support.constraint.ConstraintLayout>

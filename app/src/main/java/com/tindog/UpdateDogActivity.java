@@ -7,9 +7,9 @@ import android.content.Intent;
 import android.location.Address;
 import android.net.Uri;
 import android.os.Build;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,7 +29,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -45,7 +44,6 @@ import com.tindog.data.TinDogUser;
 import com.tindog.resources.SharedMethods;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -66,6 +64,8 @@ public class UpdateDogActivity extends AppCompatActivity implements
     @BindView(R.id.update_dog_value_foundation) TextInputEditText mEditTextFoundation;
     @BindView(R.id.update_dog_value_country) TextInputEditText mEditTextCountry;
     @BindView(R.id.update_dog_value_city) TextInputEditText mEditTextCity;
+    @BindView(R.id.update_dog_value_street) TextInputEditText mEditTextStreet;
+    @BindView(R.id.update_dog_value_street_number) TextInputEditText mEditTextStreetNumber;
     @BindView(R.id.update_dog_value_history) TextInputEditText mEditTextHistory;
     @BindView(R.id.update_dog_image_main) ImageView mImageViewMain;
     @BindView(R.id.update_dog_recyclerview_video_links) RecyclerView mRecyclerViewVideoLinks;
@@ -76,12 +76,19 @@ public class UpdateDogActivity extends AppCompatActivity implements
     @BindView(R.id.update_dog_race_spinner) Spinner mSpinnerRace;
     @BindView(R.id.update_dog_behavior_spinner) Spinner mSpinnerBehavior;
     @BindView(R.id.update_dog_interactions_spinner) Spinner mSpinnerInteractions;
+    @BindView(R.id.update_dog_scroll_container) NestedScrollView mScrollViewContainer;
     private ArrayAdapter<CharSequence> mSpinnerAdapterAge;
     private ArrayAdapter<CharSequence> mSpinnerAdapterSize;
     private ArrayAdapter<CharSequence> mSpinnerAdapterGender;
     private ArrayAdapter<CharSequence> mSpinnerAdapterRace;
     private ArrayAdapter<CharSequence> mSpinnerAdapterBehavior;
     private ArrayAdapter<CharSequence> mSpinnerAdapterInteractions;
+    private int mAgeSpinnerPosition;
+    private int mSizeSpinnerPosition;
+    private int mGenderSpinnerPosition;
+    private int mRaceSpinnerPosition;
+    private int mBehaviorSpinnerPosition;
+    private int mInteractionsSpinnerPosition;
     private Dog mDog;
     private FirebaseDao mFirebaseDao;
     private ImagesRecycleViewAdapter mDogImagesRecycleViewAdapter;
@@ -95,13 +102,20 @@ public class UpdateDogActivity extends AppCompatActivity implements
     private String mChosenDogId;
     private String mFirebaseUid;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private String mDogImagesDirectory;
-    private boolean mDogSaved;
-    private boolean mCreatedDog;
+    private boolean mDogCriticalParametersSet;
+    private boolean mDogAlreadyExistsInFirebaseDb;
     private Unbinder mBinding;
     private SimpleTextRecycleViewAdapter mVideoLinksRecycleViewAdapter;
     private List<String> mVideoLinks;
     private boolean[] mImagesReady;
+    private Bundle mSavedInstanceState;
+    private String mFoundationName;
+    private String mFoundationCity;
+    private String mFoundationCountry;
+    private String mFoundationStreet;
+    private String mFoundationStreetNumber;
+    private int mScrollPosition;
+    private String mFoundationId;
     //endregion
 
 
@@ -110,9 +124,10 @@ public class UpdateDogActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_dog);
 
+        mSavedInstanceState = savedInstanceState;
         getExtras();
         initializeParameters();
-        getDogProfileFromFirebase();
+        if (savedInstanceState==null) getDogProfileFromFirebase();
         setupVideoLinksRecyclerView();
         setupDogImagesRecyclerView();
         SharedMethods.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
@@ -162,7 +177,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                if (!mCreatedDog) getDogProfileFromFirebase();
+                if (!mDogAlreadyExistsInFirebaseDb) getDogProfileFromFirebase();
                 // ...
             } else {
                 // Sign in failed. If response is null the user canceled the
@@ -186,10 +201,22 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 return true;
             case R.id.action_save:
                 updateDogWithUserInput();
+                if (mDogCriticalParametersSet) {
+                    if (!mDogAlreadyExistsInFirebaseDb) {
+                        createNewDogInFirebaseDb();
+                        mDogAlreadyExistsInFirebaseDb = true;
+                    }
+                    if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mDog);
+                }
                 return true;
             case R.id.action_done:
                 updateDogWithUserInput();
-                if (mDogSaved) {
+                if (mDogCriticalParametersSet) {
+                    if (!mDogAlreadyExistsInFirebaseDb) {
+                        createNewDogInFirebaseDb();
+                        mDogAlreadyExistsInFirebaseDb = true;
+                    }
+                    else if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mDog);
                     setResult(Activity.RESULT_OK, new Intent());
                     finish();
                 }
@@ -202,11 +229,21 @@ public class UpdateDogActivity extends AppCompatActivity implements
         }
         return super.onOptionsItemSelected(item);
     }
-    @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+    @Override public void onSaveInstanceState(Bundle outState) {
         mStoredDogImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewDogImages);
+        mScrollPosition = mScrollViewContainer.getScrollY();
+        outState.putInt(getString(R.string.scroll_position),mScrollPosition);
         outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredDogImagesRecyclerViewPosition);
         outState.putString(getString(R.string.profile_update_image_name), mImageName);
-        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putString(getString(R.string.saved_foundation_name), mFoundationName);
+        outState.putString(getString(R.string.saved_foundation_city), mFoundationCity);
+        outState.putString(getString(R.string.saved_foundation_id), mFoundationId);
+        outState.putString(getString(R.string.saved_foundation_country), mFoundationCountry);
+        outState.putString(getString(R.string.saved_foundation_street), mFoundationStreet);
+        outState.putString(getString(R.string.saved_foundation_street_number), mFoundationStreetNumber);
+        updateDogWithUserInput();
+        outState.putParcelable(getString(R.string.saved_profile), mDog);
+        super.onSaveInstanceState(outState);
 
     }
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -215,6 +252,20 @@ public class UpdateDogActivity extends AppCompatActivity implements
             mStoredDogImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.profile_update_pet_images_rv_position));
             mRecyclerViewDogImages.scrollToPosition(mStoredDogImagesRecyclerViewPosition);
             mImageName = savedInstanceState.getString(getString(R.string.profile_update_image_name));
+            mFoundationName = savedInstanceState.getString(getString(R.string.saved_foundation_name));
+            mFoundationCity = savedInstanceState.getString(getString(R.string.saved_foundation_city));
+            mFoundationId = savedInstanceState.getString(getString(R.string.saved_foundation_id));
+            mFoundationCountry = savedInstanceState.getString(getString(R.string.saved_foundation_country));
+            mFoundationStreet = savedInstanceState.getString(getString(R.string.saved_foundation_street));
+            mFoundationStreetNumber = savedInstanceState.getString(getString(R.string.saved_foundation_street_number));
+            mDog = savedInstanceState.getParcelable(getString(R.string.saved_profile));
+            mScrollPosition = savedInstanceState.getInt(getString(R.string.scroll_position));
+
+            mScrollViewContainer.setScrollY(mScrollPosition);
+            updateProfileFieldsWithFoundationData();
+            updateProfileFieldsOnScreen();
+            setupDogImagesRecyclerView();
+            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
         }
     }
 
@@ -233,8 +284,8 @@ public class UpdateDogActivity extends AppCompatActivity implements
         }
 
         mBinding =  ButterKnife.bind(this);
-        mCreatedDog = false;
-        mDogSaved = false;
+        mDogAlreadyExistsInFirebaseDb = false;
+        mDogCriticalParametersSet = false;
         mImagesReady = new boolean[]{false, false, false, false, false, false};
         mEditTextFoundation.setEnabled(false);
         mDog = new Dog();
@@ -276,7 +327,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
 
     }
     private void getDogProfileFromFirebase() {
-        if (mCurrentFirebaseUser != null && !mCreatedDog) {
+        if (mCurrentFirebaseUser != null && !mDogAlreadyExistsInFirebaseDb) {
             // Name, email address, and profile photo Url
             mNameFromFirebase = mCurrentFirebaseUser.getDisplayName();
             mEmailFromFirebase = mCurrentFirebaseUser.getEmail();
@@ -294,48 +345,41 @@ public class UpdateDogActivity extends AppCompatActivity implements
 
             //Getting the rest of the dog's parameters
             if (!TextUtils.isEmpty(mChosenDogId)) {
-                mDogImagesDirectory = getFilesDir()+"/dogs/"+ mDog.getUI()+"/images/";
                 mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mDog);
             }
         }
     }
     private void createNewDogInFirebaseDb() {
-        mDog = new Dog();
         String key = mFirebaseDao.addObjectToFirebaseDb(mDog);
         mDog.setUI(key);
-        mDog.setAFid(mFirebaseUid);
-        mDogImagesDirectory = getFilesDir()+"/dogs/"+ mDog.getUI()+"/images/";
-        mCreatedDog = true;
+        mDogAlreadyExistsInFirebaseDb = true;
     }
     private void updateProfileFieldsOnScreen() {
         //mEditTextFoundation.setText(mDog.getFN());
         mEditTextName.setText(mDog.getNm());
         mEditTextCountry.setText(mDog.getCn());
         mEditTextCity.setText(mDog.getCt());
+        mEditTextStreet.setText(mDog.getSt());
+        mEditTextStreetNumber.setText(mDog.getStN());
         mEditTextHistory.setText(mDog.getHs());
 
-        mSpinnerAge.setSelection(getSpinnerIndex(mSpinnerAge, mDog.getAg()));
-        mSpinnerSize.setSelection(getSpinnerIndex(mSpinnerSize, mDog.getSz()));
-        mSpinnerGender.setSelection(getSpinnerIndex(mSpinnerGender, mDog.getGn()));
-        mSpinnerRace.setSelection(getSpinnerIndex(mSpinnerRace, mDog.getRc()));
-        mSpinnerBehavior.setSelection(getSpinnerIndex(mSpinnerBehavior, mDog.getBh()));
-        mSpinnerInteractions.setSelection(getSpinnerIndex(mSpinnerInteractions, mDog.getIt()));
+        mAgeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerAge, mDog.getAg());
+        mSizeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerSize, mDog.getSz());
+        mGenderSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerGender, mDog.getGn());
+        mRaceSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerRace, mDog.getRc());
+        mBehaviorSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerBehavior, mDog.getBh());
+        mInteractionsSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerInteractions, mDog.getIt());
+
+        mSpinnerAge.setSelection(mAgeSpinnerPosition);
+        mSpinnerSize.setSelection(mSizeSpinnerPosition);
+        mSpinnerGender.setSelection(mGenderSpinnerPosition);
+        mSpinnerRace.setSelection(mRaceSpinnerPosition);
+        mSpinnerBehavior.setSelection(mBehaviorSpinnerPosition);
+        mSpinnerInteractions.setSelection(mInteractionsSpinnerPosition);
 
         mVideoLinksRecycleViewAdapter.setContents(mDog.getVU());
 
         SharedMethods.hideSoftKeyboard(this);
-    }
-    private int getSpinnerIndex(Spinner spinner, String myString){
-
-        int index = 0;
-
-        for (int i=0;i<spinner.getCount();i++){
-            if (spinner.getItemAtPosition(i).equals(myString)){
-                index = i;
-                break;
-            }
-        }
-        return index;
     }
     private void setupVideoLinksRecyclerView() {
         mRecyclerViewVideoLinks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
@@ -448,22 +492,16 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
+                    SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
-                    //getDogProfileFromFirebase();
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    List<AuthUI.IdpConfig> providers = Arrays.asList(
-                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                            new AuthUI.IdpConfig.GoogleBuilder().build());
-
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setAvailableProviders(providers)
-                                    .build(),
-                            SharedMethods.FIREBASE_SIGN_IN_KEY);
+                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
+                        mSavedInstanceState = null;
+                        SharedMethods.showSignInScreen(UpdateDogActivity.this);
+                    }
                 }
             }
         };
@@ -471,16 +509,23 @@ public class UpdateDogActivity extends AppCompatActivity implements
     }
     private void updateDogWithUserInput() {
 
-        if (!mCreatedDog) createNewDogInFirebaseDb();
-
         mDog.setFN(mEditTextFoundation.getText().toString());
-        mDog.setAFid(mFirebaseUid);
-        mDog.setNm(mEditTextName.getText().toString());
-        mDog.setCn(mEditTextCountry.getText().toString());
+        mDog.setAFid(mFoundationId);
 
+        String name = mEditTextName.getText().toString();
+        String country = mEditTextCountry.getText().toString();
         String city = mEditTextCity.getText().toString();
+        String street = mEditTextStreet.getText().toString();
+        String streeNumber = mEditTextStreetNumber.getText().toString();
+
+        mDog.setNm(name);
+        mDog.setCn(country);
         mDog.setCt(city);
-        Address address = SharedMethods.getAddressFromCity(this, city);
+        mDog.setSt(street);
+        mDog.setStN(streeNumber);
+
+        String addressString = streeNumber + "" + street + ", " + city + ", " + country;
+        Address address = SharedMethods.getAddressObjectFromAddressString(this, addressString);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();
             double geoAddressLatitude = address.getLatitude();
@@ -500,22 +545,22 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mDog.setBh(mSpinnerBehavior.getSelectedItem().toString());
         mDog.setIt(mSpinnerInteractions.getSelectedItem().toString());
 
-        if (mEditTextName.getText().toString().length() < 2
-                || mEditTextCountry.getText().toString().length() < 2
-                || mEditTextCity.getText().toString().length() < 2) {
+        if (name.length() < 2 || country.length() < 2 || city.length() < 1 || street.length() < 2 || streeNumber.length() < 1) {
             Toast.makeText(getApplicationContext(), R.string.dog_not_saved, Toast.LENGTH_SHORT).show();
-            mDogSaved = false;
+            mDogCriticalParametersSet = false;
         }
         else {
-            mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mDog);
-            mDogSaved = true;
+            mDogCriticalParametersSet = true;
         }
 
     }
-    private void updateProfileFieldsWithFoundationData(Foundation foundation) {
-        mEditTextFoundation.setText(foundation.getNm());
-        if (mEditTextCity.getText().toString().equals("")) mEditTextCity.setText(foundation.getCt());
-        if (mEditTextCountry.getText().toString().equals("")) mEditTextCountry.setText(foundation.getCn());
+    private void updateProfileFieldsWithFoundationData() {
+        if (!TextUtils.isEmpty(mFoundationId)) mEditTextFoundation.setText(mFoundationName);
+        if (!TextUtils.isEmpty(mFoundationName)) mEditTextFoundation.setText(mFoundationName);
+        if (!TextUtils.isEmpty(mFoundationCity) && mEditTextCity.getText().toString().equals("")) mEditTextCity.setText(mFoundationCity);
+        if (!TextUtils.isEmpty(mFoundationCountry) && mEditTextCountry.getText().toString().equals("")) mEditTextCountry.setText(mFoundationCountry);
+        if (!TextUtils.isEmpty(mFoundationStreet) && mEditTextStreet.getText().toString().equals("")) mEditTextStreet.setText(mFoundationStreet);
+        if (!TextUtils.isEmpty(mFoundationStreetNumber) && mEditTextStreetNumber.getText().toString().equals("")) mEditTextStreetNumber.setText(mFoundationStreetNumber);
     }
     private void removeListeners() {
         mFirebaseDao.removeListeners();
@@ -556,7 +601,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
     @Override public void onDogsListFound(List<Dog> dogsList) {
         if (dogsList.size()==1) {
             if (dogsList.get(0) != null) mDog = dogsList.get(0);
-            mCreatedDog = true;
+            mDogAlreadyExistsInFirebaseDb = true;
         }
         else if (dogsList.size()>1) {
             //Get the first dog that corresponds to the Foundation's Firebase Id
@@ -566,14 +611,14 @@ public class UpdateDogActivity extends AppCompatActivity implements
                     break;
                 }
             }
-            mCreatedDog = true;
+            mDogAlreadyExistsInFirebaseDb = true;
             Log.i(DEBUG_TAG, "Warning! Multiple dogs found with the same characteristics.");
         }
         else {
             Toast.makeText(getBaseContext(), "No dog found for your foundation, press DONE to create a new dog.", Toast.LENGTH_SHORT).show();
         }
 
-        updateProfileFieldsOnScreen();
+        if (mSavedInstanceState==null) updateProfileFieldsOnScreen();
         mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mDog);
     }
     @Override public void onFamiliesListFound(List<Family> familiesList) {
@@ -581,10 +626,24 @@ public class UpdateDogActivity extends AppCompatActivity implements
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
 
         if (foundationsList.size()==1) {
-            if (foundationsList.get(0) != null) updateProfileFieldsWithFoundationData(foundationsList.get(0));
+            if (foundationsList.get(0) != null) {
+                mFoundationId = foundationsList.get(0).getUI();
+                mFoundationName = foundationsList.get(0).getNm();
+                mFoundationCity = foundationsList.get(0).getCt();
+                mFoundationCountry = foundationsList.get(0).getCn();
+                mFoundationStreet = foundationsList.get(0).getSt();
+                mFoundationStreetNumber = foundationsList.get(0).getStN();
+                updateProfileFieldsWithFoundationData();
+            }
         }
         else if (foundationsList.size()>1) {
-            updateProfileFieldsWithFoundationData(foundationsList.get(0));
+            mFoundationId = foundationsList.get(0).getUI();
+            mFoundationName = foundationsList.get(0).getNm();
+            mFoundationCity = foundationsList.get(0).getCt();
+            mFoundationCountry = foundationsList.get(0).getCn();
+            mFoundationStreet = foundationsList.get(0).getSt();
+            mFoundationStreetNumber = foundationsList.get(0).getStN();
+            updateProfileFieldsWithFoundationData();
             Log.i(DEBUG_TAG, "Warning! Multiple foundations found with the same id.");
         }
         else {

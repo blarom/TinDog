@@ -32,6 +32,8 @@ public class Foundation implements Parcelable {
         cE = in.readString();
         iUT = in.createStringArrayList();
     }
+
+    private String nm = "No name available"; //name
     public static final Creator<Foundation> CREATOR = new Creator<Foundation>() {
         @Override
         public Foundation createFromParcel(Parcel in) {
@@ -44,7 +46,6 @@ public class Foundation implements Parcelable {
         }
     };
 
-    private String nm = "No name available"; //name
     public String getNm() {
         return nm;
     }
@@ -180,5 +181,8 @@ public class Foundation implements Parcelable {
         parcel.writeString(cP);
         parcel.writeString(cE);
         parcel.writeStringList(iUT);
+        parcel.writeString(gac);
+        parcel.writeString(galt);
+        parcel.writeString(galg);
     }
 }

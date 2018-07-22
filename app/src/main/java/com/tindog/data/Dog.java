@@ -21,6 +21,9 @@ public class Dog implements Parcelable {
     public Dog(String uI) {
         this.uI = uI;
     }
+
+    private String nm = ""; //name
+
     protected Dog(Parcel in) {
         nm = in.readString();
         uI = in.readString();
@@ -29,6 +32,11 @@ public class Dog implements Parcelable {
         fN = in.readString();
         cn = in.readString();
         ct = in.readString();
+        st = in.readString();
+        stN = in.readString();
+        gac = in.readString();
+        galt = in.readString();
+        galg = in.readString();
         vU = in.createStringArrayList();
         ag = in.readString();
         sz = in.readString();
@@ -39,6 +47,7 @@ public class Dog implements Parcelable {
         hs = in.readString();
         iUT = in.createStringArrayList();
     }
+
     public static final Creator<Dog> CREATOR = new Creator<Dog>() {
         @Override
         public Dog createFromParcel(Parcel in) {
@@ -51,7 +60,6 @@ public class Dog implements Parcelable {
         }
     };
 
-    private String nm = ""; //name
     public String getNm() {
         return nm;
     }
@@ -105,6 +113,22 @@ public class Dog implements Parcelable {
     }
     public void setCt(String ct) {
         this.ct = ct;
+    }
+
+    private String st; //street
+    public String getSt() {
+        return st;
+    }
+    public void setSt(String st) {
+        this.st = st;
+    }
+
+    private String stN; //street number
+    public String getStN() {
+        return stN;
+    }
+    public void setStN(String stN) {
+        this.stN = stN;
     }
 
     private String gac; //Geocoder address Country (requires internet to update)
@@ -217,6 +241,11 @@ public class Dog implements Parcelable {
         parcel.writeString(fN);
         parcel.writeString(cn);
         parcel.writeString(ct);
+        parcel.writeString(st);
+        parcel.writeString(stN);
+        parcel.writeString(gac);
+        parcel.writeString(galt);
+        parcel.writeString(galg);
         parcel.writeStringList(vU);
         parcel.writeString(ag);
         parcel.writeString(sz);

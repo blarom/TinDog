@@ -1,12 +1,41 @@
 package com.tindog.data;
 
-public class TinDogUser {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class TinDogUser implements Parcelable {
 
     public TinDogUser() {}
 
     public TinDogUser(String uniqueIdentifier) {
         this.uI = uniqueIdentifier;
     }
+
+    protected TinDogUser(Parcel in) {
+        nm = in.readString();
+        uI = in.readString();
+        cp = in.readString();
+        em = in.readString();
+        aP = in.readString();
+        sZ = in.readString();
+        rP = in.readString();
+        gP = in.readString();
+        bP = in.readString();
+        iP = in.readString();
+        lC = in.readByte() != 0;
+    }
+
+    public static final Creator<TinDogUser> CREATOR = new Creator<TinDogUser>() {
+        @Override
+        public TinDogUser createFromParcel(Parcel in) {
+            return new TinDogUser(in);
+        }
+
+        @Override
+        public TinDogUser[] newArray(int size) {
+            return new TinDogUser[size];
+        }
+    };
 
     private String nm = ""; //name
     public String getNm() {
@@ -94,5 +123,25 @@ public class TinDogUser {
     }
     public void setLC(boolean lC) {
         this.lC = lC;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(nm);
+        parcel.writeString(uI);
+        parcel.writeString(cp);
+        parcel.writeString(em);
+        parcel.writeString(aP);
+        parcel.writeString(sZ);
+        parcel.writeString(rP);
+        parcel.writeString(gP);
+        parcel.writeString(bP);
+        parcel.writeString(iP);
+        parcel.writeByte((byte) (lC ? 1 : 0));
     }
 }

@@ -46,6 +46,8 @@ public class Family implements Parcelable {
         hDE = in.readByte() != 0;
         iUT = in.createStringArrayList();
     }
+
+    private String oFid; //firebase user id
     public static final Creator<Family> CREATOR = new Creator<Family>() {
         @Override
         public Family createFromParcel(Parcel in) {
@@ -58,7 +60,6 @@ public class Family implements Parcelable {
         }
     };
 
-    private String oFid; //firebase user id
     public String getOFid() {
         return oFid;
     }
@@ -310,6 +311,9 @@ public class Family implements Parcelable {
         parcel.writeByte((byte) (hDN ? 1 : 0));
         parcel.writeByte((byte) (hDa ? 1 : 0));
         parcel.writeByte((byte) (hDE ? 1 : 0));
+        parcel.writeString(gac);
+        parcel.writeString(galt);
+        parcel.writeString(galg);
         parcel.writeStringList(iUT);
     }
 }

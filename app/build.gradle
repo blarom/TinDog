@@ -17,6 +17,8 @@ android {
 
         buildConfigField("String", "firebaseEmail", firebaseEmail)
         buildConfigField("String", "firebasePass", firebasePass)
+        buildConfigField("String", "mapsApiKey", mapsApiKey)
+        resValue("string", "mapsApiKey", mapsApiKey)
     }
     buildTypes {
         release {

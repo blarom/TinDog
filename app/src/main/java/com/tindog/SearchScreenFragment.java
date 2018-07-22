@@ -2,6 +2,7 @@ package com.tindog;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Location;
@@ -19,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -64,6 +66,7 @@ public class SearchScreenFragment extends Fragment implements
     @BindView(R.id.search_screen_loading_indicator) ProgressBar mProgressBarLoadingIndicator;
     @BindView(R.id.search_screen_profile_selection_recycler_view) RecyclerView mRecyclerViewProfileSelection;
     @BindView(R.id.search_screen_distance_edittext) EditText mEditTextDistance;
+    @BindView(R.id.search_screen_show_in_map_button) Button mButtonShowInMap;
     private Unbinder mBinding;
     private TinDogUser mUser;
     private FirebaseDao mFirebaseDao;
@@ -98,6 +101,7 @@ public class SearchScreenFragment extends Fragment implements
     private String mRequestedFoundationProfileUI;
     private final static int IMAGE_BLOCK_SIZE = 6;
     private int imageDisplayCounter;
+    private boolean mFoundResults;
     //endregion
 
 
@@ -162,6 +166,7 @@ public class SearchScreenFragment extends Fragment implements
         hasLocationPermissions = checkLocationPermission();
         mSwitchedTabs = false;
         mDistance = 0;
+        mFoundResults = false;
 
         mUserLongitude = 0.0;
         mUserLatitude = 0.0;
@@ -182,6 +187,32 @@ public class SearchScreenFragment extends Fragment implements
                     getListsFromFirebase();
                 }
                 return false;
+            }
+        });
+        mButtonShowInMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mFoundResults && mDogsAtDistance!=null) {
+
+                    Intent intent = new Intent(getContext(), MapActivity.class);
+
+                    intent.putExtra(getString(R.string.search_results_map_user_coordinates), new double[]{mUserLatitude, mUserLongitude});
+
+                    if (mProfileType.equals(getString(R.string.dog_profile))) {
+                        intent.putParcelableArrayListExtra(getString(R.string.search_results_dogs_list), new ArrayList<>(mDogsAtDistance));
+                    }
+                    else if (mProfileType.equals(getString(R.string.family_profile))) {
+                        intent.putParcelableArrayListExtra(getString(R.string.search_results_families_list), new ArrayList<>(mFamiliesAtDistance));
+                    }
+                    else if (mProfileType.equals(getString(R.string.foundation_profile))) {
+                        intent.putParcelableArrayListExtra(getString(R.string.search_results_foundations_list), new ArrayList<>(mFoundationsAtDistance));
+                    }
+
+                    startActivity(intent);
+                }
+                else {
+                    Toast.makeText(getContext(), R.string.please_wait_while_results_loaded, Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -513,7 +544,7 @@ public class SearchScreenFragment extends Fragment implements
 
         //If the device can obtain valid up-to-date geolocation data for the object's registered city, use it instead of the stored values,
         // since these may possibly be have been updated when the user last saved the object's profile
-        Address address = SharedMethods.getAddressFromCity(getContext(), city);
+        Address address = SharedMethods.getAddressObjectFromAddressString(getContext(), city);
         if (address!=null) {
             geoAddressCountry = address.getCountryCode();
             geoAddressLatitude = address.getLatitude();
@@ -561,6 +592,7 @@ public class SearchScreenFragment extends Fragment implements
     @Override public void onDogsListFound(List<Dog> dogsList) {
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
         mDogsList = dogsList;
+        mFoundResults = true;
 
         //If the user requested a dogs list, then show the list at the requested distance
         if (TextUtils.isEmpty(mRequestedProfileUI)) updateObjectListAccordingToDistance();
@@ -576,11 +608,13 @@ public class SearchScreenFragment extends Fragment implements
     @Override public void onFamiliesListFound(List<Family> familiesList) {
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
         mFamiliesList = familiesList;
+        mFoundResults = true;
         updateObjectListAccordingToDistance();
     }
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
         mFoundationsList = foundationsList;
+        mFoundResults = true;
 
         //If the user requested a foundations list, then show the list at the requested distance
         if (TextUtils.isEmpty(mRequestedFoundationProfileUI)) updateObjectListAccordingToDistance();

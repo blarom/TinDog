@@ -3,6 +3,7 @@ package com.tindog.data;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,9 +21,11 @@ public class DatabaseUtilities {
 
     public static final String firebaseEmail = BuildConfig.firebaseEmail;
     public static final String firebasePass = BuildConfig.firebasePass;
+    public static final String mapsApiKey = BuildConfig.mapsApiKey;
     private static final String DEBUG_TAG = "TinDog DB";
 
     static String cleanIdentifierForFirebase(String string) {
+        if (TextUtils.isEmpty(string)) return "";
         string = string.replaceAll("\\.","*");
         string = string.replaceAll("#","*");
         string = string.replaceAll("\\$","*");

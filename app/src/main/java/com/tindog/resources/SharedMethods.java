@@ -406,53 +406,20 @@ public class SharedMethods {
         LinearLayoutManager layoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
         return layoutManager.findFirstVisibleItemPosition();
     }
-    public static int getSpinnerPositionFromText(Context context, Spinner spinnerAdapter, String userSelection) {
+    public static int getSpinnerPositionFromText(Spinner spinnerAdapter, String userSelection) {
 
-        String[] spinnerArrayElements;
-        switch (spinnerAdapter.getId()) {
-            case R.id.preferences_age_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_age);
-                for (int i=0; i<spinnerArrayElements.length; i++) {
-                    if (userSelection.equals(spinnerArrayElements[i])) return i;
-                }
+        int index = 0;
+        for (int i=0;i<spinnerAdapter.getCount();i++){
+            if (spinnerAdapter.getItemAtPosition(i).equals(userSelection)){
+                index = i;
                 break;
-            case R.id.preferences_size_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_size);
-                for (int i=0; i<spinnerArrayElements.length; i++) {
-                    if (userSelection.equals(spinnerArrayElements[i])) return i;
-                }
-                break;
-            case R.id.preferences_gender_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_gender);
-                for (int i=0; i<spinnerArrayElements.length; i++) {
-                    if (userSelection.equals(spinnerArrayElements[i])) return i;
-                }
-                break;
-            case R.id.preferences_race_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_race);
-                for (int i=0; i<spinnerArrayElements.length; i++) {
-                    if (userSelection.equals(spinnerArrayElements[i])) return i;
-                }
-                break;
-            case R.id.preferences_behavior_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_behavior);
-                for (int i=0; i<spinnerArrayElements.length; i++) {
-                    if (userSelection.equals(spinnerArrayElements[i])) return i;
-                }
-                break;
-            case R.id.preferences_interactions_spinner:
-                spinnerArrayElements = context.getResources().getStringArray(R.array.dog_interactions);
-                for (int i=0; i<spinnerArrayElements.length; i++) {
-                    if (userSelection.equals(spinnerArrayElements[i])) return i;
-                }
-                break;
+            }
         }
-
-        return 0;
+        return index;
     }
     public static void showSignInScreen(Activity activity) {
 
-        SharedMethods.setAppPreferenceSignInRequestState(activity, false);
+        SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(activity, false);
 
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.EmailBuilder().build(),
@@ -468,7 +435,7 @@ public class SharedMethods {
 
 
     //Location utlities
-    public static Address getAddressFromCity(Context context, String location) {
+    public static Address getAddressObjectFromAddressString(Context context, String location) {
 
         //inspired by: https://stackoverflow.com/questions/20166328/how-to-get-longitude-latitude-from-the-city-name-android-code
 
@@ -553,7 +520,7 @@ public class SharedMethods {
 
 
     //Preferences
-    public static void setAppPreferenceSignInRequestState(Context context, boolean requestedSignInState) {
+    public static void setAppPreferenceUserHasNotRefusedSignIn(Context context, boolean requestedSignInState) {
         if (context != null) {
             SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
@@ -561,7 +528,7 @@ public class SharedMethods {
             editor.apply();
         }
     }
-    public static boolean getAppPreferenceSignInRequestState(Context context) {
+    public static boolean getAppPreferenceUserHasNotRefusedSignIn(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
         return sharedPref.getBoolean(context.getString(R.string.app_preference_sign_in_state), true);
     }

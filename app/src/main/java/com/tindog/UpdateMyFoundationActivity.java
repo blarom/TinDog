@@ -3,9 +3,9 @@ package com.tindog;
 import android.content.Intent;
 import android.location.Address;
 import android.net.Uri;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,7 +19,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,7 +32,6 @@ import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
 import com.tindog.resources.SharedMethods;
 
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -56,6 +54,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     @BindView(R.id.update_my_foundation_value_street_number) TextInputEditText mEditTextStreetNumber;
     @BindView(R.id.update_my_foundation_image_main) ImageView mImageViewMain;
     @BindView(R.id.update_my_foundation_recyclerview_images) RecyclerView mRecyclerViewFoundationImages;
+    @BindView(R.id.update_my_foundation_scroll_container) NestedScrollView mScrollViewContainer;
     private Unbinder mBinding;
     private Foundation mFoundation;
     private FirebaseDao mFirebaseDao;
@@ -72,6 +71,9 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private String mFoundationImagesDirectory;
     private boolean[] mImagesReady;
+    private int mScrollPosition;
+    private Bundle mSavedInstanceState;
+    private boolean mFoundationFound;
     //endregion
 
 
@@ -80,6 +82,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_my_foundation);
 
+        mSavedInstanceState = savedInstanceState;
         initializeParameters();
         getFoundationProfileFromFirebase();
         setupFoundationImagesRecyclerView();
@@ -153,9 +156,11 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 return true;
             case R.id.action_save:
                 updateFoundationWithUserInput();
+                if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFoundation);
                 return true;
             case R.id.action_done:
                 updateFoundationWithUserInput();
+                if (!TextUtils.isEmpty(mFirebaseUid)) mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFoundation);
                 finish();
                 return true;
             case R.id.action_edit_preferences:
@@ -166,11 +171,18 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         }
         return super.onOptionsItemSelected(item);
     }
-    @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+    @Override public void onSaveInstanceState(Bundle outState) {
         mStoredFoundationImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewFoundationImages);
         outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredFoundationImagesRecyclerViewPosition);
         outState.putString(getString(R.string.profile_update_image_name), mImageName);
-        super.onSaveInstanceState(outState, outPersistentState);
+        mScrollPosition = mScrollViewContainer.getScrollY();
+        outState.putInt(getString(R.string.scroll_position),mScrollPosition);
+        outState.putString(getString(R.string.saved_firebase_email), mEmailFromFirebase);
+        outState.putString(getString(R.string.saved_firebase_name), mNameFromFirebase);
+        outState.putString(getString(R.string.saved_firebase_id), mFirebaseUid);
+        updateFoundationWithUserInput();
+        outState.putParcelable(getString(R.string.saved_profile), mFoundation);
+        super.onSaveInstanceState(outState);
 
     }
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -179,6 +191,16 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             mStoredFoundationImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.profile_update_pet_images_rv_position));
             mRecyclerViewFoundationImages.scrollToPosition(mStoredFoundationImagesRecyclerViewPosition);
             mImageName = savedInstanceState.getString(getString(R.string.profile_update_image_name));
+            mFoundation = savedInstanceState.getParcelable(getString(R.string.saved_profile));
+            mScrollPosition = savedInstanceState.getInt(getString(R.string.scroll_position));
+            mEmailFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_email));
+            mNameFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_name));
+            mFirebaseUid = savedInstanceState.getString(getString(R.string.saved_firebase_id));
+
+            mScrollViewContainer.setScrollY(mScrollPosition);
+            updateProfileFieldsOnScreen();
+            setupFoundationImagesRecyclerView();
+            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
         }
     }
 
@@ -191,6 +213,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         }
         mBinding =  ButterKnife.bind(this);
         mImagesReady = new boolean[]{false, false, false, false, false, false};
+        mFoundationFound = false;
         mFoundation = new Foundation();
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -212,11 +235,10 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             mFoundation.setOFId(mFirebaseUid);
 
             //Initializing the local parameters that depend on this family, used in the rest of the activity
-            mFoundationImagesDirectory = getFilesDir()+"/foundations/"+mFoundation.getUI()+"/images/";
             mImageName = "mainImage";
 
             //Getting the rest of the family's parameters
-            mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mFoundation);
+            if (!mFoundationFound) mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mFoundation);
         }
     }
     private void updateProfileFieldsOnScreen() {
@@ -276,22 +298,17 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
+                    SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                     //getFoundationProfileFromFirebase();
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    List<AuthUI.IdpConfig> providers = Arrays.asList(
-                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                            new AuthUI.IdpConfig.GoogleBuilder().build());
-
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setAvailableProviders(providers)
-                                    .build(),
-                            SharedMethods.FIREBASE_SIGN_IN_KEY);
+                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
+                        mSavedInstanceState = null;
+                        SharedMethods.showSignInScreen(UpdateMyFoundationActivity.this);
+                    }
                 }
             }
         };
@@ -310,7 +327,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
 
         String city = mEditTextCity.getText().toString();
         mFoundation.setCt(city);
-        Address address = SharedMethods.getAddressFromCity(this, city);
+        Address address = SharedMethods.getAddressObjectFromAddressString(this, city);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();
             double geoAddressLatitude = address.getLatitude();
@@ -325,8 +342,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         mFoundation.setStN(mEditTextStreetNumber.getText().toString());
 
         mFoundation.setUniqueIdentifierFromDetails();
-
-        mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mFoundation);
+        if (TextUtils.isEmpty(mFoundation.getUI())) Log.i(DEBUG_TAG, "Error: TinDog Foundation has empty unique ID!");
     }
 
 
@@ -352,10 +368,14 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     }
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
         if (foundationsList.size()==1) {
-            if (foundationsList.get(0) != null) mFoundation = foundationsList.get(0);
+            if (foundationsList.get(0) != null) {
+                mFoundation = foundationsList.get(0);
+                mFoundationFound = true;
+            }
         }
         else if (foundationsList.size()>1) {
             mFoundation = foundationsList.get(0);
+            mFoundationFound = true;
             Log.i(DEBUG_TAG, "Warning! Multiple foundations found for the user's credentials.");
         }
         else {
@@ -363,7 +383,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             Toast.makeText(getBaseContext(), "Your foundation doesn't exist yet, press DONE to create a new foundation.", Toast.LENGTH_SHORT).show();
         }
 
-        updateProfileFieldsOnScreen();
+        if (mSavedInstanceState==null) updateProfileFieldsOnScreen();
         mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFoundation);
     }
     @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {

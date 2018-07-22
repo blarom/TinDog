@@ -9,6 +9,7 @@
     tools:context=".UpdateMyFamilyActivity">
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/update_dog_scroll_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
@@ -73,6 +74,30 @@
                     android:id="@+id/update_dog_value_city"
                     style="@style/TextInputEditTextParametersStyle"
                     android:inputType="textCapWords"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_street"
+                android:hint="@string/street_required"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_dog_value_street"
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_street_number"
+                android:hint="@string/street_number_required"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_dog_value_street_number"
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="number"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.constraint.ConstraintLayout

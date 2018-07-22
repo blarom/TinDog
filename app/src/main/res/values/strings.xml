@@ -136,6 +136,8 @@
     <string name="dog_s_name_required">Dog\'s name (*required)</string>
     <string name="country_required">Country (*required)</string>
     <string name="city_required">City (*required)</string>
+    <string name="street_required">Street (*required)</string>
+    <string name="street_number_required">Street Number (*required)</string>
     <string name="distance_from_me">Distance from me:</string>
     <string name="zero">0</string>
     <string name="unit_km">km</string>
@@ -319,4 +321,22 @@
     <string name="dog_finder">Dog Finder</string>
     <string name="family_finder">Family Finder</string>
     <string name="foundation_finder">Foundation Finder</string>
+    <string name="saved_profile">saved_profile</string>
+    <string name="saved_foundation_name">saved_foundation_name</string>
+    <string name="saved_foundation_country">saved_foundation_country</string>
+    <string name="saved_foundation_city">saved_foundation_city</string>
+    <string name="saved_foundation_id">saved_foundation_id</string>
+    <string name="scroll_position">scroll_position</string>
+    <string name="saved_firebase_email">saved_firebase_email</string>
+    <string name="saved_firebase_name">saved_firebase_name</string>
+    <string name="saved_firebase_id">saved_firebase_id</string>
+    <string name="show_results_on_the_map">Show results on the map</string>
+    <string name="please_wait_while_results_loaded">Please wait while the results are loaded</string>
+    <string name="search_results_objects_list">search_results_objects_list</string>
+    <string name="search_results_map_user_coordinates">search_results_map_user_coordinates</string>
+    <string name="search_results_dogs_list">search_results_dogs_list</string>
+    <string name="search_results_families_list">search_results_families_list</string>
+    <string name="search_results_foundations_list">search_results_foundations_list</string>
+    <string name="saved_foundation_street">saved_foundation_street</string>
+    <string name="saved_foundation_street_number">saved_foundation_street_number</string>
 </resources>
