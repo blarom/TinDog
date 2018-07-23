@@ -12,6 +12,7 @@ import android.location.Geocoder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -22,8 +23,15 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
+import com.tindog.BuildConfig;
 import com.tindog.R;
 import com.tindog.data.Dog;
 import com.tindog.data.Family;
@@ -42,21 +50,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class SharedMethods {
+public class Utilities {
 
-    private static final String DEBUG_TAG = "Tindog SharedMethods";
-    public static final long MAX_IMAGE_FILE_SIZE = 300; //kb
+    public static final String firebaseEmail = BuildConfig.firebaseEmail;
+    public static final String firebasePass = BuildConfig.firebasePass;
+    public static final String mapsApiKey = BuildConfig.mapsApiKey;
+    public static final String adMobAppId = BuildConfig.adMobAppId;
+    public static final String adUnitId = BuildConfig.adUnitId;
+    private static final String DEBUG_TAG = "Tindog Utilities";
     public static final int FIREBASE_SIGN_IN_KEY = 123;
-
-    //App parameters
-    public static int getSmallestWidth(Context context) {
-        Configuration config = context.getResources().getConfiguration();
-        return config.smallestScreenWidthDp;
-    }
 
 
     //File utilities
-    public static Uri moveFile(Uri source, String destinationDirectory, String destinationFilename) {
+    private static Uri moveFile(Uri source, String destinationDirectory, String destinationFilename) {
 
         if (source == null) {
             Log.i(DEBUG_TAG, "Tried to move an image with null Uri, aborting.");
@@ -100,7 +106,7 @@ public class SharedMethods {
         }
         return Uri.fromFile(destinationFile);
     }
-    public static void deleteFileAtUri(Uri uri) {
+    private static void deleteFileAtUri(Uri uri) {
         if (uri==null) {
             Log.i(DEBUG_TAG, "Tried to delete an image with null Uri, aborting.");
             return;
@@ -114,7 +120,7 @@ public class SharedMethods {
             }
         }
     }
-    public static String getImagesDirectoryForObject(Context context, Object object) {
+    private static String getImagesDirectoryForObject(Context context, Object object) {
         String imageDirectory;
         if (object instanceof Dog) {
             Dog dog = (Dog) object;
@@ -165,7 +171,7 @@ public class SharedMethods {
 
         //If the image is already small, don't change it (file.length()==0 means the image wasn't found)
         File file = new File(uri.getPath());
-        while (file.length()/1024 > SharedMethods.MAX_IMAGE_FILE_SIZE) {
+        while (file.length()/1024 > Long.parseLong(context.getResources().getString(R.string.max_image_file_size))) {
             BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
             bmpFactoryOptions.inJustDecodeBounds = false;
             Bitmap bitmap;
@@ -299,11 +305,11 @@ public class SharedMethods {
         if(directoryIsInvalid(localDirectory)) return;
 
         //The image was downloaded only if it was newer than the local image (If it wasn't downloaded, the downloadedImageUri is the same as the local image Uri)
-        Uri localImageUri = SharedMethods.getImageUriWithPath(localDirectory, imageName);
+        Uri localImageUri = Utilities.getImageUriWithPath(localDirectory, imageName);
 
         if (downloadedImageUri != null) {
             if (localImageUri == null) {
-                SharedMethods.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
+                Utilities.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
             }
             else {
                 String localUriPath = localImageUri.getPath();
@@ -311,7 +317,7 @@ public class SharedMethods {
 
                 //If the downloaded image is newer, then update the image in the local directory
                 if (!downloadedUriPath.equals(localUriPath)) {
-                    SharedMethods.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
+                    Utilities.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
                 }
 
                 //If the local image is newer, then upload it to Firebase to replace the older image
@@ -331,9 +337,9 @@ public class SharedMethods {
         String imageDirectory = getImagesDirectoryForObject(context, object);
         if(directoryIsInvalid(imageDirectory)) return null;
 
-        return SharedMethods.getImageUriWithPath(imageDirectory,imageName);
+        return Utilities.getImageUriWithPath(imageDirectory,imageName);
     }
-    public static Uri getImageUriWithPath(String directory, String imageName) {
+    private static Uri getImageUriWithPath(String directory, String imageName) {
 
         if (directoryIsInvalid(directory)) return null;
 
@@ -377,7 +383,7 @@ public class SharedMethods {
             Log.i(DEBUG_TAG, "Tried to access an invalid directory, aborting.");
             return;
         }
-        Uri localImageUri = SharedMethods.getImageUriWithPath(localDirectory, imageName);
+        Uri localImageUri = Utilities.getImageUriWithPath(localDirectory, imageName);
         displayUriInImageView(context, localImageUri, imageView);
     }
     public static void displayUriInImageView(Context context, Uri uri, ImageView imageView) {
@@ -419,7 +425,7 @@ public class SharedMethods {
     }
     public static void showSignInScreen(Activity activity) {
 
-        SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(activity, false);
+        Utilities.setAppPreferenceUserHasNotRefusedSignIn(activity, false);
 
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.EmailBuilder().build(),
@@ -430,7 +436,7 @@ public class SharedMethods {
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
                         .build(),
-                SharedMethods.FIREBASE_SIGN_IN_KEY);
+                Utilities.FIREBASE_SIGN_IN_KEY);
     }
 
 
@@ -459,20 +465,153 @@ public class SharedMethods {
         if (addresses.size()>0) return addresses.get(0);
         else return null;
     }
-    public static String getCityFromLocation(Context context, double latitude, double longitude) {
+    public static String[] getExactAddressFromGeoCoordinates(Context context, double latitude, double longitude) {
 
         Geocoder gcd = new Geocoder(context, Locale.getDefault());
         List<Address> addresses;
         try {
             addresses = gcd.getFromLocation(latitude, longitude, 1);
             if (addresses.size() > 0) {
-                return addresses.get(0).getLocality();
+                String address = addresses.get(0).getAddressLine(0);
+                String street = (Arrays.asList(address.split(","))).get(0).trim();
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String[] fullAddress = new String[] { street , city , state, country };
+                return fullAddress;
             }
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        return "";
+        return null;
+    }
+
+
+    //Database utilities
+    public static int getSmallestWidth(Context context) {
+        Configuration config = context.getResources().getConfiguration();
+        return config.smallestScreenWidthDp;
+    }
+    public static String cleanIdentifierForFirebase(String string) {
+        if (TextUtils.isEmpty(string)) return "";
+        string = string.replaceAll("\\.","*");
+        string = string.replaceAll("#","*");
+        string = string.replaceAll("\\$","*");
+        string = string.replaceAll("\\[","*");
+        string = string.replaceAll("]","*");
+        //string = string.replaceAll("\\{","*");
+        //string = string.replaceAll("}","*");
+        return string;
+    }
+    public static void updateFirebaseUserName(final Context context, final FirebaseUser user, String password, final String newInfo) {
+
+        if (user.getEmail()==null) {
+            Toast.makeText(context, R.string.error_accessing_user_info, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
+        user.reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(DEBUG_TAG, "User re-authenticated.");
+
+                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(newInfo)
+                                    //.setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
+                                    .build();
+
+                            user.updateProfile(profileUpdates)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(context, R.string.successfully_updated_name, Toast.LENGTH_SHORT).show();
+                                                Log.d(DEBUG_TAG, "User profile updated.");
+                                            }
+                                            else {
+                                                Toast.makeText(context, R.string.failed_to_update_name, Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                        }
+                        else {
+                            Toast.makeText(context, R.string.authentication_failed, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+    }
+    public static void updateFirebaseUserPassword(final Context context, final FirebaseUser user, String password, final String newInfo) {
+
+        if (user.getEmail()==null) {
+            Toast.makeText(context, R.string.error_accessing_user_info, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
+        user.reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(DEBUG_TAG, "User re-authenticated.");
+                            user.updatePassword(newInfo)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(context, R.string.successfully_updated_password, Toast.LENGTH_SHORT).show();
+                                                Log.d(DEBUG_TAG, "User password updated.");
+                                            }
+                                            else {
+                                                Toast.makeText(context, R.string.failed_to_update_password, Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                        }
+                        else {
+                            Toast.makeText(context, R.string.authentication_failed, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+    public static void updateFirebaseUserEmail(final Context context, final FirebaseUser user, String password, final String newInfo) {
+
+        if (user.getEmail()==null) {
+            Toast.makeText(context, R.string.error_accessing_user_info, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
+        user.reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(DEBUG_TAG, "User re-authenticated.");
+                            user.updateEmail(newInfo)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(context, R.string.successfully_updated_email, Toast.LENGTH_SHORT).show();
+                                                Log.d(DEBUG_TAG, "User email updated.");
+                                            }
+                                            else {
+                                                Toast.makeText(context, R.string.failed_to_update_email, Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                        }
+                        else {
+                            Toast.makeText(context, R.string.authentication_failed, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
 

@@ -5,18 +5,14 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.URLUtil;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.Picasso;
 import com.tindog.R;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.List;
 
@@ -49,7 +45,7 @@ public class ImagesRecycleViewAdapter extends RecyclerView.Adapter<ImagesRecycle
         }
         else {
             Uri uri = mUris.get(position);
-            SharedMethods.displayUriInImageView(mContext, uri, holder.imageInRecycleView);
+            Utilities.displayUriInImageView(mContext, uri, holder.imageInRecycleView);
         }
     }
 

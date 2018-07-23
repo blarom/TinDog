@@ -34,7 +34,7 @@ import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.List;
 
@@ -105,7 +105,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         initializeParameters();
         getFamilyProfileFromFirebase();
         setupPetImagesRecyclerView();
-        SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
+        Utilities.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -126,16 +126,16 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 Uri croppedImageTempUri = result.getUri();
-                boolean succeeded = SharedMethods.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
+                boolean succeeded = Utilities.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
 
                 if (succeeded) {
-                    Uri copiedImageUri = SharedMethods.updateLocalObjectImage(getApplicationContext(), croppedImageTempUri, mFamily, mImageName);
+                    Uri copiedImageUri = Utilities.updateLocalObjectImage(getApplicationContext(), croppedImageTempUri, mFamily, mImageName);
                     if (copiedImageUri != null)
                         if (mImageName.equals("mainImage")) {
-                            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
+                            Utilities.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
                         }
                         else {
-                            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
+                            List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
                             mPetImagesRecycleViewAdapter.setContents(uris);
                         }
                         mFirebaseDao.putImageInFirebaseStorage(mFamily, copiedImageUri, mImageName);
@@ -145,7 +145,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 Exception error = result.getError();
             }
         }
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
+        if (requestCode == Utilities.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -194,7 +194,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         return super.onOptionsItemSelected(item);
     }
     @Override public void onSaveInstanceState(Bundle outState) {
-        mStoredPetImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewPetImages);
+        mStoredPetImagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewPetImages);
         outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredPetImagesRecyclerViewPosition);
         outState.putString(getString(R.string.profile_update_image_name), mImageName);
         mScrollPosition = mScrollViewContainer.getScrollY();
@@ -222,7 +222,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             mScrollViewContainer.setScrollY(mScrollPosition);
             updateProfileFieldsOnScreen();
             setupPetImagesRecyclerView();
-            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
+            Utilities.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
         }
     }
 
@@ -290,24 +290,24 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mCheckBoxFoster.setChecked(mFamily.getFD());
         mCheckBoxAdopt.setChecked(mFamily.getAD());
         mCheckBoxFosterAndAdopt.setChecked(mFamily.getFAD());
-        mSpinnerFosterPeriod.setSelection(SharedMethods.getSpinnerPositionFromText(mSpinnerFosterPeriod, mFamily.getFP()));
+        mSpinnerFosterPeriod.setSelection(Utilities.getSpinnerPositionFromText(mSpinnerFosterPeriod, mFamily.getFP()));
         mCheckBoxHelpOrganizeMovingEquipment.setChecked(mFamily.getHOE());
         mCheckBoxHelpOrganizeMovingDogs.setChecked(mFamily.getHOD());
         mCheckBoxHelpOrganizeCoordinating.setChecked(mFamily.getHOC());
         mCheckBoxHelpOrganizeLendingHand.setChecked(mFamily.getHOL());
         mCheckBoxDogWalking.setChecked(mFamily.getHD());
-        mSpinnerDogWalkingWhere.setSelection(SharedMethods.getSpinnerPositionFromText(mSpinnerDogWalkingWhere, mFamily.getHDW()));
+        mSpinnerDogWalkingWhere.setSelection(Utilities.getSpinnerPositionFromText(mSpinnerDogWalkingWhere, mFamily.getHDW()));
         mCheckBoxDogWalkingMorning.setChecked(mFamily.getHDM());
         mCheckBoxDogWalkingNoon.setChecked(mFamily.getHDN());
         mCheckBoxDogWalkingAfternoon.setChecked(mFamily.setHDA());
         mCheckBoxDogWalkingEvening.setChecked(mFamily.getHDE());
 
-        SharedMethods.hideSoftKeyboard(this);
+        Utilities.hideSoftKeyboard(this);
     }
     private void setupPetImagesRecyclerView() {
         mRecyclerViewPetImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewPetImages.setNestedScrollingEnabled(true);
-        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
+        List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
         mPetImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, uris);
         mRecyclerViewPetImages.setAdapter(mPetImagesRecycleViewAdapter);
     }
@@ -315,8 +315,14 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mButtonChooseMainPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mImageName = "mainImage";
-                performImageCaptureAndCrop();
+
+                if (mFamilyCriticalParametersSet && !TextUtils.isEmpty(mFamily.getUI())) {
+                    mImageName = "mainImage";
+                    performImageCaptureAndCrop();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -324,15 +330,24 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             @Override
             public void onClick(View view) {
 
-                List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
-                if (uris.size() == 5) {
-                    Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
+                if (mFamilyCriticalParametersSet && !TextUtils.isEmpty(mFamily.getUI())) {
+
+                    List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
+                    if (uris.size() == 5) {
+                        Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        mImageName = Utilities.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFamily);
+                        if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
+                        else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
+                    }
+
                 }
                 else {
-                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFamily);
-                    if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
-                    else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
                 }
+
+
             }
         });
     }
@@ -350,16 +365,16 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
-                    SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
+                    Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                     //getFamilyProfileFromFirebase();
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
+                    if (Utilities.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
                         mSavedInstanceState = null;
-                        SharedMethods.showSignInScreen(UpdateMyFamilyActivity.this);
+                        Utilities.showSignInScreen(UpdateMyFamilyActivity.this);
                     }
                 }
             }
@@ -386,7 +401,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mFamily.setSt(street);
 
         String addressString = street + ", " + city + ", " + country;
-        Address address = SharedMethods.getAddressObjectFromAddressString(this, addressString);
+        Address address = Utilities.getAddressObjectFromAddressString(this, addressString);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();
             double geoAddressLatitude = address.getLatitude();
@@ -478,7 +493,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
                 || mPetImagesRecycleViewAdapter==null
                 || mFamily==null) return;
 
-        SharedMethods.synchronizeImageOnAllDevices(getApplicationContext(), mFamily, mFirebaseDao, imageName, downloadedImageUri);
+        Utilities.synchronizeImageOnAllDevices(getApplicationContext(), mFamily, mFirebaseDao, imageName, downloadedImageUri);
 
         //Display the images
 
@@ -496,8 +511,8 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             if (!isReady) { allImagesReady = false; break; }
         }
         if (allImagesReady) {
-            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
-            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
+            Utilities.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
+            List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
             mPetImagesRecycleViewAdapter.setContents(uris);
         }
 

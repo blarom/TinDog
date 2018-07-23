@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.tindog.resources.Utilities;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,9 +14,11 @@ public class Family implements Parcelable {
     public Family() {
 
     }
-    public Family(String pseudonym, String email) {
+    public Family(String pseudonym, String street, String city, String country) {
         this.pn = pseudonym;
-        this.em = email;
+        this.st = street;
+        this.ct = city;
+        this.cn = country;
     }
     public Family(String firebaseUid) {
         this.oFid = firebaseUid;
@@ -82,15 +86,15 @@ public class Family implements Parcelable {
 
     private String uI = ""; //unique identifier
     public String getUI() {
-        return DatabaseUtilities.cleanIdentifierForFirebase(uI);
+        return Utilities.cleanIdentifierForFirebase(uI);
     }
     public void setUI(String uniqueIdentifier) {
-        this.uI = DatabaseUtilities.cleanIdentifierForFirebase(uniqueIdentifier);
+        this.uI = Utilities.cleanIdentifierForFirebase(uniqueIdentifier);
     }
     public void setUniqueIdentifierFromDetails() {
         if (TextUtils.isEmpty(oFid)) uI = pn + "-" + em;
         else uI = oFid;
-        uI = DatabaseUtilities.cleanIdentifierForFirebase(uI);
+        uI = Utilities.cleanIdentifierForFirebase(uI);
     }
 
     private String em = ""; //email

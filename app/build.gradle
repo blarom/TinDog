@@ -18,6 +18,8 @@ android {
         buildConfigField("String", "firebaseEmail", firebaseEmail)
         buildConfigField("String", "firebasePass", firebasePass)
         buildConfigField("String", "mapsApiKey", mapsApiKey)
+        buildConfigField("String", "adMobAppId", adMobAppId)
+        buildConfigField("String", "adUnitId", adUnitId)
         resValue("string", "mapsApiKey", mapsApiKey)
     }
     buildTypes {
@@ -27,15 +29,6 @@ android {
         }
     }
 
-    flavorDimensions "tier"
-    productFlavors {
-        paid {
-            applicationId "com.tindog.paid"
-        }
-        free {
-            applicationId "com.tindog.free"
-        }
-    }
 }
 
 dependencies {

@@ -17,7 +17,7 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
 import com.tindog.data.Family;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.List;
 
@@ -131,13 +131,13 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
         mCheckBoxDogWalkingEvening.setChecked(mFamily.getHDE());
 
         if (getContext()==null) return;
-        SharedMethods.displayObjectImageInImageView(getContext(), mFamily, "mainImage", mImageViewMainImage);
-        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getContext(), mFamily, true);
+        Utilities.displayObjectImageInImageView(getContext(), mFamily, "mainImage", mImageViewMainImage);
+        List<Uri> uris = Utilities.getExistingImageUriListForObject(getContext(), mFamily, true);
         mImagesRecycleViewAdapter.setContents(uris);
     }
     private void storeFragmentLayout() {
         if (mRecyclerViewImages!=null) {
-            int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
+            int imagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewImages);
             onFamilyProfileFragmentOperationsHandler.onFamilyLayoutParametersCalculated(imagesRecyclerViewPosition);
         }
     }

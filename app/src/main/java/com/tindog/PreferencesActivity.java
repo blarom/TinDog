@@ -29,13 +29,12 @@ import android.widget.Toast;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.Dog;
 import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.List;
 
@@ -85,6 +84,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     private int mInteractionsSpinnerPosition;
     private boolean mLimitToCountry;
     private Bundle mSavedInstanceState;
+    private boolean mAlreadyRequestedUserProfile;
     //endregion
 
 
@@ -112,7 +112,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         mBinding.unbind();
     }
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
+        if (requestCode == Utilities.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -190,6 +190,8 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         mUserFound = false;
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
         mFirebaseAuth = FirebaseAuth.getInstance();
+        mCurrentFirebaseUser = mFirebaseAuth.getCurrentUser();
+        mAlreadyRequestedUserProfile = false;
 
         mSpinnerAdapterAge = ArrayAdapter.createFromResource(this, R.array.dog_age, android.R.layout.simple_spinner_item);
         mSpinnerAdapterAge.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -254,7 +256,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
             }
         });
 
-        SharedMethods.hideSoftKeyboard(this);
+        Utilities.hideSoftKeyboard(this);
     }
     private void updateUserInfoShownToUser() {
         mTextViewUserName.setText(mNameFromFirebase);
@@ -262,12 +264,12 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     }
     private void updatePreferencesShownToUser() {
 
-        mAgeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerAge, mUser.getAP());
-        mSizeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerSize, mUser.getSP());
-        mGenderSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerGender, mUser.getGP());
-        mRaceSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerRace, mUser.getRP());
-        mBehaviorSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerBehavior, mUser.getBP());
-        mInteractionsSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerInteractions, mUser.getIP());
+        mAgeSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerAge, mUser.getAP());
+        mSizeSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerSize, mUser.getSP());
+        mGenderSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerGender, mUser.getGP());
+        mRaceSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerRace, mUser.getRP());
+        mBehaviorSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerBehavior, mUser.getBP());
+        mInteractionsSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerInteractions, mUser.getIP());
 
         mSpinnerAge.setSelection(mAgeSpinnerPosition);
         mSpinnerSize.setSelection(mSizeSpinnerPosition);
@@ -289,9 +291,15 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         }
     }
     private void getTinDogUserProfileFromFirebase() {
-        if (mCurrentFirebaseUser != null) {
+        if (mCurrentFirebaseUser != null && !mAlreadyRequestedUserProfile) {
             mUser.setUI(mFirebaseUid);
-            if (!mUserFound) mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mUser);
+            if (!mUserFound) {
+                mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mUser);
+                mAlreadyRequestedUserProfile = true;
+            }
+        }
+        else {
+            Toast.makeText(getApplicationContext(), R.string.please_sign_in_to_see_preferences, Toast.LENGTH_SHORT).show();
         }
     }
     private void updatePreferencesWithUserInput() {
@@ -320,17 +328,19 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
-                    SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
-                    //getUserInfoFromFirebase();
-                    //getTinDogUserProfileFromFirebase();
+                    Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
+                    getUserInfoFromFirebase();
+                    updateUserInfoShownToUser();
+                    if (mSavedInstanceState==null) updatePreferencesShownToUser();
+                    getTinDogUserProfileFromFirebase();
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
+                    if (Utilities.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
                         mSavedInstanceState = null;
-                        SharedMethods.showSignInScreen(PreferencesActivity.this);
+                        Utilities.showSignInScreen(PreferencesActivity.this);
                     }
                 }
             }
@@ -386,19 +396,19 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 switch (infoType) {
                     case "name":
                         if (mCurrentFirebaseUser!=null) {
-                            DatabaseUtilities.updateFirebaseUserName(getApplicationContext(), mCurrentFirebaseUser, currentPassword, newInfo);
+                            Utilities.updateFirebaseUserName(getApplicationContext(), mCurrentFirebaseUser, currentPassword, newInfo);
                             mTextViewUserName.setText(newInfo);
                         }
                         break;
                     case "email":
                         if (mCurrentFirebaseUser!=null) {
-                            DatabaseUtilities.updateFirebaseUserEmail(getApplicationContext(), mCurrentFirebaseUser, currentPassword, newInfo);
+                            Utilities.updateFirebaseUserEmail(getApplicationContext(), mCurrentFirebaseUser, currentPassword, newInfo);
                             mTextViewUserEmail.setText(newInfo);
                         }
                         break;
                     case "password":
                         if (mCurrentFirebaseUser!=null) {
-                            DatabaseUtilities.updateFirebaseUserPassword(getApplicationContext(), mCurrentFirebaseUser, currentPassword, newInfo);
+                            Utilities.updateFirebaseUserPassword(getApplicationContext(), mCurrentFirebaseUser, currentPassword, newInfo);
                         }
                         break;
                 }
@@ -444,6 +454,8 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
 
     }
     @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
+
+        mAlreadyRequestedUserProfile = false;
 
         if (usersList.size()==1) {
             if (usersList.get(0) != null) {

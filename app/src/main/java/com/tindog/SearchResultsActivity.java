@@ -26,7 +26,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.tindog.data.Dog;
 import com.tindog.data.Family;
 import com.tindog.data.Foundation;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,7 +76,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
 
         getExtras();
         initializeParameters();
-        if (!SharedMethods.internetIsAvailable(this)) {
+        if (!Utilities.internetIsAvailable(this)) {
             Toast.makeText(this, R.string.no_internet_bad_results_warning, Toast.LENGTH_SHORT).show();
         }
         if(savedInstanceState == null) setFragmentLayouts(0);
@@ -96,7 +96,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
+        if (requestCode == Utilities.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -138,10 +138,10 @@ public class SearchResultsActivity extends AppCompatActivity implements
                 return true;
             case R.id.action_signout:
                 if (mCurrentFirebaseUser!=null) mFirebaseAuth.signOut();
-                SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), false);
+                Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), false);
                 return true;
             case R.id.action_signin:
-                SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
+                Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
                 showSignInScreen();
                 return true;
         }
@@ -220,12 +220,12 @@ public class SearchResultsActivity extends AppCompatActivity implements
         }
 
         mBinding =  ButterKnife.bind(this);
-        SharedMethods.hideSoftKeyboard(this);
+        Utilities.hideSoftKeyboard(this);
 
     }
     private void setFragmentLayouts(int selectedProfileIndex) {
 
-        if (SharedMethods.getSmallestWidth(this) < getResources().getInteger(R.integer.tablet_smallest_width_threshold)) {
+        if (Utilities.getSmallestWidth(this) < getResources().getInteger(R.integer.tablet_smallest_width_threshold)) {
             if (!mActivatedDetailFragment) {
                 setupSearchScreenFragment();
                 removePager();
@@ -296,7 +296,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
-                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) showSignInScreen();
+                    if (Utilities.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) showSignInScreen();
                 }
             }
         };
@@ -312,7 +312,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
                         .build(),
-                SharedMethods.FIREBASE_SIGN_IN_KEY);
+                Utilities.FIREBASE_SIGN_IN_KEY);
     }
     private class ProfilesPagerAdapter extends FragmentStatePagerAdapter {
 

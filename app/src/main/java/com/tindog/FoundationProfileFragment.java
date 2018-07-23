@@ -21,7 +21,7 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
 import com.tindog.data.Foundation;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.List;
 
@@ -142,13 +142,13 @@ public class FoundationProfileFragment extends Fragment implements ImagesRecycle
         }
 
         if (getContext()==null) return;
-        SharedMethods.displayObjectImageInImageView(getContext(), mFoundation, "mainImage", mImageViewMainImage);
-        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getContext(), mFoundation, true);
+        Utilities.displayObjectImageInImageView(getContext(), mFoundation, "mainImage", mImageViewMainImage);
+        List<Uri> uris = Utilities.getExistingImageUriListForObject(getContext(), mFoundation, true);
         mImagesRecycleViewAdapter.setContents(uris);
     }
     private void storeFragmentLayout() {
         if (mRecyclerViewImages!=null) {
-            int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
+            int imagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewImages);
             onFoundationProfileFragmentOperationsHandler.onFoundationLayoutParametersCalculated(imagesRecyclerViewPosition);
         }
     }
@@ -167,7 +167,7 @@ public class FoundationProfileFragment extends Fragment implements ImagesRecycle
     }
     private void openWebsite() {
         String url = mFoundation.getWb();
-        SharedMethods.goToWebLink(getContext(), url);
+        Utilities.goToWebLink(getContext(), url);
     }
 
 

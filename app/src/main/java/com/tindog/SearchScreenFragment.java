@@ -40,7 +40,7 @@ import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 import com.tindog.resources.TinDogLocationListener;
 
 import java.io.File;
@@ -59,6 +59,7 @@ public class SearchScreenFragment extends Fragment implements
         FoundationsListRecycleViewAdapter.FoundationsListItemClickHandler,
         FirebaseDao.FirebaseOperationsHandler,
         TinDogLocationListener.LocationListenerHandler {
+
 
     //regionParameters
     private static final String DEBUG_TAG = "TinDog Search Screen";
@@ -175,8 +176,8 @@ public class SearchScreenFragment extends Fragment implements
         mUserLongitude = 0.0;
         mUserLatitude = 0.0;
         if (getContext()!=null) {
-            mUserLongitude = SharedMethods.getAppPreferenceUserLongitude(getContext());
-            mUserLatitude = SharedMethods.getAppPreferenceUserLatitude(getContext());
+            mUserLongitude = Utilities.getAppPreferenceUserLongitude(getContext());
+            mUserLatitude = Utilities.getAppPreferenceUserLatitude(getContext());
         }
     }
     private void initializeViews(View rootView) {
@@ -476,7 +477,7 @@ public class SearchScreenFragment extends Fragment implements
             listElement = mFoundationsAtDistance.get(mFirebaseImageQueryIndex);
         }
 
-        SharedMethods.synchronizeImageOnAllDevices(getContext(), listElement, mFirebaseDao, imageName, imageUri);
+        Utilities.synchronizeImageOnAllDevices(getContext(), listElement, mFirebaseDao, imageName, imageUri);
     }
 
 
@@ -550,7 +551,7 @@ public class SearchScreenFragment extends Fragment implements
 
         //If the device can obtain valid up-to-date geolocation data for the object's registered city, use it instead of the stored values,
         // since these may possibly be have been updated when the user last saved the object's profile
-        Address address = SharedMethods.getAddressObjectFromAddressString(getContext(), city);
+        Address address = Utilities.getAddressObjectFromAddressString(getContext(), city);
         if (address!=null) {
             geoAddressCountry = address.getCountryCode();
             geoAddressLatitude = address.getLatitude();
@@ -578,6 +579,11 @@ public class SearchScreenFragment extends Fragment implements
             return locale.getDisplayCountry().equals(objectCountry);
         }
         else return true;
+    }
+    private void createFakeDogsForTesting() {
+
+        //*********Special code designed to create dogs near the user, used for testing purposes only************
+        mFirebaseDao.populateFirebaseDbWithDummyData(getContext(), mUserLatitude, mUserLongitude);
     }
 
 
@@ -676,8 +682,11 @@ public class SearchScreenFragment extends Fragment implements
     @Override public void onLocalCoordinatesFound(double longitude, double latitude) {
         mUserLongitude = longitude;
         mUserLatitude = latitude;
-        SharedMethods.setAppPreferenceUserLongitude(getContext(), longitude);
-        SharedMethods.setAppPreferenceUserLatitude(getContext(), latitude);
+        Utilities.setAppPreferenceUserLongitude(getContext(), longitude);
+        Utilities.setAppPreferenceUserLatitude(getContext(), latitude);
+
+        createFakeDogsForTesting(); //***********Remove this in regular app
+
         if (mUserLongitude != 0.0 && mUserLatitude != 0.0 && mLocationManager!=null) {
             hideLoadingIndicator();
             mLocationManager.removeUpdates(mLocationListener);

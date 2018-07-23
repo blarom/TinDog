@@ -30,7 +30,7 @@ import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.List;
 
@@ -85,7 +85,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         initializeParameters();
         getFoundationProfileFromFirebase();
         setupFoundationImagesRecyclerView();
-        SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
+        Utilities.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -106,16 +106,16 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 Uri croppedImageTempUri = result.getUri();
-                boolean succeeded = SharedMethods.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
+                boolean succeeded = Utilities.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
 
                 if (succeeded) {
-                    Uri copiedImageUri = SharedMethods.updateLocalObjectImage(getApplicationContext(), croppedImageTempUri, mFoundation, mImageName);
+                    Uri copiedImageUri = Utilities.updateLocalObjectImage(getApplicationContext(), croppedImageTempUri, mFoundation, mImageName);
                     if (copiedImageUri != null) {
                         if (mImageName.equals("mainImage")) {
-                            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
+                            Utilities.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
                         }
                         else {
-                            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
+                            List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
                             mFoundationImagesRecycleViewAdapter.setContents(uris);
                         }
                         mFirebaseDao.putImageInFirebaseStorage(mFoundation, copiedImageUri, mImageName);
@@ -126,7 +126,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 Exception error = result.getError();
             }
         }
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
+        if (requestCode == Utilities.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -175,7 +175,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         return super.onOptionsItemSelected(item);
     }
     @Override public void onSaveInstanceState(Bundle outState) {
-        mStoredFoundationImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewFoundationImages);
+        mStoredFoundationImagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewFoundationImages);
         outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredFoundationImagesRecyclerViewPosition);
         outState.putString(getString(R.string.profile_update_image_name), mImageName);
         mScrollPosition = mScrollViewContainer.getScrollY();
@@ -203,7 +203,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             mScrollViewContainer.setScrollY(mScrollPosition);
             updateProfileFieldsOnScreen();
             setupFoundationImagesRecyclerView();
-            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
+            Utilities.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
         }
     }
 
@@ -254,12 +254,12 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         mEditTextCity.setText(mFoundation.getCt());
         mEditTextStreet.setText(mFoundation.getSt());
         mEditTextStreetNumber.setText(mFoundation.getStN());
-        SharedMethods.hideSoftKeyboard(this);
+        Utilities.hideSoftKeyboard(this);
     }
     private void setupFoundationImagesRecyclerView() {
         mRecyclerViewFoundationImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewFoundationImages.setNestedScrollingEnabled(true);
-        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
+        List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
         mFoundationImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, uris);
         mRecyclerViewFoundationImages.setAdapter(mFoundationImagesRecycleViewAdapter);
     }
@@ -267,23 +267,37 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         mButtonChooseMainPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mImageName = "mainImage";
-                performImageCaptureAndCrop();
+
+                if (mFoundationCriticalParametersSet && !TextUtils.isEmpty(mFoundation.getUI())) {
+                    mImageName = "mainImage";
+                    performImageCaptureAndCrop();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
+                }
             }
         });
         mButtonUploadPics.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
-                if (uris.size() == 5) {
-                    Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
+                if (mFoundationCriticalParametersSet && !TextUtils.isEmpty(mFoundation.getUI())) {
+
+                    List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
+                    if (uris.size() == 5) {
+                        Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        mImageName = Utilities.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFoundation);
+                        if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
+                        else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
+                    }
+
                 }
                 else {
-                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFoundation);
-                    if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
-                    else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
                 }
+
 
             }
         });
@@ -302,16 +316,16 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
-                    SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
+                    Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                     //getFoundationProfileFromFirebase();
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
+                    if (Utilities.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
                         mSavedInstanceState = null;
-                        SharedMethods.showSignInScreen(UpdateMyFoundationActivity.this);
+                        Utilities.showSignInScreen(UpdateMyFoundationActivity.this);
                     }
                 }
             }
@@ -341,7 +355,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         mFoundation.setStN(streeNumber);
 
         String addressString = streeNumber + "" + street + ", " + city + ", " + country;
-        Address address = SharedMethods.getAddressObjectFromAddressString(this, addressString);
+        Address address = Utilities.getAddressObjectFromAddressString(this, addressString);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();
             double geoAddressLatitude = address.getLatitude();
@@ -418,7 +432,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
                 || mFoundationImagesRecycleViewAdapter==null
                 || mFoundation==null) return;
 
-        SharedMethods.synchronizeImageOnAllDevices(getApplicationContext(), mFoundation, mFirebaseDao, imageName, downloadedImageUri);
+        Utilities.synchronizeImageOnAllDevices(getApplicationContext(), mFoundation, mFirebaseDao, imageName, downloadedImageUri);
 
         //Only showing the images if all images are ready (prevents image flickering)
         switch (imageName) {
@@ -434,8 +448,8 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             if (!isReady) { allImagesReady = false; break; }
         }
         if (allImagesReady) {
-            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
-            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
+            Utilities.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
+            List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
             mFoundationImagesRecycleViewAdapter.setContents(uris);
         }
 

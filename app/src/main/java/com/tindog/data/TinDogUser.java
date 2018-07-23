@@ -3,6 +3,8 @@ package com.tindog.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.tindog.resources.Utilities;
+
 public class TinDogUser implements Parcelable {
 
     public TinDogUser() {}
@@ -47,10 +49,10 @@ public class TinDogUser implements Parcelable {
 
     private String uI = ""; //unique identifier
     public String getUI() {
-        return DatabaseUtilities.cleanIdentifierForFirebase(uI);
+        return Utilities.cleanIdentifierForFirebase(uI);
     }
     public void setUI(String uI) {
-        this.uI = DatabaseUtilities.cleanIdentifierForFirebase(uI);
+        this.uI = Utilities.cleanIdentifierForFirebase(uI);
     }
 
     private String cp = ""; //cellphone number

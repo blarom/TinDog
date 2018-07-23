@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -20,7 +19,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.tindog.BuildConfig;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,19 +53,36 @@ public class FirebaseDao {
         String key = "";
         if (object instanceof Dog) {
             Dog dog = (Dog) object;
-            if (dog.getUI().equals("")) key = firebaseDbReference.child("dogsList").push().getKey();
-            else key = dog.getUI();
+
+            //Setting the dog's unique identifier
+            if (dog.getUI().equals("")) {
+                key = firebaseDbReference.child("dogsList").push().getKey();
+                dog.setUI(key);
+            }
+            else {
+                key = dog.getUI();
+            }
+
+            //Creating the dog in Firebase
             if (key!=null) firebaseDbReference.child("dogsList").child(key).setValue(dog);
         }
         else if (object instanceof Family) {
             Family family = (Family) object;
+
+            //Setting the family's unique identifier
             family.setUniqueIdentifierFromDetails();
+
+            //Creating the family in Firebase
             key = family.getUI();
             firebaseDbReference.child("familiesList").child(key).setValue(family);
         }
         else if (object instanceof Foundation) {
             Foundation foundation = (Foundation) object;
+
+            //Setting the foundation's unique identifier
             foundation.setUniqueIdentifierFromDetails();
+
+            //Creating the foundation in Firebase
             key = foundation.getUI();
             firebaseDbReference.child("foundationsList").child(key).setValue(foundation);
         }
@@ -495,49 +511,103 @@ public class FirebaseDao {
         };
         return eventListener;
     }
-    public void populateFirebaseDbWithDummyData() {
+    public void populateFirebaseDbWithDummyData(Context context, double userLatitude, double userLongitude) {
+
+        String[] newAddress; //A new geolocation is created in the vicinity of the user location
+        double newLatitude;
+        double newLongitude;
+
         List<Dog> dummyDogs = new ArrayList<>();
-        Dog dog = new Dog("Snickers", "Male", "Mixed", "Cairo", "Wakanda", "2.5 years");
-        dog.setUI("testDog1");
-        dummyDogs.add(dog);
-        dog = new Dog("Charlie", "Female", "Mixed", "Cairo", "Wakanda", "3 years");
-        dog.setUI("testDog2");
-        dummyDogs.add(dog);
+
+        newLatitude = userLatitude+0.01;
+        newLongitude = userLongitude+0.01;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Dog dog = new Dog("International Test Dog 1", "Male", "Mixed", newAddress[0], newAddress[1], newAddress[3], "2.5 years");
+            dog.setGaLt(Double.toString(newLatitude));
+            dog.setGaLg(Double.toString(newLongitude));
+            dog.setUI("international-test-dog-1");
+            dummyDogs.add(dog);
+        }
+        newLatitude = userLatitude-0.01;
+        newLongitude = userLongitude+0.02;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Dog dog = new Dog("International Test Dog 2", "Female", "Mixed", newAddress[0], newAddress[1], newAddress[3], "3 years");
+            dog.setGaLt(Double.toString(newLatitude));
+            dog.setGaLg(Double.toString(newLongitude));
+            dog.setUI("international-test-dog-2");
+            dummyDogs.add(dog);
+        }
+        newLatitude = userLatitude-0.04;
+        newLongitude = userLongitude-0.01;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Dog dog = new Dog("International Test Dog 3", "Female", "Mixed", newAddress[0], newAddress[1], newAddress[3], "3 years");
+            dog.setGaLt(Double.toString(newLatitude));
+            dog.setGaLg(Double.toString(newLongitude));
+            dog.setUI("international-test-dog-3");
+            dummyDogs.add(dog);
+        }
         updateObjectsOrCreateThemInFirebaseDb(dummyDogs);
 
+
         List<Family> dummyFamilies = new ArrayList<>();
-        Family family = new Family("The Incredibles", "incrediblestindogprofile@gmail.com");
-        family.setUniqueIdentifierFromDetails();
-        dummyFamilies.add(family);
-        family = new Family("The Avengers", "avengerstindogprofile@gmail.com");
-        family.setUniqueIdentifierFromDetails();
-        dummyFamilies.add(family);
+        newLatitude = userLatitude-0.05;
+        newLongitude = userLongitude+0.005;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Family family = new Family("International Test Family 1", newAddress[0], newAddress[1], newAddress[3]);
+            family.setGaLt(Double.toString(newLatitude));
+            family.setGaLg(Double.toString(newLongitude));
+            family.setUI("international-test-family-1");
+            dummyFamilies.add(family);
+        }
+        newLatitude = userLatitude+0.02;
+        newLongitude = userLongitude-0.03;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Family family = new Family("International Test Family 2", newAddress[0], newAddress[1], newAddress[3]);
+            family.setGaLt(Double.toString(newLatitude));
+            family.setGaLg(Double.toString(newLongitude));
+            family.setUI("international-test-family-2");
+            dummyFamilies.add(family);
+        }
         updateObjectsOrCreateThemInFirebaseDb(dummyFamilies);
 
         List<Foundation> dummyFoundations = new ArrayList<>();
-        Foundation foundation = new Foundation("Leave No Man Behind", "Old York", "Wisconsin");
-        foundation.setUniqueIdentifierFromDetails();
-        dummyFoundations.add(foundation);
-        foundation = new Foundation("All Lives Matter", "London", "England");
-        foundation.setUniqueIdentifierFromDetails();
-        dummyFoundations.add(foundation);
+        newLatitude = userLatitude+0.045;
+        newLongitude = userLongitude+0.06;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Foundation foundation = new Foundation("International Test Foundation 1", newAddress[0], newAddress[1], newAddress[3]);
+            foundation.setGaLt(Double.toString(newLatitude));
+            foundation.setGaLg(Double.toString(newLongitude));
+            foundation.setUI("international-test-foundation-1");
+            dummyFoundations.add(foundation);
+        }
+        newLatitude = userLatitude-0.04;
+        newLongitude = userLongitude+0.02;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Foundation foundation = new Foundation("International Test Foundation 2", newAddress[0], newAddress[1], newAddress[3]);
+            foundation.setGaLt(Double.toString(newLatitude));
+            foundation.setGaLg(Double.toString(newLongitude));
+            foundation.setUI("international-test-foundation-2");
+            dummyFoundations.add(foundation);
+        }
         updateObjectsOrCreateThemInFirebaseDb(dummyFoundations);
     }
     public void removeDummyData() {
-        Dog dog = new Dog("Snickers", "Male", "Mixed", "Cairo", "Wakanda", "2.5 years");
-        deleteObjectFromFirebaseDb(dog);
-        dog = new Dog("Charlie", "Female", "Mixed", "Cairo", "Wakanda", "2.5 years");
-        deleteObjectFromFirebaseDb(dog);
+        deleteObjectFromFirebaseDb(new Dog("international-test-dog-1"));
+        deleteObjectFromFirebaseDb(new Dog("international-test-dog-2"));
+        deleteObjectFromFirebaseDb(new Dog("international-test-dog-3"));
 
-        Family family = new Family("incrediblestindogprofile@gmail.com");
-        deleteObjectFromFirebaseDb(family);
-        family = new Family("avengerstindogprofile@gmail.com");
-        deleteObjectFromFirebaseDb(family);
+        deleteObjectFromFirebaseDb(new Family("international-test-family-1"));
+        deleteObjectFromFirebaseDb(new Family("international-test-family-2"));
 
-        Foundation foundation = new Foundation("Leave No Man Behind", "Old York", "Wisconsin");
-        deleteObjectFromFirebaseDb(foundation);
-        foundation = new Foundation("All Lives Matter", "London", "England");
-        deleteObjectFromFirebaseDb(foundation);
+        deleteObjectFromFirebaseDb(new Foundation("international-test-foundation-1"));
+        deleteObjectFromFirebaseDb(new Foundation("international-test-foundation-2"));
     }
 
     //Firebase Storage methods
@@ -608,7 +678,7 @@ public class FirebaseDao {
     }
     public void getImageFromFirebaseStorage(Object object, final String imageName) {
 
-        if (SharedMethods.imageNameIsInvalid(imageName)) return;
+        if (Utilities.imageNameIsInvalid(imageName)) return;
 
         String childPath;
         String folderPath;
@@ -660,7 +730,7 @@ public class FirebaseDao {
             }
 
             //If the local file is older than the Firebase file, then download the Firebase file to the cache directory
-            if (imageUploadTime!=0 && imageUploadTime > lastModifiedTime && SharedMethods.internetIsAvailable(mContext)) {
+            if (imageUploadTime!=0 && imageUploadTime > lastModifiedTime && Utilities.internetIsAvailable(mContext)) {
                 downloadFromFirebase(internalStorageDir, imageName, childPath, localImageUri);
             }
             else {
@@ -708,7 +778,7 @@ public class FirebaseDao {
     }
     public void deleteImageFromFirebaseStorage(Object object, final String imageName) {
 
-        if (SharedMethods.imageNameIsInvalid(imageName)) return;
+        if (Utilities.imageNameIsInvalid(imageName)) return;
 
         String folderPath;
 

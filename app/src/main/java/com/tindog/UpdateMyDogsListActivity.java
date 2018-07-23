@@ -31,7 +31,7 @@ import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,7 +86,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         mFirebaseDao.removeListeners();
     }
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
+        if (requestCode == Utilities.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -193,7 +193,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
                 mDogsListRecycleViewAdapter.setContents(mDogsListShownToUser);
                 mFirebaseDao.deleteObjectFromFirebaseDb(dog);
                 mFirebaseDao.deleteAllObjectImagesFromFirebaseStorage(dog);
-                SharedMethods.deleteAllLocalObjectImages(getApplicationContext(), dog);
+                Utilities.deleteAllLocalObjectImages(getApplicationContext(), dog);
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -238,7 +238,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
                                     .createSignInIntentBuilder()
                                     .setAvailableProviders(providers)
                                     .build(),
-                            SharedMethods.FIREBASE_SIGN_IN_KEY);
+                            Utilities.FIREBASE_SIGN_IN_KEY);
                 }
             }
         };

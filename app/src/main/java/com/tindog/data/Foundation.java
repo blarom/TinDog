@@ -4,13 +4,16 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.tindog.resources.Utilities;
+
 import java.util.Arrays;
 import java.util.List;
 
 public class Foundation implements Parcelable {
 
     public Foundation() { }
-    Foundation(String name, String city, String country) {
+    Foundation(String name, String street, String city, String country) {
+        this.st = street;
         this.nm = name;
         this.ct = city;
         this.cn = country;
@@ -68,15 +71,15 @@ public class Foundation implements Parcelable {
 
     private String uI = ""; //unique identifier
     public String getUI() {
-        return DatabaseUtilities.cleanIdentifierForFirebase(uI);
+        return Utilities.cleanIdentifierForFirebase(uI);
     }
     public void setUI(String uI) {
-        this.uI = DatabaseUtilities.cleanIdentifierForFirebase(uI);
+        this.uI = Utilities.cleanIdentifierForFirebase(uI);
     }
     public void setUniqueIdentifierFromDetails() {
         if (TextUtils.isEmpty(oFId)) uI = nm + "-" + ct + "-" + cn;
         else uI = oFId;
-        uI = DatabaseUtilities.cleanIdentifierForFirebase(uI);
+        uI = Utilities.cleanIdentifierForFirebase(uI);
     }
 
     private String wb = ""; //website

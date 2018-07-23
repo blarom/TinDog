@@ -24,7 +24,7 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
 import com.tindog.data.Dog;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.List;
 
@@ -134,10 +134,10 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         else mTextViewDogHistory.setText(mDog.getHs());
 
         if (getContext()==null) return;
-        SharedMethods.displayObjectImageInImageView(getContext(), mDog, "mainImage", mImageViewMainImage);
+        Utilities.displayObjectImageInImageView(getContext(), mDog, "mainImage", mImageViewMainImage);
 
         //Updating the images with the video links to display to the user
-        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getContext(), mDog, true);
+        List<Uri> uris = Utilities.getExistingImageUriListForObject(getContext(), mDog, true);
         List<String> videoUrls = mDog.getVU();
         for (String videoUrl : videoUrls) {
             uris.add(Uri.parse(videoUrl));
@@ -153,11 +153,11 @@ public class DogProfileFragment extends Fragment implements ImagesRecycleViewAda
         }
     }
     private void playVideoInBrowser(int clickedItemIndex) {
-        SharedMethods.goToWebLink(getContext(), mDisplayedImageList.get(clickedItemIndex).toString());
+        Utilities.goToWebLink(getContext(), mDisplayedImageList.get(clickedItemIndex).toString());
     }
     private void storeFragmentLayout() {
         if (mRecyclerViewImages!=null) {
-            int imagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewImages);
+            int imagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewImages);
             onDogProfileFragmentOperationsHandler.onDogLayoutParametersCalculated(imagesRecyclerViewPosition);
         }
     }

@@ -1,26 +1,13 @@
 package com.tindog;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Environment;
-import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
-import com.squareup.picasso.Picasso;
-import com.tindog.data.DatabaseUtilities;
 import com.tindog.data.FirebaseDao;
-import com.tindog.resources.SharedMethods;
-
-import java.io.File;
+import com.tindog.resources.Utilities;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
@@ -37,12 +24,12 @@ public class SplashScreenActivity extends AppCompatActivity {
         //FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         //firebaseAuth.signInWithEmailAndPassword(DatabaseUtilities.firebaseEmail, DatabaseUtilities.firebasePass);
 
-        FirebaseDao firebaseDao = new FirebaseDao(this, null);
-        firebaseDao.populateFirebaseDbWithDummyData();
+        //FirebaseDao firebaseDao = new FirebaseDao(this, null);
+        //firebaseDao.populateFirebaseDbWithDummyData();
 
         //Loading the splashscreen image
         ImageView image = findViewById(R.id.splashscreen_image);
-        SharedMethods.loadGenericAppImageIntoImageView(this, image);
+        Utilities.loadGenericAppImageIntoImageView(this, image);
 
         //Setting up the delay before reaching the next activity
         new Handler().postDelayed(new Runnable(){

@@ -10,10 +10,11 @@ import java.util.List;
 public class Dog implements Parcelable {
 
     public Dog() {}
-    Dog(String name, String gender, String race, String city, String country, String age) {
+    Dog(String name, String gender, String race, String street, String city, String country, String age) {
         this.nm = name;
         this.gn = gender;
         this.rc = race;
+        this.st = street;
         this.ct = city;
         this.cn = country;
         this.ag = age;

@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.tindog.data.Dog;
 import com.tindog.data.Family;
 import com.tindog.data.Foundation;
+import com.tindog.resources.TinDogLocationListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,8 @@ import java.util.List;
 public class MapActivity extends FragmentActivity implements
         OnMapReadyCallback,
         GoogleMap.OnMapLoadedCallback,
-        GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnInfoWindowClickListener,
+        TinDogLocationListener.LocationListenerHandler{
 
     private static final int MAPS_ZOOM_IN_PADDING_IN_PIXELS = 50;
     private GoogleMap mMap;
@@ -56,14 +58,16 @@ public class MapActivity extends FragmentActivity implements
 
 
         // Add a marker for the user coordinates and center the map on them
-        LatLng userCoords = new LatLng(mUserCoordinates[0], mUserCoordinates[1]);
-        currentMarkerOptions = new MarkerOptions()
-                .position(userCoords)
-                .title("My location")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-        currentMarker = mMap.addMarker(currentMarkerOptions);
-        mMarkers.add(currentMarker);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(userCoords));
+        if (mUserCoordinates!=null) {
+            LatLng userCoords = new LatLng(mUserCoordinates[0], mUserCoordinates[1]);
+            currentMarkerOptions = new MarkerOptions()
+                    .position(userCoords)
+                    .title("My location")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            currentMarker = mMap.addMarker(currentMarkerOptions);
+            mMarkers.add(currentMarker);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(userCoords));
+        }
 
 
         // Add the object markers
@@ -167,4 +171,10 @@ public class MapActivity extends FragmentActivity implements
         }
     }
 
+
+    //Location methods
+    @Override public void onLocalCoordinatesFound(double longitude, double latitude) {
+        //TODO: update the user's coordinates if they wern't available yet
+        //TODO: create marker creation methods
+    }
 }

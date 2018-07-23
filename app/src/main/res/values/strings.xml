@@ -344,4 +344,7 @@
     <string name="saved_foundation_street_number">saved_foundation_street_number</string>
     <string name="requested_specific_family_profile">requested_specific_family_profile</string>
     <string name="click_on_pin_to_show_profile">Click on a pin to show the item\'s name, then click on it to see its profile</string>
+    <string name="max_image_file_size">300</string>
+    <string name="must_save_profile_first">You must save the profile with the required fields before you can upload pictures.</string>
+    <string name="please_sign_in_to_see_preferences">Please sign in to access and modify your preferences</string>
 </resources>

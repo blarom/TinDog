@@ -41,7 +41,7 @@ import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,7 +130,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         if (savedInstanceState==null) getDogProfileFromFirebase();
         setupVideoLinksRecyclerView();
         setupDogImagesRecyclerView();
-        SharedMethods.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
+        Utilities.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
         setButtonBehaviors();
     }
     @Override public void onStart() {
@@ -151,16 +151,16 @@ public class UpdateDogActivity extends AppCompatActivity implements
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 Uri croppedImageTempUri = result.getUri();
-                boolean succeeded = SharedMethods.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
+                boolean succeeded = Utilities.shrinkImageWithUri(getApplicationContext(), croppedImageTempUri, 300, 300);
 
                 if (succeeded) {
-                    Uri copiedImageUri = SharedMethods.updateLocalObjectImage(getApplicationContext(), croppedImageTempUri, mDog, mImageName);
+                    Uri copiedImageUri = Utilities.updateLocalObjectImage(getApplicationContext(), croppedImageTempUri, mDog, mImageName);
                     if (copiedImageUri!=null) {
                         if (mImageName.equals("mainImage")) {
-                            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
+                            Utilities.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
                         }
                         else {
-                            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
+                            List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
                             mDogImagesRecycleViewAdapter.setContents(uris);
                         }
                         mFirebaseDao.putImageInFirebaseStorage(mDog, copiedImageUri, mImageName);
@@ -171,7 +171,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 Exception error = result.getError();
             }
         }
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
+        if (requestCode == Utilities.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -230,7 +230,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
     @Override public void onSaveInstanceState(Bundle outState) {
-        mStoredDogImagesRecyclerViewPosition = SharedMethods.getImagesRecyclerViewPosition(mRecyclerViewDogImages);
+        mStoredDogImagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewDogImages);
         mScrollPosition = mScrollViewContainer.getScrollY();
         outState.putInt(getString(R.string.scroll_position),mScrollPosition);
         outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredDogImagesRecyclerViewPosition);
@@ -265,7 +265,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
             updateProfileFieldsWithFoundationData();
             updateProfileFieldsOnScreen();
             setupDogImagesRecyclerView();
-            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
+            Utilities.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
         }
     }
 
@@ -363,12 +363,12 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mEditTextStreetNumber.setText(mDog.getStN());
         mEditTextHistory.setText(mDog.getHs());
 
-        mAgeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerAge, mDog.getAg());
-        mSizeSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerSize, mDog.getSz());
-        mGenderSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerGender, mDog.getGn());
-        mRaceSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerRace, mDog.getRc());
-        mBehaviorSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerBehavior, mDog.getBh());
-        mInteractionsSpinnerPosition = SharedMethods.getSpinnerPositionFromText(mSpinnerInteractions, mDog.getIt());
+        mAgeSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerAge, mDog.getAg());
+        mSizeSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerSize, mDog.getSz());
+        mGenderSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerGender, mDog.getGn());
+        mRaceSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerRace, mDog.getRc());
+        mBehaviorSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerBehavior, mDog.getBh());
+        mInteractionsSpinnerPosition = Utilities.getSpinnerPositionFromText(mSpinnerInteractions, mDog.getIt());
 
         mSpinnerAge.setSelection(mAgeSpinnerPosition);
         mSpinnerSize.setSelection(mSizeSpinnerPosition);
@@ -379,7 +379,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
 
         mVideoLinksRecycleViewAdapter.setContents(mDog.getVU());
 
-        SharedMethods.hideSoftKeyboard(this);
+        Utilities.hideSoftKeyboard(this);
     }
     private void setupVideoLinksRecyclerView() {
         mRecyclerViewVideoLinks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
@@ -409,7 +409,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
     private void setupDogImagesRecyclerView() {
         mRecyclerViewDogImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewDogImages.setNestedScrollingEnabled(true);
-        List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
+        List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
         mDogImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, uris);
         mRecyclerViewDogImages.setAdapter(mDogImagesRecycleViewAdapter);
     }
@@ -417,23 +417,37 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mButtonChooseMainPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mImageName = "mainImage";
-                performImageCaptureAndCrop();
+
+                if (mDogCriticalParametersSet && !TextUtils.isEmpty(mDog.getUI())) {
+                    mImageName = "mainImage";
+                    performImageCaptureAndCrop();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
+                }
             }
         });
         mButtonUploadPics.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
-                if (uris.size() == 5) {
-                    Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
+                if (mDogCriticalParametersSet && !TextUtils.isEmpty(mDog.getUI())) {
+
+                    List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
+                    if (uris.size() == 5) {
+                        Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        mImageName = Utilities.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mDog);
+                        if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
+                        else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
+                    }
+
                 }
                 else {
-                    mImageName = SharedMethods.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mDog);
-                    if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
-                    else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
         mButtonAddVideoLink.setOnClickListener(new View.OnClickListener() {
@@ -492,15 +506,15 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
-                    SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
+                    Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
+                    if (Utilities.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
                         mSavedInstanceState = null;
-                        SharedMethods.showSignInScreen(UpdateDogActivity.this);
+                        Utilities.showSignInScreen(UpdateDogActivity.this);
                     }
                 }
             }
@@ -525,7 +539,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mDog.setStN(streeNumber);
 
         String addressString = streeNumber + "" + street + ", " + city + ", " + country;
-        Address address = SharedMethods.getAddressObjectFromAddressString(this, addressString);
+        Address address = Utilities.getAddressObjectFromAddressString(this, addressString);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();
             double geoAddressLatitude = address.getLatitude();
@@ -544,6 +558,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mDog.setRc(mSpinnerRace.getSelectedItem().toString());
         mDog.setBh(mSpinnerBehavior.getSelectedItem().toString());
         mDog.setIt(mSpinnerInteractions.getSelectedItem().toString());
+
 
         if (name.length() < 2 || country.length() < 2 || city.length() < 1 || street.length() < 2 || streeNumber.length() < 1) {
             Toast.makeText(getApplicationContext(), R.string.dog_not_saved, Toast.LENGTH_SHORT).show();
@@ -594,7 +609,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mVideoLinks = mDog.getVU();
         if (mVideoLinks==null || mVideoLinks.size()==0) return;
         String url = mVideoLinks.get(clickedItemIndex);
-        SharedMethods.goToWebLink(this, url);
+        Utilities.goToWebLink(this, url);
     }
 
     //Communication with Firebase Dao handler
@@ -660,7 +675,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
                 || mDogImagesRecycleViewAdapter==null
                 || mDog==null) return;
 
-        SharedMethods.synchronizeImageOnAllDevices(getApplicationContext(), mDog, mFirebaseDao, imageName, downloadedImageUri);
+        Utilities.synchronizeImageOnAllDevices(getApplicationContext(), mDog, mFirebaseDao, imageName, downloadedImageUri);
 
         //Only showing the images if all images are ready (prevents image flickering)
         switch (imageName) {
@@ -676,8 +691,8 @@ public class UpdateDogActivity extends AppCompatActivity implements
             if (!isReady) { allImagesReady = false; break; }
         }
         if (allImagesReady) {
-            SharedMethods.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
-            List<Uri> uris = SharedMethods.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
+            Utilities.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
+            List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
             mDogImagesRecycleViewAdapter.setContents(uris);
         }
     }

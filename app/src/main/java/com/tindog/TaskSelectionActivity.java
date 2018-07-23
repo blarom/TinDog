@@ -4,12 +4,12 @@ package com.tindog;
 //TODO: restore recyclerview positions and parameters on resume in all activities/fragments
 //TODO: search for dog profiles according to the user preferences
 //TODO: populate map with knowledge pins
-//TODO: consider adding swiperefreshlayout
 //TODO: fix dogs list activity not refreshing search when returning to it
 //TODO: Add option to delete pictures in dog/famiy/foundation profile updaters
 //TODO: Fix failed to find image problem
 //TODO: add set address from map pin functionality
 //TODO: implement profile/image sharing from the profile fragments
+//TODO: optional: consider adding swiperefreshlayout
 
 import android.Manifest;
 import android.content.Intent;
@@ -34,7 +34,7 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.tindog.resources.SharedMethods;
+import com.tindog.resources.Utilities;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,7 +66,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_selection);
 
-        setupInterstitialAd();
+        setupInterstitialAds();
 
 
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -132,7 +132,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == SharedMethods.FIREBASE_SIGN_IN_KEY) {
+        if (requestCode == Utilities.FIREBASE_SIGN_IN_KEY) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
@@ -180,11 +180,11 @@ public class TaskSelectionActivity extends AppCompatActivity {
                 return true;
             case R.id.action_signout:
                 if (mCurrentFirebaseUser!=null) mFirebaseAuth.signOut();
-                SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), false);
+                Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), false);
                 return true;
             case R.id.action_signin:
-                SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
-                SharedMethods.showSignInScreen(TaskSelectionActivity.this);
+                Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
+                Utilities.showSignInScreen(TaskSelectionActivity.this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -221,10 +221,10 @@ public class TaskSelectionActivity extends AppCompatActivity {
 
 
     //Functionality methods
-    private void setupInterstitialAd() {
-        MobileAds.initialize(this, ADMOB_APP_ID);
+    private void setupInterstitialAds() {
+        MobileAds.initialize(this, Utilities.adMobAppId);
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+        mInterstitialAd.setAdUnitId(Utilities.adUnitId);
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
@@ -254,14 +254,15 @@ public class TaskSelectionActivity extends AppCompatActivity {
                 mCurrentFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
-                    SharedMethods.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
+                    Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
                     //Showing the sign-in screen
-                    if (SharedMethods.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext()))
-                        SharedMethods.showSignInScreen(TaskSelectionActivity.this);
+                    boolean firstTime = Utilities.getAppPreferenceFirstTimeUsingApp(getApplicationContext());
+                    if (!firstTime && Utilities.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext()))
+                        Utilities.showSignInScreen(TaskSelectionActivity.this);
                 }
             }
         };
@@ -309,16 +310,14 @@ public class TaskSelectionActivity extends AppCompatActivity {
         if (mButtonUpdateMap!=null) mButtonUpdateMap.setOnClickListener(null);
     }
     private void doThisIfFirstTimeUsingApp() {
-        boolean firstTime = SharedMethods.getAppPreferenceFirstTimeUsingApp(this);
+        boolean firstTime = Utilities.getAppPreferenceFirstTimeUsingApp(this);
         if (firstTime) {
-            Toast.makeText(this, R.string.first_time_preferences, Toast.LENGTH_SHORT).show();
-            SharedMethods.setAppPreferenceFirstTimeUsingApp(this, false);
+            Toast.makeText(this, R.string.first_time_preferences, Toast.LENGTH_LONG).show();
+            Utilities.setAppPreferenceFirstTimeUsingApp(this, false);
             Intent intent = new Intent(this, PreferencesActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
         }
     }
-
-
 
 }
