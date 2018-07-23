@@ -3,12 +3,13 @@ package com.tindog;
 //TODO: update the preference activity options with better dog characteristics
 //TODO: restore recyclerview positions and parameters on resume in all activities/fragments
 //TODO: search for dog profiles according to the user preferences
-//TODO: populate map with pins
+//TODO: populate map with knowledge pins
 //TODO: consider adding swiperefreshlayout
 //TODO: fix dogs list activity not refreshing search when returning to it
 //TODO: Add option to delete pictures in dog/famiy/foundation profile updaters
 //TODO: Fix failed to find image problem
 //TODO: add set address from map pin functionality
+//TODO: implement profile/image sharing from the profile fragments
 
 import android.Manifest;
 import android.content.Intent;
@@ -27,6 +28,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tindog.resources.SharedMethods;
@@ -42,6 +47,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "Tindog Firebase";
     public static final int APP_PERMISSIONS_REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 555;
     private static final int APP_PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 123;
+    private static final String ADMOB_APP_ID = "ca-app-pub-3940256099942544~3347511713";
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mCurrentFirebaseUser;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -52,6 +58,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
     @BindView(R.id.task_selection_find_foundation) Button mButtonFindFoundation;
     @BindView(R.id.task_selection_update_map) Button mButtonUpdateMap;
     private Unbinder mBinding;
+    private InterstitialAd mInterstitialAd;
 
 
     //Lifecycle methods
@@ -59,24 +66,42 @@ public class TaskSelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_selection);
 
+        setupInterstitialAd();
+
+
         mFirebaseAuth = FirebaseAuth.getInstance();
         mBinding =  ButterKnife.bind(this);
 
         mButtonFindDog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.show();
+                } else {
+                    Log.d("TAG", "The interstitial wasn't loaded yet.");
+                }
                 startSearchResultsActivity(getString(R.string.dog_profile));
             }
         });
         mButtonFindFamily.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.show();
+                } else {
+                    Log.d("TAG", "The interstitial wasn't loaded yet.");
+                }
                 startSearchResultsActivity(getString(R.string.family_profile));
             }
         });
         mButtonFindFoundation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.show();
+                } else {
+                    Log.d("TAG", "The interstitial wasn't loaded yet.");
+                }
                 startSearchResultsActivity(getString(R.string.foundation_profile));
             }
         });
@@ -196,6 +221,20 @@ public class TaskSelectionActivity extends AppCompatActivity {
 
 
     //Functionality methods
+    private void setupInterstitialAd() {
+        MobileAds.initialize(this, ADMOB_APP_ID);
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                // Load the next interstitial.
+                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            }
+
+        });
+    }
     private void startSearchResultsActivity(String profileType) {
         Intent intent = new Intent(this, SearchResultsActivity.class);
         intent.putExtra(getString(R.string.profile_type), profileType);

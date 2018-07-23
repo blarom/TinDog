@@ -19,6 +19,7 @@ public class Foundation implements Parcelable {
         this.oFId = ownerfirebaseUid;
         setUniqueIdentifierFromDetails();
     }
+
     protected Foundation(Parcel in) {
         nm = in.readString();
         oFId = in.readString();
@@ -31,9 +32,11 @@ public class Foundation implements Parcelable {
         cP = in.readString();
         cE = in.readString();
         iUT = in.createStringArrayList();
+        gac = in.readString();
+        galt = in.readString();
+        galg = in.readString();
     }
 
-    private String nm = "No name available"; //name
     public static final Creator<Foundation> CREATOR = new Creator<Foundation>() {
         @Override
         public Foundation createFromParcel(Parcel in) {
@@ -46,6 +49,7 @@ public class Foundation implements Parcelable {
         }
     };
 
+    private String nm = "Default"; //name
     public String getNm() {
         return nm;
     }

@@ -26,6 +26,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    flavorDimensions "tier"
+    productFlavors {
+        paid {
+            applicationId "com.tindog.paid"
+        }
+        free {
+            applicationId "com.tindog.free"
+        }
+    }
 }
 
 dependencies {
@@ -42,6 +52,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:16.0.1'
     implementation 'com.google.firebase:firebase-storage:16.0.1'
     implementation 'com.google.firebase:firebase-auth:16.0.2'
+    implementation 'com.google.firebase:firebase-ads:15.0.1'
     implementation 'com.firebaseui:firebase-ui-auth:4.0.0'
 
     //Test dependencies

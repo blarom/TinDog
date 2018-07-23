@@ -157,11 +157,7 @@ public class MapActivity extends FragmentActivity implements
             mUserCoordinates = intent.getDoubleArrayExtra(getString(R.string.search_results_map_user_coordinates));
         }
         if (intent.hasExtra(getString(R.string.search_results_dogs_list))) {
-            ArrayList<Parcelable> parcelableArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_dogs_list));
-            mDogsArrayList = new ArrayList<>();
-            for (Parcelable parcelable : parcelableArrayList) {
-                mDogsArrayList.add((Dog) parcelable);
-            }
+            mDogsArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_dogs_list));
         }
         if (intent.hasExtra(getString(R.string.search_results_families_list))) {
             mFamiliesArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_families_list));

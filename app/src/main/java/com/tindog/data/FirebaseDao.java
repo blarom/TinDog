@@ -594,7 +594,7 @@ public class FirebaseDao {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         exception.printStackTrace();
-                        Toast.makeText(mContext, "Failed to upload image, check log.", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(mContext, "Failed to upload image, check log.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

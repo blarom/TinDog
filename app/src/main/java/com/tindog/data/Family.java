@@ -20,6 +20,7 @@ public class Family implements Parcelable {
         this.oFid = firebaseUid;
         setUniqueIdentifierFromDetails();
     }
+
     protected Family(Parcel in) {
         oFid = in.readString();
         pn = in.readString();
@@ -44,10 +45,12 @@ public class Family implements Parcelable {
         hDN = in.readByte() != 0;
         hDa = in.readByte() != 0;
         hDE = in.readByte() != 0;
+        gac = in.readString();
+        galt = in.readString();
+        galg = in.readString();
         iUT = in.createStringArrayList();
     }
 
-    private String oFid; //firebase user id
     public static final Creator<Family> CREATOR = new Creator<Family>() {
         @Override
         public Family createFromParcel(Parcel in) {
@@ -60,6 +63,7 @@ public class Family implements Parcelable {
         }
     };
 
+    private String oFid; //firebase user id
     public String getOFid() {
         return oFid;
     }

@@ -196,23 +196,24 @@ public class SearchScreenFragment extends Fragment implements
         mButtonShowInMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mFoundResults && mDogsAtDistance!=null) {
+                if (mFoundResults) {
 
                     Intent intent = new Intent(getContext(), MapActivity.class);
+                    double[] coords = new double[]{mUserLatitude, mUserLongitude};
+                    intent.putExtra(getString(R.string.search_results_map_user_coordinates), coords);
 
-                    intent.putExtra(getString(R.string.search_results_map_user_coordinates), new double[]{mUserLatitude, mUserLongitude});
-
-                    if (mProfileType.equals(getString(R.string.dog_profile))) {
+                    if (mDogsAtDistance!=null && mProfileType.equals(getString(R.string.dog_profile))) {
                         intent.putParcelableArrayListExtra(getString(R.string.search_results_dogs_list), new ArrayList<>(mDogsAtDistance));
+                        startActivity(intent);
                     }
-                    else if (mProfileType.equals(getString(R.string.family_profile))) {
+                    else if (mFamiliesAtDistance!=null && mProfileType.equals(getString(R.string.family_profile))) {
                         intent.putParcelableArrayListExtra(getString(R.string.search_results_families_list), new ArrayList<>(mFamiliesAtDistance));
+                        startActivity(intent);
                     }
-                    else if (mProfileType.equals(getString(R.string.foundation_profile))) {
+                    else if (mFoundationsAtDistance!=null && mProfileType.equals(getString(R.string.foundation_profile))) {
                         intent.putParcelableArrayListExtra(getString(R.string.search_results_foundations_list), new ArrayList<>(mFoundationsAtDistance));
+                        startActivity(intent);
                     }
-
-                    startActivity(intent);
                 }
                 else {
                     Toast.makeText(getContext(), R.string.please_wait_while_results_loaded, Toast.LENGTH_SHORT).show();
