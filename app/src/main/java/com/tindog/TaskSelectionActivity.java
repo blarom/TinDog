@@ -4,11 +4,8 @@ package com.tindog;
 //TODO: restore recyclerview positions and parameters on resume in all activities/fragments
 //TODO: search for dog profiles according to the user preferences
 //TODO: populate map with knowledge pins
-//TODO: fix dogs list activity not refreshing search when returning to it
 //TODO: Add option to delete pictures in dog/famiy/foundation profile updaters
-//TODO: Fix failed to find image problem
 //TODO: add set address from map pin functionality
-//TODO: implement profile/image sharing from the profile fragments
 //TODO: optional: consider adding swiperefreshlayout
 
 import android.Manifest;
@@ -75,33 +72,21 @@ public class TaskSelectionActivity extends AppCompatActivity {
         mButtonFindDog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.show();
-                } else {
-                    Log.d("TAG", "The interstitial wasn't loaded yet.");
-                }
+                showInterstitialAd();
                 startSearchResultsActivity(getString(R.string.dog_profile));
             }
         });
         mButtonFindFamily.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.show();
-                } else {
-                    Log.d("TAG", "The interstitial wasn't loaded yet.");
-                }
+                showInterstitialAd();
                 startSearchResultsActivity(getString(R.string.family_profile));
             }
         });
         mButtonFindFoundation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.show();
-                } else {
-                    Log.d("TAG", "The interstitial wasn't loaded yet.");
-                }
+                showInterstitialAd();
                 startSearchResultsActivity(getString(R.string.foundation_profile));
             }
         });
@@ -234,6 +219,13 @@ public class TaskSelectionActivity extends AppCompatActivity {
             }
 
         });
+    }
+    private void showInterstitialAd() {
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            Log.d("TAG", "The interstitial wasn't loaded yet.");
+        }
     }
     private void startSearchResultsActivity(String profileType) {
         Intent intent = new Intent(this, SearchResultsActivity.class);

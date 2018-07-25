@@ -354,7 +354,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         mFoundation.setSt(street);
         mFoundation.setStN(streeNumber);
 
-        String addressString = streeNumber + "" + street + ", " + city + ", " + country;
+        String addressString = Utilities.getAddressStringFromComponents(streeNumber, street, city, country);
         Address address = Utilities.getAddressObjectFromAddressString(this, addressString);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();

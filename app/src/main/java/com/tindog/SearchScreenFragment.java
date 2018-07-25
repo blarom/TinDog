@@ -9,8 +9,12 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -40,6 +44,7 @@ import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
 import com.tindog.data.TinDogUser;
+import com.tindog.resources.ImageSyncAsyncTaskLoader;
 import com.tindog.resources.Utilities;
 import com.tindog.resources.TinDogLocationListener;
 
@@ -58,11 +63,14 @@ public class SearchScreenFragment extends Fragment implements
         FamiliesListRecycleViewAdapter.FamiliesListItemClickHandler,
         FoundationsListRecycleViewAdapter.FoundationsListItemClickHandler,
         FirebaseDao.FirebaseOperationsHandler,
-        TinDogLocationListener.LocationListenerHandler {
+        TinDogLocationListener.LocationListenerHandler,
+        LoaderManager.LoaderCallbacks<String>,
+        ImageSyncAsyncTaskLoader.OnImageSyncOperationsHandler {
 
 
     //regionParameters
     private static final String DEBUG_TAG = "TinDog Search Screen";
+    private static final int LIST_MAIN_IMAGES_SYNC_LOADER = 3698;
     @BindView(R.id.search_screen_magnifying_glass_image) ImageView mImageViewMagnifyingGlass;
     @BindView(R.id.search_screen_loading_indicator) ProgressBar mProgressBarLoadingIndicator;
     @BindView(R.id.search_screen_profile_selection_recycler_view) RecyclerView mRecyclerViewProfileSelection;
@@ -90,20 +98,15 @@ public class SearchScreenFragment extends Fragment implements
     private boolean hasLocationPermissions;
     private LocationManager mLocationManager;
     private TinDogLocationListener mLocationListener;
-    private int mFirebaseImageQueryIndex;
     private List<Dog> mDogsAtDistance;
     private List<Family> mFamiliesAtDistance;
     private List<Foundation> mFoundationsAtDistance;
-    private boolean[] mSyncedImagesChecker;
-    private boolean mSwitchedTabs;
     private String mProfileType;
-    private String mCurrentImage;
     private String mRequestedDogProfileUI;
     private String mRequestedFamilyProfileUI;
     private String mRequestedFoundationProfileUI;
-    private final static int IMAGE_BLOCK_SIZE = 6;
-    private int imageDisplayCounter;
     private boolean mFoundResults;
+    private ImageSyncAsyncTaskLoader mImageSyncAsyncTaskLoader;
     //endregion
 
 
@@ -169,7 +172,6 @@ public class SearchScreenFragment extends Fragment implements
         mFirebaseAuth = FirebaseAuth.getInstance();
         mCurrentFirebaseUser = mFirebaseAuth.getCurrentUser();
         hasLocationPermissions = checkLocationPermission();
-        mSwitchedTabs = false;
         mDistance = 0;
         mFoundResults = false;
 
@@ -178,6 +180,7 @@ public class SearchScreenFragment extends Fragment implements
         if (getContext()!=null) {
             mUserLongitude = Utilities.getAppPreferenceUserLongitude(getContext());
             mUserLatitude = Utilities.getAppPreferenceUserLatitude(getContext());
+
         }
     }
     private void initializeViews(View rootView) {
@@ -311,7 +314,6 @@ public class SearchScreenFragment extends Fragment implements
         }
         else return;
 
-        imageDisplayCounter = 0;
         showLoadingIndicator();
     }
     private void updateRecyclerView() {
@@ -333,12 +335,44 @@ public class SearchScreenFragment extends Fragment implements
         }
         else return false;
     }
+    private void startImageSyncThread() {
+
+        Log.i(DEBUG_TAG, "Called startImageSyncThread");
+        if (getActivity()!=null) {
+            LoaderManager loaderManager = getActivity().getSupportLoaderManager();
+            Loader<String> imageSyncAsyncTaskLoader = loaderManager.getLoader(LIST_MAIN_IMAGES_SYNC_LOADER);
+            if (imageSyncAsyncTaskLoader == null) {
+                loaderManager.initLoader(LIST_MAIN_IMAGES_SYNC_LOADER, null, this);
+            }
+            else {
+                if (mImageSyncAsyncTaskLoader!=null) {
+                    //The asynctsk is called twice: once on fragment start, and then when the user location is found
+                    //In order to avoid performing background image syncs twice on the same images, we stop the asynctask operation here if the loader is being restarted
+                    mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
+                    mImageSyncAsyncTaskLoader.cancelLoadInBackground();
+                    mImageSyncAsyncTaskLoader = null;
+                }
+                loaderManager.restartLoader(LIST_MAIN_IMAGES_SYNC_LOADER, null, this);
+            }
+        }
+
+    }
+    public void stopImageSyncThread() {
+        if (mImageSyncAsyncTaskLoader!=null) {
+            mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
+            getLoaderManager().destroyLoader(LIST_MAIN_IMAGES_SYNC_LOADER);
+        }
+    }
+    private void createFakeDogsForTesting() {
+        //*********Special code designed to create dogs near the user, used for testing purposes only************
+        mFirebaseDao.populateFirebaseDbWithDummyData(getContext(), mUserLatitude, mUserLongitude);
+    }
 
 
-    //Object manipulation methods
+    //Location methods
     private void updateObjectListAccordingToDistance() {
         getObjectsAtDistance();
-        updateImagesForObjectsAtDistance();
+        startImageSyncThread();
         updateRecyclerView();
         sendObjectsAtDistanceToInterface();
     }
@@ -356,25 +390,6 @@ public class SearchScreenFragment extends Fragment implements
             mFoundationsAtDistance = (List<Foundation>) getObjectsWithinDistance(mFoundationsList, mDistance);
         }
     }
-    private void updateImagesForObjectsAtDistance() {
-
-        mCurrentImage = "mainImage";
-        mSyncedImagesChecker = new boolean[]{false, false, false, false, false, false};
-        mFirebaseImageQueryIndex = 0;
-
-        if (mProfileType.equals(getString(R.string.dog_profile))) {
-            if (mDogsAtDistance!=null && mDogsAtDistance.size()!=0)
-                mFirebaseDao.getImageFromFirebaseStorage(mDogsAtDistance.get(0), mCurrentImage);
-        }
-        else if (mProfileType.equals(getString(R.string.family_profile))) {
-            if (mFamiliesAtDistance!=null && mFamiliesAtDistance.size()!=0)
-                mFirebaseDao.getImageFromFirebaseStorage(mFamiliesAtDistance.get(0), mCurrentImage);
-        }
-        else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-            if (mFoundationsAtDistance!=null && mFoundationsAtDistance.size()!=0)
-                mFirebaseDao.getImageFromFirebaseStorage(mFoundationsAtDistance.get(0), mCurrentImage);
-        }
-    }
     private void sendObjectsAtDistanceToInterface() {
         if (mProfileType.equals(getString(R.string.dog_profile))) {
             onSearchScreenOperationsHandler.onDogsFound(mDogsAtDistance);
@@ -386,102 +401,6 @@ public class SearchScreenFragment extends Fragment implements
             onSearchScreenOperationsHandler.onFoundationsFound(mFoundationsAtDistance);
         }
     }
-    private boolean queryIndexHasReachedListSize() {
-        if (mProfileType.equals(getString(R.string.dog_profile))) {
-            return mFirebaseImageQueryIndex == mDogsAtDistance.size();
-        }
-        else if (mProfileType.equals(getString(R.string.family_profile))) {
-            return mFirebaseImageQueryIndex == mFamiliesAtDistance.size();
-        }
-        else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-            return mFirebaseImageQueryIndex == mFoundationsAtDistance.size();
-        }
-        return false;
-    }
-    private void syncNextImage(String currentImageName) {
-
-        //Requesting the next image to sync, or if all the images are synced then go to the next element in the list to update its images
-        if (queryIndexHasReachedListSize()) return;
-
-        switch (currentImageName) {
-            case "mainImage": {
-                mCurrentImage = "image1";
-                updateImageFromFirebase();
-                break;
-            }
-            case "image1": {
-                mCurrentImage = "image2";
-                updateImageFromFirebase();
-                break;
-            }
-            case "image2": {
-                mCurrentImage = "image3";
-                updateImageFromFirebase();
-                break;
-            }
-            case "image3": {
-                mCurrentImage = "image4";
-                updateImageFromFirebase();
-                break;
-            }
-            case "image4": {
-                mCurrentImage = "image5";
-                updateImageFromFirebase();
-                break;
-            }
-            case "image5": {
-                mCurrentImage = "mainImage";
-                mFirebaseImageQueryIndex++;
-
-                if (mProfileType.equals(getString(R.string.dog_profile))) {
-                    if (mFirebaseImageQueryIndex == mDogsAtDistance.size()) return;
-                }
-                else if (mProfileType.equals(getString(R.string.family_profile))) {
-                    if (mFirebaseImageQueryIndex == mFamiliesAtDistance.size()) return;
-                }
-                else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-                    if (mFirebaseImageQueryIndex == mFoundationsAtDistance.size()) return;
-                }
-                updateImageFromFirebase();
-                break;
-            }
-        }
-
-    }
-    private void updateImageFromFirebase() {
-        if (mProfileType.equals(getString(R.string.dog_profile))) {
-            mFirebaseDao.getImageFromFirebaseStorage(mDogsAtDistance.get(mFirebaseImageQueryIndex), mCurrentImage);
-        }
-        else if (mProfileType.equals(getString(R.string.family_profile))) {
-            mFirebaseDao.getImageFromFirebaseStorage(mFamiliesAtDistance.get(mFirebaseImageQueryIndex), mCurrentImage);
-        }
-        else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-            mFirebaseDao.getImageFromFirebaseStorage(mFoundationsAtDistance.get(mFirebaseImageQueryIndex), mCurrentImage);
-        }
-    }
-    private void syncImageForCurrentObject(String imageName, Uri imageUri) {
-
-        if (getContext()==null) return;
-        Object listElement = null;
-
-        if (mProfileType.equals(getString(R.string.dog_profile))) {
-            if (mFirebaseImageQueryIndex == mDogsAtDistance.size()) return;
-            listElement = mDogsAtDistance.get(mFirebaseImageQueryIndex);
-        }
-        else if (mProfileType.equals(getString(R.string.family_profile))) {
-            if (mFirebaseImageQueryIndex == mFamiliesAtDistance.size()) return;
-            listElement = mFamiliesAtDistance.get(mFirebaseImageQueryIndex);
-        }
-        else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-            if (mFirebaseImageQueryIndex == mFoundationsAtDistance.size()) return;
-            listElement = mFoundationsAtDistance.get(mFirebaseImageQueryIndex);
-        }
-
-        Utilities.synchronizeImageOnAllDevices(getContext(), listElement, mFirebaseDao, imageName, imageUri);
-    }
-
-
-    //Location methods
     private Object getObjectsWithinDistance(Object object, int distanceMeters) {
 
         if (!(object instanceof List)) return object;
@@ -493,8 +412,8 @@ public class SearchScreenFragment extends Fragment implements
                 for (int i=0; i<objectsList.size(); i++) {
                     Dog dog = (Dog) objectsList.get(i);
                     boolean isNearby = checkIfObjectIsNearby(
+                            Utilities.getAddressStringFromComponents(dog.getStN(), dog.getSt(), dog.getCt(), dog.getCn()),
                             dog.getCn(),
-                            dog.getCt(),
                             dog.getGaC(),
                             dog.getGaLt(),
                             dog.getGaLg(),
@@ -508,8 +427,8 @@ public class SearchScreenFragment extends Fragment implements
                 for (int i=0; i<objectsList.size(); i++) {
                     Family family = (Family) objectsList.get(i);
                     boolean isNearby = checkIfObjectIsNearby(
+                            Utilities.getAddressStringFromComponents(null, family.getSt(), family.getCt(), family.getCn()),
                             family.getCn(),
-                            family.getCt(),
                             family.getGaC(),
                             family.getGaLt(),
                             family.getGaLg(),
@@ -523,8 +442,8 @@ public class SearchScreenFragment extends Fragment implements
                 for (int i=0; i<objectsList.size(); i++) {
                     Foundation foundation = (Foundation) objectsList.get(i);
                     boolean isNearby = checkIfObjectIsNearby(
+                            Utilities.getAddressStringFromComponents(foundation.getStN(), foundation.getSt(), foundation.getCt(), foundation.getCn()),
                             foundation.getCn(),
-                            foundation.getCt(),
                             foundation.getGaC(),
                             foundation.getGaLt(),
                             foundation.getGaLg(),
@@ -536,10 +455,10 @@ public class SearchScreenFragment extends Fragment implements
         }
         return objectsList;
     }
-    private boolean checkIfObjectIsNearby(String country, String city, String geoAddressCountry, String latitudeAsString, String longitudeAsString, int distanceMeters) {
+    private boolean checkIfObjectIsNearby(String addressString, String country, String geoAddressCountry, String latitudeAsString, String longitudeAsString, int distanceMeters) {
 
         //If the city value is empty, return true anyway since the object may be relevant
-        if (TextUtils.isEmpty(city)) return true;
+        if (TextUtils.isEmpty(addressString)) return true;
 
         double geoAddressLatitude;
         double geoAddressLongitude;
@@ -549,9 +468,9 @@ public class SearchScreenFragment extends Fragment implements
         if (!TextUtils.isEmpty(longitudeAsString)) geoAddressLongitude = Double.parseDouble(longitudeAsString);
         else geoAddressLongitude = 0.0;
 
-        //If the device can obtain valid up-to-date geolocation data for the object's registered city, use it instead of the stored values,
+        //If the device can obtain valid up-to-date geolocation data for the object's registered address, use it instead of the stored values,
         // since these may possibly be have been updated when the user last saved the object's profile
-        Address address = Utilities.getAddressObjectFromAddressString(getContext(), city);
+        Address address = Utilities.getAddressObjectFromAddressString(getContext(), addressString);
         if (address!=null) {
             geoAddressCountry = address.getCountryCode();
             geoAddressLatitude = address.getLatitude();
@@ -580,14 +499,9 @@ public class SearchScreenFragment extends Fragment implements
         }
         else return true;
     }
-    private void createFakeDogsForTesting() {
-
-        //*********Special code designed to create dogs near the user, used for testing purposes only************
-        mFirebaseDao.populateFirebaseDbWithDummyData(getContext(), mUserLatitude, mUserLongitude);
-    }
 
 
-    //Communication with other activities/fragments:
+    //Communication with other classes:
 
     //Communication with RecyclerView adapters
     @Override public void onDogsListItemClick(int clickedItemIndex) {
@@ -606,6 +520,9 @@ public class SearchScreenFragment extends Fragment implements
         mDogsList = dogsList;
         mFoundResults = true;
 
+        //If the user's coordinates are unknown, do nothing (and wait for the coordinates to be found in onLocalCoordinatesFound)
+        if (mUserLongitude==0.0 && mUserLatitude==0.0) return;
+
         //If the user requested a dogs list, then show the list at the requested distance
         if (TextUtils.isEmpty(mRequestedDogProfileUI)) updateObjectListAccordingToDistance();
 
@@ -622,6 +539,9 @@ public class SearchScreenFragment extends Fragment implements
         mFamiliesList = familiesList;
         mFoundResults = true;
 
+        //If the user's coordinates are unknown, do nothing (and wait for the coordinates to be found in onLocalCoordinatesFound)
+        if (mUserLongitude==0.0 && mUserLatitude==0.0) return;
+
         //If the user requested a family list, then show the list at the requested distance
         if (TextUtils.isEmpty(mRequestedFamilyProfileUI)) updateObjectListAccordingToDistance();
 
@@ -637,6 +557,9 @@ public class SearchScreenFragment extends Fragment implements
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
         mFoundationsList = foundationsList;
         mFoundResults = true;
+
+        //If the user's coordinates are unknown, do nothing (and wait for the coordinates to be found in onLocalCoordinatesFound)
+        if (mUserLongitude==0.0 && mUserLatitude==0.0) return;
 
         //If the user requested a foundations list, then show the list at the requested distance
         if (TextUtils.isEmpty(mRequestedFoundationProfileUI)) updateObjectListAccordingToDistance();
@@ -666,13 +589,6 @@ public class SearchScreenFragment extends Fragment implements
 
     }
     @Override public void onImageAvailable(Uri imageUri, String currentImageName) {
-        if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
-        syncImageForCurrentObject(currentImageName, imageUri);
-        if (queryIndexHasReachedListSize() || imageDisplayCounter%IMAGE_BLOCK_SIZE==0 && currentImageName.equals("mainImage")) {
-            if (imageDisplayCounter >0) updateRecyclerView();
-            imageDisplayCounter++;
-        }
-        syncNextImage(currentImageName);
     }
     @Override public void onImageUploaded(List<String> uploadTimes) {
 
@@ -685,7 +601,7 @@ public class SearchScreenFragment extends Fragment implements
         Utilities.setAppPreferenceUserLongitude(getContext(), longitude);
         Utilities.setAppPreferenceUserLatitude(getContext(), latitude);
 
-        createFakeDogsForTesting(); //***********Remove this in regular app
+        createFakeDogsForTesting(); //TODO: ***********Remove this in regular app
 
         if (mUserLongitude != 0.0 && mUserLatitude != 0.0 && mLocationManager!=null) {
             hideLoadingIndicator();
@@ -695,6 +611,31 @@ public class SearchScreenFragment extends Fragment implements
         }
         if (getContext()==null) return; //Prevents the code from continuing to work with a null context if the user exited the fragment too fast
         updateObjectListAccordingToDistance();
+    }
+
+    //Communication with Loader
+    @NonNull @Override public Loader<String> onCreateLoader(int id, @Nullable Bundle args) {
+
+        if (id == LIST_MAIN_IMAGES_SYNC_LOADER && mImageSyncAsyncTaskLoader==null) {
+            mImageSyncAsyncTaskLoader =  new ImageSyncAsyncTaskLoader(getContext(), getString(R.string.task_sync_list_main_images),
+                    mProfileType, mDogsAtDistance, mFamiliesAtDistance, mFoundationsAtDistance, this);
+            return mImageSyncAsyncTaskLoader;
+        }
+        return new ImageSyncAsyncTaskLoader(getContext(), "", null, null, null, null, this);
+    }
+    @Override public void onLoadFinished(@NonNull Loader<String> loader, String data) {
+        if (loader.getId() == LIST_MAIN_IMAGES_SYNC_LOADER) {
+            if (getContext()!=null) updateRecyclerView();
+            //stopImageSyncThread();
+        }
+    }
+    @Override public void onLoaderReset(@NonNull Loader<String> loader) {
+
+    }
+
+    //Communication with ImageSyncAsyncTaskLoader
+    @Override public void onDisplayRefreshRequested() {
+        if (getContext()!=null) updateRecyclerView();
     }
 
     //Communication with parent activity

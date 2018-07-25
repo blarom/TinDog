@@ -71,6 +71,7 @@ public class WidgetUpdateJobIntentService extends JobIntentService {
 
         }
     }
+
     static void enqueueWork(Context context, Intent work) {
         enqueueWork(context, WidgetUpdateJobIntentService.class, JOB_ID_FOR_SERVICE, work);
     }

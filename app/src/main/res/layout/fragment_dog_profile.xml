@@ -6,7 +6,7 @@
                                              android:layout_height="match_parent"
                                              tools:context=".DogProfileFragment">
 
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -171,6 +171,16 @@
 
         </android.support.constraint.ConstraintLayout>
 
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/dog_profile_share_fab"
+        style="@style/DefaultFabStyle"
+        android:elevation="6dp"
+        app:srcCompat="@drawable/ic_share_24dp"
+        app:fabSize="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:pressedTranslationZ="6dp"/> <!--translation 6dp added to initial elevation at 6dp-->
 
 </android.support.constraint.ConstraintLayout>

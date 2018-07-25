@@ -49,11 +49,7 @@ public class FoundationsListRecycleViewAdapter extends RecyclerView.Adapter<Foun
         detailsTV.setText(details);
     }
     private void updateItemImage(final FoundationViewHolder holder, int position) {
-
-        Picasso.with(mContext)
-                .load(Utilities.getImageUriForObject(mContext, mFoundations.get(position), "mainImage"))
-                .error(R.drawable.ic_image_not_available)
-                .into(holder.imageInRecycleView);
+        Utilities.displayObjectImageInImageView(mContext, mFoundations.get(position), "mainImage", holder.imageInRecycleView);
     }
 
     @Override public int getItemCount() {

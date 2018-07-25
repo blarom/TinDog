@@ -77,7 +77,8 @@ public class Foundation implements Parcelable {
         this.uI = Utilities.cleanIdentifierForFirebase(uI);
     }
     public void setUniqueIdentifierFromDetails() {
-        if (TextUtils.isEmpty(oFId)) uI = nm + "-" + ct + "-" + cn;
+        if (!TextUtils.isEmpty(uI)) { } //Keep the uI
+        else if (TextUtils.isEmpty(oFId)) uI = nm + "-" + ct + "-" + cn;
         else uI = oFId;
         uI = Utilities.cleanIdentifierForFirebase(uI);
     }

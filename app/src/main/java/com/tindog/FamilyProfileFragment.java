@@ -1,9 +1,15 @@
 package com.tindog;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,9 +22,12 @@ import android.widget.TextView;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
+import com.tindog.data.Dog;
 import com.tindog.data.Family;
+import com.tindog.resources.ImageSyncAsyncTaskLoader;
 import com.tindog.resources.Utilities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -26,9 +35,13 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 
-public class FamilyProfileFragment extends Fragment implements ImagesRecycleViewAdapter.ImageClickHandler {
+public class FamilyProfileFragment extends Fragment implements
+        ImagesRecycleViewAdapter.ImageClickHandler,
+        LoaderManager.LoaderCallbacks<String>,
+        ImageSyncAsyncTaskLoader.OnImageSyncOperationsHandler {
 
-
+    //region Parameters
+    private static final int SINGLE_OBJECT_IMAGES_SYNC_LOADER = 8521;
     @BindView(R.id.family_profile_main_image) ImageView mImageViewMainImage;
     @BindView(R.id.family_profile_recyclerview_images) RecyclerView mRecyclerViewImages;
     @BindView(R.id.family_profile_pseudonym) TextView mTextViewFamilyPseudonym;
@@ -48,10 +61,15 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
     @BindView(R.id.family_profile_checkbox_dogwalking_evening) CheckBox mCheckBoxDogWalkingEvening;
     @BindView(R.id.family_profile_checkbox_dogwalking_morning) CheckBox mCheckBoxDogWalkingMorning;
     @BindView(R.id.family_profile_checkbox_dogwalking_noon) CheckBox mCheckBoxDogWalkingNoon;
+    @BindView(R.id.family_profile_share_fab) FloatingActionButton mFabShare;
     private ImagesRecycleViewAdapter mImagesRecycleViewAdapter;
     private Unbinder mBinding;
     private Family mFamily;
     private List<Uri> mDisplayedImageList;
+    private String mClickedImageUriString;
+    private ImageSyncAsyncTaskLoader mImageSyncAsyncTaskLoader;
+    private boolean mAlreadyLoadedImages;
+    //endregion
 
 
     public FamilyProfileFragment() {
@@ -68,6 +86,7 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
         View rootView = inflater.inflate(R.layout.fragment_family_profile, container, false);
 
         initializeViews(rootView);
+        startImageSyncThread();
         updateProfileFieldsOnScreen();
 
         return rootView;
@@ -80,10 +99,12 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
         super.onDetach();
         storeFragmentLayout();
         onFamilyProfileFragmentOperationsHandler = null;
+        if (mImageSyncAsyncTaskLoader!=null) mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
     }
     @Override public void onDestroyView() {
         super.onDestroyView();
         mBinding.unbind();
+        if (mImageSyncAsyncTaskLoader!=null) mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
     }
 
 
@@ -95,7 +116,14 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
     }
     private void initializeViews(View rootView) {
         mBinding = ButterKnife.bind(this, rootView);
+        mClickedImageUriString = Utilities.getImageUriForObjectWithFileProvider(getContext(), mFamily, "mainImage").toString();
         setupImagesRecyclerView();
+        mFabShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shareProfile();
+            }
+        });
     }
     private void setupImagesRecyclerView() {
         mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -130,10 +158,13 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
         mCheckBoxDogWalkingAfternoon.setChecked(mFamily.setHDA());
         mCheckBoxDogWalkingEvening.setChecked(mFamily.getHDE());
 
+        displayImages();
+    }
+    private void displayImages() {
         if (getContext()==null) return;
         Utilities.displayObjectImageInImageView(getContext(), mFamily, "mainImage", mImageViewMainImage);
-        List<Uri> uris = Utilities.getExistingImageUriListForObject(getContext(), mFamily, true);
-        mImagesRecycleViewAdapter.setContents(uris);
+        mDisplayedImageList = Utilities.getExistingImageUriListForObject(getContext(), mFamily, false);
+        mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
     }
     private void storeFragmentLayout() {
         if (mRecyclerViewImages!=null) {
@@ -141,18 +172,83 @@ public class FamilyProfileFragment extends Fragment implements ImagesRecycleView
             onFamilyProfileFragmentOperationsHandler.onFamilyLayoutParametersCalculated(imagesRecyclerViewPosition);
         }
     }
+    private void shareProfile() {
+
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+
+        StringBuilder builder = new StringBuilder("");
+        builder.append(mFamily.getPn());
+        builder.append("\n");
+        builder.append(Utilities.getAddressStringFromComponents(null, mFamily.getSt(), mFamily.getCt(), null));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, builder.toString());
+
+        Uri imageUri = Utilities.getImageUriForObjectWithFileProvider(getContext(), mFamily, Utilities.getImageNameFromUri(mClickedImageUriString));
+        shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+        shareIntent.setType("image/*");
+
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(shareIntent, "Share images..."));
+
+    }
+    private void startImageSyncThread() {
+
+        mAlreadyLoadedImages = false;
+        if (getActivity()!=null) {
+            LoaderManager loaderManager = getActivity().getSupportLoaderManager();
+            Loader<String> imageSyncAsyncTaskLoader = loaderManager.getLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER);
+            if (imageSyncAsyncTaskLoader == null) {
+                loaderManager.initLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER, null, this);
+            }
+            else {
+                if (mImageSyncAsyncTaskLoader!=null) {
+                    mImageSyncAsyncTaskLoader.cancelLoadInBackground();
+                    mImageSyncAsyncTaskLoader = null;
+                }
+                loaderManager.restartLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER, null, this);
+            }
+        }
+
+    }
 
 
     //Communication with other activities/fragments:
 
     //Communication with RecyclerView adapters
     @Override public void onImageClick(int clickedItemIndex) {
-        String clickedImageUri = mDisplayedImageList.get(clickedItemIndex).toString();
+        mClickedImageUriString = mDisplayedImageList.get(clickedItemIndex).toString();
         Picasso.with(getContext())
-                .load(clickedImageUri)
+                .load(mClickedImageUriString)
                 .error(R.drawable.ic_image_not_available)
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .into(mImageViewMainImage);
+    }
+
+    //Communication with Loader
+    @NonNull @Override public Loader<String> onCreateLoader(int id, @Nullable Bundle args) {
+
+        if (id== SINGLE_OBJECT_IMAGES_SYNC_LOADER) {
+            List<Family> familyList = new ArrayList<>();
+            familyList.add(mFamily);
+            mImageSyncAsyncTaskLoader =  new ImageSyncAsyncTaskLoader(getContext(), getString(R.string.task_sync_single_object_images),
+                    getString(R.string.dog_profile), null, familyList, null, this);
+            return mImageSyncAsyncTaskLoader;
+        }
+        return new ImageSyncAsyncTaskLoader(getContext(), "", null, null, null, null, this);
+    }
+    @Override public void onLoadFinished(@NonNull Loader<String> loader, String data) {
+        if (loader.getId() == SINGLE_OBJECT_IMAGES_SYNC_LOADER && !mAlreadyLoadedImages) {
+            mAlreadyLoadedImages = true;
+            if (getContext()!=null) displayImages();
+        }
+    }
+    @Override public void onLoaderReset(@NonNull Loader<String> loader) {
+
+    }
+
+    //Communication with ImageSyncAsyncTaskLoader
+    @Override public void onDisplayRefreshRequested() {
+        if (getContext()!=null) displayImages();
     }
 
     //Communication with parent activity

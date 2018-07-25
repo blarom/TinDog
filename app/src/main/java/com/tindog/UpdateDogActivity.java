@@ -538,7 +538,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mDog.setSt(street);
         mDog.setStN(streeNumber);
 
-        String addressString = streeNumber + "" + street + ", " + city + ", " + country;
+        String addressString = Utilities.getAddressStringFromComponents(streeNumber, street, city, country);
         Address address = Utilities.getAddressObjectFromAddressString(this, addressString);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();

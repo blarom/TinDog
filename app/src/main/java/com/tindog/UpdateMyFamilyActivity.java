@@ -400,7 +400,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         mFamily.setCt(city);
         mFamily.setSt(street);
 
-        String addressString = street + ", " + city + ", " + country;
+        String addressString = Utilities.getAddressStringFromComponents(null, street, city, country);
         Address address = Utilities.getAddressObjectFromAddressString(this, addressString);
         if (address!=null) {
             String geoAddressCountry = address.getCountryCode();

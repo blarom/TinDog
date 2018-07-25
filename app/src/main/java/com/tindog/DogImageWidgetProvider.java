@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.widget.RemoteViews;
 import com.tindog.data.Dog;
+import com.tindog.resources.Utilities;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,15 +49,8 @@ public class DogImageWidgetProvider extends AppWidgetProvider {
     private static void updateWidgetDogImage(Context context, RemoteViews views, Dog dog) {
         if (dog != null) {
 
-            //Inspired by: https://inthecheesefactory.com/blog/how-to-share-access-to-file-with-fileprovider-on-android-nougat/en
-            //Note that in contrast to the above tutorial, I use the internal app files directory and changed provider_paths.xml accordingly
-            String directory = context.getFilesDir().getAbsolutePath()+"/dogs/"+dog.getUI()+"/images/";
-            File imagesDir = new File(directory);
-            if (!imagesDir.exists()) imagesDir.mkdirs();
-            File imageFile = new File(directory, "mainImage.jpg");
+            Uri uri = Utilities.getImageUriForObjectWithFileProvider(context, dog, "mainImage");
 
-            Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", imageFile);
-            //Uri uri = SharedMethods.getImageUriForObject(context, dog, "mainImage");
             if (uri!=null) {
                 Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_image_not_available);
                 try {

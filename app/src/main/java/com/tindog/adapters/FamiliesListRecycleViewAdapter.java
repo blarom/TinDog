@@ -51,11 +51,7 @@ public class FamiliesListRecycleViewAdapter extends RecyclerView.Adapter<Familie
         detailsTV.setText(details);
     }
     private void updateItemImage(final FamilyViewHolder holder, int position) {
-
-        Picasso.with(mContext)
-                .load(Utilities.getImageUriForObject(mContext, mFamilies.get(position), "mainImage"))
-                .error(R.drawable.ic_image_not_available)
-                .into(holder.imageInRecycleView);
+        Utilities.displayObjectImageInImageView(mContext, mFamilies.get(position), "mainImage", holder.imageInRecycleView);
     }
 
     @Override

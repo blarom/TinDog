@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -120,7 +121,7 @@ public class Utilities {
             }
         }
     }
-    private static String getImagesDirectoryForObject(Context context, Object object) {
+    public static String getImagesDirectoryForObject(Context context, Object object) {
         String imageDirectory;
         if (object instanceof Dog) {
             Dog dog = (Dog) object;
@@ -148,7 +149,7 @@ public class Utilities {
         }
         return imageFile;
     }
-    private static boolean directoryIsInvalid(String localDirectory) {
+    public static boolean directoryIsInvalid(String localDirectory) {
         return (TextUtils.isEmpty((localDirectory)) || localDirectory.contains("//"));
     }
 
@@ -215,14 +216,6 @@ public class Utilities {
         }
         return true;
 
-    }
-    public static Uri updateLocalObjectImage(Context context, Uri originalImageUri, Object object, String imageName) {
-
-        String directory = getImagesDirectoryForObject(context, object);
-        if(directoryIsInvalid(directory)) return null;
-
-        Uri copiedImageUri = moveFile(originalImageUri, directory, imageName);
-        return copiedImageUri;
     }
     public static List<Uri> getExistingImageUriListForObject(Context context, Object object, boolean skipMainImage) {
 
@@ -291,48 +284,7 @@ public class Utilities {
 
         return "image1";
     }
-    public static void synchronizeAllObjectImagesOnAllDevices(Context context, Object object, FirebaseDao firebaseDao, Uri downloadedImageUri) {
-        synchronizeImageOnAllDevices(context, object, firebaseDao, "mainImage", downloadedImageUri);
-        synchronizeImageOnAllDevices(context, object, firebaseDao, "image1", downloadedImageUri);
-        synchronizeImageOnAllDevices(context, object, firebaseDao, "image2", downloadedImageUri);
-        synchronizeImageOnAllDevices(context, object, firebaseDao, "image3", downloadedImageUri);
-        synchronizeImageOnAllDevices(context, object, firebaseDao, "image4", downloadedImageUri);
-        synchronizeImageOnAllDevices(context, object, firebaseDao, "image5", downloadedImageUri);
-    }
-    public static void synchronizeImageOnAllDevices(Context context, Object object, FirebaseDao firebaseDao, String imageName, Uri downloadedImageUri) {
-
-        String localDirectory = getImagesDirectoryForObject(context, object);
-        if(directoryIsInvalid(localDirectory)) return;
-
-        //The image was downloaded only if it was newer than the local image (If it wasn't downloaded, the downloadedImageUri is the same as the local image Uri)
-        Uri localImageUri = Utilities.getImageUriWithPath(localDirectory, imageName);
-
-        if (downloadedImageUri != null) {
-            if (localImageUri == null) {
-                Utilities.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
-            }
-            else {
-                String localUriPath = localImageUri.getPath();
-                String downloadedUriPath = downloadedImageUri.getPath();
-
-                //If the downloaded image is newer, then update the image in the local directory
-                if (!downloadedUriPath.equals(localUriPath)) {
-                    Utilities.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
-                }
-
-                //If the local image is newer, then upload it to Firebase to replace the older image
-                else if (downloadedUriPath.equals(localUriPath)) {
-                    firebaseDao.putImageInFirebaseStorage(object, localImageUri, imageName);
-                }
-            }
-        }
-        else {
-            if (localImageUri != null) {
-                firebaseDao.putImageInFirebaseStorage(object, localImageUri, imageName);
-            }
-        }
-    }
-    public static Uri getImageUriForObject(Context context, Object object, String imageName) {
+    public static Uri getLocalImageUriForObject(Context context, Object object, String imageName) {
 
         String imageDirectory = getImagesDirectoryForObject(context, object);
         if(directoryIsInvalid(imageDirectory)) return null;
@@ -346,21 +298,37 @@ public class Utilities {
         File imagesDir = new File(directory);
         if (!imagesDir.exists()) imagesDir.mkdirs();
 
-        File imageFile = getFileWithTrials(directory, imageName+".jpg");
-        long length = imageFile.length();
-        boolean exists = imageFile.exists();
-        if (exists && length>0) {
-            return Uri.fromFile(imageFile);
+        try {
+            File imageFile = getFileWithTrials(directory, imageName + ".jpg");
+            long length = imageFile.length();
+            boolean exists = imageFile.exists();
+            if (exists && length > 0) {
+                return Uri.fromFile(imageFile);
+            } else return null;
         }
-        else return null;
+        catch (Exception e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
+    public static Uri getImageUriForObjectWithFileProvider(Context context, Object object, String imageName) {
+
+        //Inspired by: https://inthecheesefactory.com/blog/how-to-share-access-to-file-with-fileprovider-on-android-nougat/en
+        //Note that in contrast to the above tutorial, I use the internal app files directory and changed provider_paths.xml accordingly
+        String directory = getImagesDirectoryForObject(context, object);
+        File imagesDir = new File(directory);
+        if (!imagesDir.exists()) imagesDir.mkdirs();
+        File imageFile = new File(directory, imageName+".jpg");
+
+        return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", imageFile);
     }
     public static void deleteAllLocalObjectImages(Context context, Object object) {
-        deleteFileAtUri(getImageUriForObject(context, object, "mainImage"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image1"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image2"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image3"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image4"));
-        deleteFileAtUri(getImageUriForObject(context, object, "image5"));
+        deleteFileAtUri(getLocalImageUriForObject(context, object, "mainImage"));
+        deleteFileAtUri(getLocalImageUriForObject(context, object, "image1"));
+        deleteFileAtUri(getLocalImageUriForObject(context, object, "image2"));
+        deleteFileAtUri(getLocalImageUriForObject(context, object, "image3"));
+        deleteFileAtUri(getLocalImageUriForObject(context, object, "image4"));
+        deleteFileAtUri(getLocalImageUriForObject(context, object, "image5"));
     }
     public static boolean imageNameIsInvalid(String imageName) {
 
@@ -399,7 +367,15 @@ public class Utilities {
             loadGenericAppImageIntoImageView(context, imageView);
         }
     }
-
+    public static String getImageNameFromUri(String uriString) {
+        if (uriString.contains("mainImage")) return "mainImage";
+        if (uriString.contains("image1")) return "image1";
+        if (uriString.contains("image2")) return "image2";
+        if (uriString.contains("image3")) return "image3";
+        if (uriString.contains("image4")) return "image4";
+        if (uriString.contains("image5")) return "image5";
+        else return "mainImage";
+    }
 
     //UI utilities
     public static void hideSoftKeyboard(Activity activity) {
@@ -467,6 +443,8 @@ public class Utilities {
     }
     public static String[] getExactAddressFromGeoCoordinates(Context context, double latitude, double longitude) {
 
+        if (context==null || latitude==0.0 && longitude==0.0) return new String[]{ null, null, null, null };
+
         Geocoder gcd = new Geocoder(context, Locale.getDefault());
         List<Address> addresses;
         try {
@@ -485,6 +463,25 @@ public class Utilities {
             e.printStackTrace();
         }
         return null;
+    }
+    public static String getAddressStringFromComponents(String stN, String st, String ct, String cn) {
+        StringBuilder builder = new StringBuilder("");
+        if (!TextUtils.isEmpty(stN)) {
+            builder.append(stN);
+            builder.append(" ");
+        }
+        if (!TextUtils.isEmpty(st)) {
+            builder.append(st);
+            if (!TextUtils.isEmpty(ct)) builder.append(", ");
+        }
+        if (!TextUtils.isEmpty(ct)) {
+            builder.append(ct);
+            if (!TextUtils.isEmpty(cn)) builder.append(", ");
+        }
+        if (!TextUtils.isEmpty(cn)) {
+            builder.append(cn);
+        }
+        return builder.toString();
     }
 
 
@@ -613,7 +610,80 @@ public class Utilities {
                     }
                 });
     }
+    public static void synchronizeAllObjectImagesOnAllDevices(Context context, Object object, FirebaseDao firebaseDao, Uri downloadedImageUri) {
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "mainImage", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image1", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image2", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image3", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image4", downloadedImageUri);
+        synchronizeImageOnAllDevices(context, object, firebaseDao, "image5", downloadedImageUri);
+    }
+    public static void synchronizeImageOnAllDevices(Context context, Object object, FirebaseDao firebaseDao, String imageName, Uri downloadedImageUri) {
 
+        String localDirectory = getImagesDirectoryForObject(context, object);
+        if(directoryIsInvalid(localDirectory)) return;
+
+        //The image was downloaded only if it was newer than the local image (If it wasn't downloaded, the downloadedImageUri is the same as the local image Uri)
+        Uri localImageUri = Utilities.getImageUriWithPath(localDirectory, imageName);
+
+        if (downloadedImageUri != null) {
+            if (localImageUri == null) {
+                Utilities.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
+            }
+            else {
+                String localUriPath = localImageUri.getPath();
+                String downloadedUriPath = downloadedImageUri.getPath();
+
+                //If the downloaded image is newer, then update the image in the local directory
+                if (!downloadedUriPath.equals(localUriPath)) {
+                    Utilities.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
+                }
+
+                //If the local image is newer, then upload it to Firebase to replace the older image
+                else if (downloadedUriPath.equals(localUriPath)) {
+                    firebaseDao.putImageInFirebaseStorage(object, localImageUri, imageName);
+                }
+            }
+        }
+        else {
+            if (localImageUri != null) {
+                firebaseDao.putImageInFirebaseStorage(object, localImageUri, imageName);
+            }
+        }
+    }
+    public static void updateImageOnLocalDevice(Context context, Object object, FirebaseDao firebaseDao, String imageName, Uri downloadedImageUri) {
+
+        String localDirectory = getImagesDirectoryForObject(context, object);
+        if(directoryIsInvalid(localDirectory)) return;
+
+        //The image was downloaded only if it was newer than the local image (If it wasn't downloaded, the downloadedImageUri is the same as the local image Uri)
+        Uri localImageUri = Utilities.getImageUriWithPath(localDirectory, imageName);
+
+        if (downloadedImageUri != null) {
+            if (localImageUri == null) {
+                Utilities.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
+            }
+            else {
+                String localUriPath = localImageUri.getPath();
+                String downloadedUriPath = downloadedImageUri.getPath();
+
+                //If the downloaded image is newer, then update the image in the local directory
+                if (!downloadedUriPath.equals(localUriPath)) {
+                    Utilities.updateLocalObjectImage(context, downloadedImageUri, localDirectory, imageName);
+                }
+
+                //If the local image is newer, then do nothing
+            }
+        }
+    }
+    public static Uri updateLocalObjectImage(Context context, Uri originalImageUri, Object object, String imageName) {
+
+        String directory = getImagesDirectoryForObject(context, object);
+        if(directoryIsInvalid(directory)) return null;
+
+        Uri copiedImageUri = moveFile(originalImageUri, directory, imageName);
+        return copiedImageUri;
+    }
 
     //Internet utilities
     public static boolean internetIsAvailable(Context context) {

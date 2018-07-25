@@ -54,7 +54,7 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/update_my_dogs_add_fab"
-        style="@style/DogsListFabStyle"
+        style="@style/DefaultFabStyle"
         android:elevation="6dp"
         app:srcCompat="@drawable/ic_add_24dp"
         app:fabSize="normal"

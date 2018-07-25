@@ -170,8 +170,8 @@
     <string name="profile_type">profile_type</string>
     <string name="profile_parcelable">profile_parcelable</string>
     <string name="find_a_dog">Find a dog</string>
-    <string name="find_a_family">Find a family</string>
-    <string name="find_a_foundation">Find a foundation</string>
+    <string name="find_a_family">Find a welcoming family</string>
+    <string name="find_a_foundation">Find an adoption foundation</string>
     <string name="chosen_activity">chosen_activity</string>
     <string name="no_history_available">No history available</string>
     <string name="add_a_video_link_http">Add a video link (http://...)</string>
@@ -347,4 +347,11 @@
     <string name="max_image_file_size">300</string>
     <string name="must_save_profile_first">You must save the profile with the required fields before you can upload pictures.</string>
     <string name="please_sign_in_to_see_preferences">Please sign in to access and modify your preferences</string>
+    <string name="image_sync_extra_dogs_list">image_sync_extra_dogs_list</string>
+    <string name="image_sync_extra_families_list">image_sync_extra_families_list</string>
+    <string name="image_sync_extra_foundations_list">image_sync_extra_foundations_list</string>
+    <string name="tindog_notification_channel">tindog_notification_channel</string>
+    <string name="notification_channel_show_progress">Notification channel used to show Tindog file download progress</string>
+    <string name="task_sync_list_main_images">syncListMainImages</string>
+    <string name="task_sync_single_object_images">syncSingleObjectImages</string>
 </resources>

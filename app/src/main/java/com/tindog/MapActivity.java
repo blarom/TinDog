@@ -1,9 +1,10 @@
 package com.tindog;
 
 import android.content.Intent;
-import android.os.Parcelable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -24,6 +25,10 @@ import com.tindog.resources.TinDogLocationListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class MapActivity extends FragmentActivity implements
         OnMapReadyCallback,
         GoogleMap.OnMapLoadedCallback,
@@ -31,21 +36,36 @@ public class MapActivity extends FragmentActivity implements
         TinDogLocationListener.LocationListenerHandler{
 
     private static final int MAPS_ZOOM_IN_PADDING_IN_PIXELS = 50;
+    @BindView(R.id.map_add_fab) FloatingActionButton mFabAddMarker;
     private GoogleMap mMap;
     private double[] mUserCoordinates;
     private ArrayList<Dog> mDogsArrayList;
     private ArrayList<Family> mFamiliesArrayList;
     private ArrayList<Foundation> mFoundationsArrayList;
     private List<Marker> mMarkers;
+    private Unbinder mBinding;
 
     //Lifecycle methods
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        getExtras();
+        mBinding = ButterKnife.bind(this);
+        mFabAddMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addUserMarkerToMap();
+            }
+        });
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        getExtras();
         mapFragment.getMapAsync(this);
+    }
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        mBinding.unbind();
     }
 
 
@@ -141,6 +161,7 @@ public class MapActivity extends FragmentActivity implements
 
         //Setting the map bounds (inspired by: https://stackoverflow.com/questions/14828217/android-map-v2-zoom-to-show-all-the-markers)
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        if (mMarkers == null || mMarkers.size()==0) return;;
         for (Marker marker : mMarkers) {
             builder.include(marker.getPosition());
         }
@@ -170,11 +191,29 @@ public class MapActivity extends FragmentActivity implements
             mFoundationsArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_foundations_list));
         }
     }
+    private void addUserMarkerToMap() {
+        if (mMap!=null) {
+
+            // Add a marker for the user coordinates and center the map on them
+            if (mUserCoordinates!=null) {
+                double visibilityOffset = 0.01;
+                LatLng userCoords = new LatLng(mUserCoordinates[0] + visibilityOffset, mUserCoordinates[1]);
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(userCoords)
+                        .title("My marker")
+                        .draggable(true)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                Marker marker = mMap.addMarker(markerOptions);
+                mMarkers.add(marker);
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(userCoords));
+            }
+        }
+    }
 
 
     //Location methods
     @Override public void onLocalCoordinatesFound(double longitude, double latitude) {
-        //TODO: update the user's coordinates if they wern't available yet
+        //TODO: update the user's coordinates if they weren't available yet
         //TODO: create marker creation methods
     }
 }

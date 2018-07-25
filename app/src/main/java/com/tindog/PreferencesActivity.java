@@ -46,7 +46,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
 
     //region Parameters
     private static final String DEBUG_TAG = "TinDog Preferences";
-    @BindView(R.id.preferences_find) Button mButtonSearchForDog;
     @BindView(R.id.preferences_age_spinner) Spinner mSpinnerAge;
     @BindView(R.id.preferences_size_spinner) Spinner mSpinnerSize;
     @BindView(R.id.preferences_gender_spinner) Spinner mSpinnerGender;
@@ -246,13 +245,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 mLimitToCountry = b;
-            }
-        });
-
-        mButtonSearchForDog.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startSearchResultsActivity(getString(R.string.dog_profile));
             }
         });
 

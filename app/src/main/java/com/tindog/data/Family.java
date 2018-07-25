@@ -92,7 +92,8 @@ public class Family implements Parcelable {
         this.uI = Utilities.cleanIdentifierForFirebase(uniqueIdentifier);
     }
     public void setUniqueIdentifierFromDetails() {
-        if (TextUtils.isEmpty(oFid)) uI = pn + "-" + em;
+        if (!TextUtils.isEmpty(uI)) { } //Keep the uI
+        else if (TextUtils.isEmpty(oFid)) uI = pn + "-" + em;
         else uI = oFid;
         uI = Utilities.cleanIdentifierForFirebase(uI);
     }

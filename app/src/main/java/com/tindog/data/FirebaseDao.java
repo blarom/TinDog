@@ -3,6 +3,8 @@ package com.tindog.data;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -16,9 +18,11 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.tindog.BuildConfig;
+import com.tindog.R;
 import com.tindog.resources.Utilities;
 
 import java.io.File;
@@ -31,6 +35,8 @@ public class FirebaseDao {
     public static final String firebaseEmail = BuildConfig.firebaseEmail;
     public static final String firebasePass = BuildConfig.firebasePass;
     private static final String DEBUG_TAG = "TinDog DB Debug";
+    private static final int FIREBASE_IMAGE_DOWNLOAD_NOTIFICATION_ID = 4569;
+    private static final int PROGRESS_MAX = 100;
     private final Context mContext;
     private final DatabaseReference mFirebaseDbReference;
     private ValueEventListener mEventListenerGetUniqueObject;
@@ -38,6 +44,8 @@ public class FirebaseDao {
     private ValueEventListener mEventListenerUpdateKeyValuePair;
     private ValueEventListener mEventListenerUpdateObject;
     private ValueEventListener mEventListenerGetFullObjectsList;
+    private NotificationCompat.Builder mNotificationBuilder;
+    private NotificationManagerCompat mNotificationManager;
 
     public FirebaseDao(Context context, FirebaseOperationsHandler listener) {
         this.mContext = context;
@@ -193,7 +201,7 @@ public class FirebaseDao {
         }
 
     }
-    public void updateObjectKeyValuePairInFirebaseDb(Object object, final String key, final Object value) {
+    private void updateObjectKeyValuePairInFirebaseDb(Object object, final String key, final Object value) {
 
         final DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
 
@@ -367,7 +375,7 @@ public class FirebaseDao {
             reference.addListenerForSingleValueEvent(mEventListenerUpdateObject);
         }
     }
-    public void updateObjectsOrCreateThemInFirebaseDb(Object objectsData) {
+    private void updateObjectsOrCreateThemInFirebaseDb(Object objectsData) {
 
         try {
             List<Object> objectsList = (List<Object>) objectsData;
@@ -400,33 +408,6 @@ public class FirebaseDao {
             TinDogUser user = (TinDogUser) object;
             firebaseDbReference.child("foundationsList").child(user.getUI()).removeValue();
         }
-    }
-    private List<String> getUniqueIds(Object object) {
-        List<Object> objectsList = (List<Object>) object;
-        List<String> ids = new ArrayList<>();
-        Object listElement = objectsList.get(0);
-        if (listElement instanceof Dog) {
-            Dog dog;
-            for (int i=0; i<objectsList.size(); i++) {
-                dog = (Dog) objectsList.get(i);
-                ids.add(dog.getUI());
-            }
-        }
-        else if (listElement instanceof Family) {
-            Family family;
-            for (int i=0; i<objectsList.size(); i++) {
-                family = (Family) objectsList.get(i);
-                ids.add(family.getUI());
-            }
-        }
-        else if (listElement instanceof Foundation) {
-            Foundation foundation;
-            for (int i=0; i<objectsList.size(); i++) {
-                foundation = (Foundation) objectsList.get(i);
-                ids.add(foundation.getUI());
-            }
-        }
-        return ids;
     }
 
     //Firebase Database Helper methods (prevent code repetitions in the CRUD methods)
@@ -517,40 +498,6 @@ public class FirebaseDao {
         double newLatitude;
         double newLongitude;
 
-        List<Dog> dummyDogs = new ArrayList<>();
-
-        newLatitude = userLatitude+0.01;
-        newLongitude = userLongitude+0.01;
-        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
-        if (newAddress!=null) {
-            Dog dog = new Dog("International Test Dog 1", "Male", "Mixed", newAddress[0], newAddress[1], newAddress[3], "2.5 years");
-            dog.setGaLt(Double.toString(newLatitude));
-            dog.setGaLg(Double.toString(newLongitude));
-            dog.setUI("international-test-dog-1");
-            dummyDogs.add(dog);
-        }
-        newLatitude = userLatitude-0.01;
-        newLongitude = userLongitude+0.02;
-        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
-        if (newAddress!=null) {
-            Dog dog = new Dog("International Test Dog 2", "Female", "Mixed", newAddress[0], newAddress[1], newAddress[3], "3 years");
-            dog.setGaLt(Double.toString(newLatitude));
-            dog.setGaLg(Double.toString(newLongitude));
-            dog.setUI("international-test-dog-2");
-            dummyDogs.add(dog);
-        }
-        newLatitude = userLatitude-0.04;
-        newLongitude = userLongitude-0.01;
-        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
-        if (newAddress!=null) {
-            Dog dog = new Dog("International Test Dog 3", "Female", "Mixed", newAddress[0], newAddress[1], newAddress[3], "3 years");
-            dog.setGaLt(Double.toString(newLatitude));
-            dog.setGaLg(Double.toString(newLongitude));
-            dog.setUI("international-test-dog-3");
-            dummyDogs.add(dog);
-        }
-        updateObjectsOrCreateThemInFirebaseDb(dummyDogs);
-
 
         List<Family> dummyFamilies = new ArrayList<>();
         newLatitude = userLatitude-0.05;
@@ -575,6 +522,7 @@ public class FirebaseDao {
         }
         updateObjectsOrCreateThemInFirebaseDb(dummyFamilies);
 
+
         List<Foundation> dummyFoundations = new ArrayList<>();
         newLatitude = userLatitude+0.045;
         newLongitude = userLongitude+0.06;
@@ -597,6 +545,47 @@ public class FirebaseDao {
             dummyFoundations.add(foundation);
         }
         updateObjectsOrCreateThemInFirebaseDb(dummyFoundations);
+
+
+        List<Dog> dummyDogs = new ArrayList<>();
+        newLatitude = userLatitude+0.01;
+        newLongitude = userLongitude+0.01;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Dog dog = new Dog("International Test Dog 1", "Male", "Mixed", newAddress[0], newAddress[1], newAddress[3], "2.5 years");
+            dog.setGaLt(Double.toString(newLatitude));
+            dog.setGaLg(Double.toString(newLongitude));
+            dog.setUI("international-test-dog-1");
+            dog.setAFid("international-test-foundation-1");
+            dog.setFN("International Test Foundation 1");
+            dummyDogs.add(dog);
+        }
+        newLatitude = userLatitude-0.01;
+        newLongitude = userLongitude+0.02;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Dog dog = new Dog("International Test Dog 2", "Female", "Mixed", newAddress[0], newAddress[1], newAddress[3], "3 years");
+            dog.setGaLt(Double.toString(newLatitude));
+            dog.setGaLg(Double.toString(newLongitude));
+            dog.setUI("international-test-dog-2");
+            dog.setAFid("international-test-foundation-1");
+            dog.setFN("International Test Foundation 1");
+            dummyDogs.add(dog);
+        }
+        newLatitude = userLatitude-0.04;
+        newLongitude = userLongitude-0.01;
+        newAddress = Utilities.getExactAddressFromGeoCoordinates(context, newLatitude, newLongitude);
+        if (newAddress!=null) {
+            Dog dog = new Dog("International Test Dog 3", "Female", "Mixed", newAddress[0], newAddress[1], newAddress[3], "3 years");
+            dog.setGaLt(Double.toString(newLatitude));
+            dog.setGaLg(Double.toString(newLongitude));
+            dog.setUI("international-test-dog-3");
+            dog.setAFid("international-test-foundation-2");
+            dog.setFN("International Test Foundation 2");
+            dummyDogs.add(dog);
+        }
+        updateObjectsOrCreateThemInFirebaseDb(dummyDogs);
+
     }
     public void removeDummyData() {
         deleteObjectFromFirebaseDb(new Dog("international-test-dog-1"));
@@ -703,18 +692,25 @@ public class FirebaseDao {
 
         childPath = folderPath + "/" + imageName + ".jpg";
 
-        final Uri localImageUri = getLocalImageUri(folderPath, imageName);
+        final Uri localImageUri = Utilities.getLocalImageUriForObject(mContext, object, imageName);
         if (uploadTimes==null || uploadTimes.size()==0) {
             sendImageUriToInterface(localImageUri, imageName);
             return;
         }
 
         //If the image loaded into Firebase is newer than the image saved onto the local device (if it exists), then download it. Otherwise, use the local image.
-        File internalStorageDir = new File(mContext.getFilesDir().getAbsolutePath() + "/" + folderPath);
+        String internalStorageDirString = Utilities.getImagesDirectoryForObject(mContext, object);
+        if (Utilities.directoryIsInvalid(internalStorageDirString)) {
+            Log.i(DEBUG_TAG, "Serious error in getImageFromFirebaseStorage(): invalid images directory: " + internalStorageDirString);
+            return;
+        }
+        File internalStorageDir = new File(internalStorageDirString);
         if (!internalStorageDir.exists()) internalStorageDir.mkdirs();
 
-        File localFile = new File(internalStorageDir, imageName + ".jpg");
+        File localFile = new File(internalStorageDirString, imageName + ".jpg");
         if (localFile.exists()) {
+            if (localImageUri!=null) Log.i(DEBUG_TAG, "Local file does exists: " + localImageUri.toString());
+
             Date lastModified = new Date(localFile.lastModified());
             long lastModifiedTime = lastModified.getTime();
 
@@ -731,6 +727,7 @@ public class FirebaseDao {
 
             //If the local file is older than the Firebase file, then download the Firebase file to the cache directory
             if (imageUploadTime!=0 && imageUploadTime > lastModifiedTime && Utilities.internetIsAvailable(mContext)) {
+                if (localImageUri!=null) Log.i(DEBUG_TAG, "Local file " + localImageUri.toString() + "with mod time " + lastModifiedTime + " is older than Firebase image with u/l time " + imageUploadTime);
                 downloadFromFirebase(internalStorageDir, imageName, childPath, localImageUri);
             }
             else {
@@ -738,6 +735,7 @@ public class FirebaseDao {
             }
         }
         else {
+            if (localImageUri!=null) Log.i(DEBUG_TAG, "Local file does not exist: " + localImageUri.toString());
             downloadFromFirebase(internalStorageDir, imageName, childPath, localImageUri);
         }
 
@@ -752,19 +750,41 @@ public class FirebaseDao {
 
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
         StorageReference imageRef = storageRef.child(childPath);
+
+        // Issue the initial notification with zero progress
+        mNotificationBuilder = new NotificationCompat.Builder(mContext, mContext.getString(R.string.tindog_notification_channel))
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Tindog image download")
+                .setContentText("Download in progress")
+                .setProgress(PROGRESS_MAX, 0, false)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        mNotificationManager = NotificationManagerCompat.from(mContext);
+
+        Log.i(DEBUG_TAG, "Attempting to download image with uri: " + localFirebaseTempImageUri.toString());
         imageRef.getFile(localFirebaseTempImage)
                 .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        mNotificationBuilder.setProgress(0, 0, false);
+                        mNotificationManager.notify(FIREBASE_IMAGE_DOWNLOAD_NOTIFICATION_ID, mNotificationBuilder.build());
+                        //Log.i(DEBUG_TAG, "Successfully downloaded image with uri: " + localFirebaseTempImageUri.toString());
                         sendImageUriToInterface(localFirebaseTempImageUri, imageName);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
+                        //Log.i(DEBUG_TAG, "Download failed for image with uri: " + localFirebaseTempImageUri.toString());
                         sendImageUriToInterface(localImageUri, imageName);
-                        exception.printStackTrace();
+                        //exception.printStackTrace();
                         //Toast.makeText(mContext, "Failed to retrieve image from Firebase storage, check log.", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        int progress = (int) ( (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount() );
+                        mNotificationBuilder.setProgress(PROGRESS_MAX, progress, false);
+                        mNotificationManager.notify(FIREBASE_IMAGE_DOWNLOAD_NOTIFICATION_ID, mNotificationBuilder.build());
                     }
                 });
     }
@@ -776,7 +796,7 @@ public class FirebaseDao {
         deleteImageFromFirebaseStorage(object, "image4");
         deleteImageFromFirebaseStorage(object, "image5");
     }
-    public void deleteImageFromFirebaseStorage(Object object, final String imageName) {
+    private void deleteImageFromFirebaseStorage(Object object, final String imageName) {
 
         if (Utilities.imageNameIsInvalid(imageName)) return;
 
@@ -818,13 +838,6 @@ public class FirebaseDao {
     //Firebase Storage Helper methods (prevent code repetitions in the CRUD methods)
     private void sendImageUriToInterface(Uri imageUri, String imageName) {
         mOnOperationPerformedHandler.onImageAvailable(imageUri, imageName);
-    }
-    private Uri getLocalImageUri(String folderPath, String imageName) {
-
-        File storeInternal = new File(mContext.getFilesDir().getAbsolutePath() + "/" + folderPath);
-        if (!storeInternal.exists()) storeInternal.mkdirs();
-        File localFile = new File(storeInternal, imageName + ".jpg");
-        return Uri.fromFile(localFile);
     }
 
     //Communication with other activities/fragments

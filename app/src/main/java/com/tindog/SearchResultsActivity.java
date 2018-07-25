@@ -113,6 +113,10 @@ public class SearchResultsActivity extends AppCompatActivity implements
     }
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search_results_menu, menu);
+
+        //inspired by: https://developer.android.com/training/sharing/shareaction
+        //MenuItem item = menu.findItem(R.id.action_share);
+        //mShareActionProvider = (ShareActionProvider) item.getActionProvider();
         return true;
     }
     @Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -154,6 +158,9 @@ public class SearchResultsActivity extends AppCompatActivity implements
                 || !TextUtils.isEmpty(mRequestedDogProfileUI)
                 || !TextUtils.isEmpty(mRequestedFamilyProfileUI)
                 || !TextUtils.isEmpty(mRequestedFoundationProfileUI)) {
+            if (mSearchScreenFragment!=null) {
+                mSearchScreenFragment.stopImageSyncThread();
+            }
             super.onBackPressed();
         } else {
             mActivatedDetailFragment = false;
