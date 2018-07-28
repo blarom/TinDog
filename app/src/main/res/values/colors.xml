@@ -9,6 +9,10 @@
     <color name="brown_500_dark">#4b2c20</color>
     <color name="brown_500_light">#a98274</color>
     <color name="brown_a">#ffffff</color>
+
+    <color name="yellow_700">#fbc02d</color>
+    <color name="yellow_700_dark">#c49000</color>
+    <color name="yellow_700_light">#fff263</color>
     <color name="yellow_600">#fdd835</color>
     <color name="yellow_600_dark">#c6a700</color>
     <color name="yellow_600_light">#ffff6b</color>
@@ -17,9 +21,9 @@
     <color name="colorPrimary">@color/brown_500</color>
     <color name="colorPrimaryDark">@color/brown_500_dark</color>
     <color name="colorPrimaryLight">@color/brown_500_light</color>
-    <color name="colorAccent">@color/yellow_600</color>
-    <color name="colorAccentDark">@color/yellow_600_dark</color>
-    <color name="colorAccentLight">@color/yellow_600_light</color>
+    <color name="colorAccent">@color/yellow_700</color>
+    <color name="colorAccentDark">@color/yellow_700_dark</color>
+    <color name="colorAccentLight">@color/yellow_700_light</color>
 
     <color name="textColorPrimary">@color/brown_a</color>
     <color name="textColorSecondary">@color/yellow_a100</color>

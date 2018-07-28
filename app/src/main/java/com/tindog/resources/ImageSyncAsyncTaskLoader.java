@@ -9,6 +9,7 @@ import com.tindog.data.Dog;
 import com.tindog.data.Family;
 import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
+import com.tindog.data.MapMarker;
 import com.tindog.data.TinDogUser;
 
 import java.util.List;
@@ -77,7 +78,7 @@ public class ImageSyncAsyncTaskLoader extends AsyncTaskLoader<String> implements
     }
     public void stopUpdatingImagesForObjects() {
         isCancelled = true;
-        mFirebaseDao.removeListeners();
+        if (mFirebaseDao!=null) mFirebaseDao.removeListeners();
     }
     private void updateLocalImageForCurrentObject(String imageName, Uri imageUri) {
 
@@ -186,6 +187,9 @@ public class ImageSyncAsyncTaskLoader extends AsyncTaskLoader<String> implements
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
     }
     @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
+    }
+    @Override public void onMapMarkerListFound(List<MapMarker> markersList) {
+
     }
     @Override public void onImageAvailable(Uri imageUri, String currentImageName) {
 

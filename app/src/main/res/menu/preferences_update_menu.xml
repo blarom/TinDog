@@ -17,4 +17,9 @@
         android:orderInCategory="97"
         app:showAsAction="never"
         android:title="@string/edit_my_family_profile"/>
+    <item
+        android:id="@+id/action_signin"
+        android:orderInCategory="98"
+        app:showAsAction="never"
+        android:title="@string/sign_in"/>
 </menu>

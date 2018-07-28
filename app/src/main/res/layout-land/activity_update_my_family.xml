@@ -6,7 +6,7 @@
     android:layout_width="@dimen/layout_width_for_large_screens"
     android:layout_gravity="center_horizontal"
     android:layout_height="match_parent"
-    tools:context=".UpdateMyFamilyActivity">
+    tools:context=".ui.UpdateMyFamilyActivity">
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/update_my_family_scroll_container"
@@ -77,7 +77,7 @@
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/update_my_family_container_country"
-                android:hint="@string/country_where_i_live"
+                android:hint="@string/country_required"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -88,8 +88,20 @@
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_my_family_container_state"
+                android:hint="@string/state_if_relevant"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_my_family_value_state"
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
                 android:id="@+id/update_my_family_container_city"
-                android:hint="@string/city_where_i_live"
+                android:hint="@string/city_required"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -99,10 +111,9 @@
                     android:inputType="textCapWords"/>
             </android.support.design.widget.TextInputLayout>
 
-
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/update_my_family_container_street"
-                android:hint="@string/street_where_i_live"
+                android:hint="@string/street_required"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 

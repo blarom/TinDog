@@ -4,10 +4,10 @@
                                              xmlns:tools="http://schemas.android.com/tools"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
-                                             tools:context=".DogProfileFragment">
+                                             tools:context=".ui.DogProfileFragment">
 
     <android.support.v4.widget.NestedScrollView
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/layout_width_for_large_screens"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

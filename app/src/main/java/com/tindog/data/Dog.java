@@ -88,8 +88,8 @@ public class Dog implements Parcelable {
     public String getAFid() {
         return aFid;
     }
-    public void setAFid(String Fuid) {
-        this.aFid = Fuid;
+    public void setAFid(String aFid) {
+        this.aFid = aFid;
     }
 
     private String fN = ""; //Associated Foundation name
@@ -100,7 +100,7 @@ public class Dog implements Parcelable {
         this.fN = fN;
     }
 
-    private String cn; //country
+    private String cn = ""; //country
     public String getCn() {
         return cn;
     }
@@ -108,7 +108,7 @@ public class Dog implements Parcelable {
         this.cn = cn;
     }
 
-    private String ct; //city
+    private String ct = ""; //city
     public String getCt() {
         return ct;
     }
@@ -116,7 +116,15 @@ public class Dog implements Parcelable {
         this.ct = ct;
     }
 
-    private String st; //street
+    private String se = ""; //state
+    public String getSe() {
+        return se;
+    }
+    public void setSe(String se) {
+        this.se = se;
+    }
+
+    private String st = ""; //street
     public String getSt() {
         return st;
     }
@@ -124,7 +132,7 @@ public class Dog implements Parcelable {
         this.st = st;
     }
 
-    private String stN; //street number
+    private String stN = ""; //street number
     public String getStN() {
         return stN;
     }

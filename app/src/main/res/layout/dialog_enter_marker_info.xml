@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout
+    android:id="@+id/root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="?dialogPreferredPadding">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/dialog_marker_info_input_text_title_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/marker_title">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/dialog_marker_info_input_text_title"
+            android:inputType="text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/dialog_marker_info_input_text_subtitle_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/marker_description">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/dialog_marker_info_input_text_subtitle"
+            android:inputType="text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/dialog_marker_info_input_text_country_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/country">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/dialog_marker_info_input_text_country"
+            android:inputType="textCapWords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/dialog_marker_info_input_text_state_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/state">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/dialog_marker_info_input_text_state"
+            android:inputType="textCapWords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/dialog_marker_info_input_text_city_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/city">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/dialog_marker_info_input_text_city"
+            android:inputType="textCapWords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/dialog_marker_info_input_text_street_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/street_incl_number">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/dialog_marker_info_input_text_street"
+            android:inputType="text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+</LinearLayout>

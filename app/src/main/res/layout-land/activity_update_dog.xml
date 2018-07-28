@@ -6,7 +6,7 @@
     android:layout_width="@dimen/layout_width_for_large_screens"
     android:layout_gravity="center_horizontal"
     android:layout_height="match_parent"
-    tools:context=".UpdateMyFamilyActivity">
+    tools:context=".ui.UpdateMyFamilyActivity">
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/update_dog_scroll_container"
@@ -66,6 +66,19 @@
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/update_dog_container_state"
+                android:hint="@string/state_if_relevant"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/update_dog_value_state"
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"
+                    android:layout_width="match_parent"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
                 android:id="@+id/update_my_family_container_city"
                 android:hint="@string/city_required"
                 android:layout_width="match_parent"
@@ -107,7 +120,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_interactions_title"
-                    style="@style/SpinerTitleStyle"
+                    style="@style/SpinnerTitleStyle"
                     android:text="@string/interactions"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_interactions_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -115,7 +128,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_behavior_title"
-                    style="@style/SpinerTitleStyle"
+                    style="@style/SpinnerTitleStyle"
                     android:text="@string/behavior"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_behavior_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -123,7 +136,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_race_title"
-                    style="@style/SpinerTitleStyle"
+                    style="@style/SpinnerTitleStyle"
                     android:text="@string/race"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_race_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -131,7 +144,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_gender_title"
-                    style="@style/SpinerTitleStyle"
+                    style="@style/SpinnerTitleStyle"
                     android:text="@string/gender"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_gender_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -139,7 +152,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_size_title"
-                    style="@style/SpinerTitleStyle"
+                    style="@style/SpinnerTitleStyle"
                     android:text="@string/size"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_size_spinner"
                     app:layout_constraintStart_toStartOf="parent"
@@ -147,7 +160,7 @@
 
                 <TextView
                     android:id="@+id/update_dog_age_title"
-                    style="@style/SpinerTitleStyle"
+                    style="@style/SpinnerTitleStyle"
                     android:text="@string/age"
                     app:layout_constraintBottom_toBottomOf="@+id/update_dog_age_spinner"
                     app:layout_constraintStart_toStartOf="parent"

@@ -12,9 +12,4 @@
         android:orderInCategory="2"
         app:showAsAction="ifRoom"
         android:title="@string/action_done"/>
-    <item
-        android:id="@+id/action_edit_preferences"
-        android:orderInCategory="97"
-        app:showAsAction="never"
-        android:title="@string/edit_my_preferences"/>
 </menu>

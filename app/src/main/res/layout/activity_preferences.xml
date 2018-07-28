@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PreferencesActivity">
+    tools:context=".ui.PreferencesActivity">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
 
         <TextView
             android:id="@+id/preferences_email_title"
-            style="@style/SpinerTitleStyle"
+            style="@style/SpinnerTitleStyle"
             android:text="@string/email"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_change_email"
             app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +41,7 @@
 
         <TextView
             android:id="@+id/preferences_name_title"
-            style="@style/SpinerTitleStyle"
+            style="@style/SpinnerTitleStyle"
             android:text="@string/name"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_change_name"
             app:layout_constraintEnd_toEndOf="parent"
@@ -69,7 +69,7 @@
 
         <TextView
             android:id="@+id/preferences_password_title"
-            style="@style/SpinerTitleStyle"
+            style="@style/SpinnerTitleStyle"
             android:text="@string/password"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_change_password"
             app:layout_constraintEnd_toEndOf="parent"
@@ -115,7 +115,7 @@
 
         <TextView
             android:id="@+id/preferences_interactions_title"
-            style="@style/SpinerTitleStyle"
+            style="@style/SpinnerTitleStyle"
             android:text="@string/interactions"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_interactions_spinner"
             app:layout_constraintStart_toStartOf="parent"
@@ -123,7 +123,7 @@
 
         <TextView
             android:id="@+id/preferences_behavior_title"
-            style="@style/SpinerTitleStyle"
+            style="@style/SpinnerTitleStyle"
             android:text="@string/behavior"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_behavior_spinner"
             app:layout_constraintStart_toStartOf="parent"
@@ -132,7 +132,7 @@
 
         <TextView
             android:id="@+id/preferences_race_title"
-            style="@style/SpinerTitleStyle"
+            style="@style/SpinnerTitleStyle"
             android:text="@string/race"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_race_spinner"
             app:layout_constraintStart_toStartOf="parent"
@@ -140,7 +140,7 @@
 
         <TextView
             android:id="@+id/preferences_gender_title"
-            style="@style/SpinerTitleStyle"
+            style="@style/SpinnerTitleStyle"
             android:text="@string/gender"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_gender_spinner"
             app:layout_constraintStart_toStartOf="parent"
@@ -148,7 +148,7 @@
 
         <TextView
             android:id="@+id/preferences_size_title"
-            style="@style/SpinerTitleStyle"
+            style="@style/SpinnerTitleStyle"
             android:text="@string/size"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_size_spinner"
             app:layout_constraintStart_toStartOf="parent"
@@ -156,7 +156,7 @@
 
         <TextView
             android:id="@+id/preferences_age_title"
-            style="@style/SpinerTitleStyle"
+            style="@style/SpinnerTitleStyle"
             android:text="@string/age"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_age_spinner"
             app:layout_constraintStart_toStartOf="parent"

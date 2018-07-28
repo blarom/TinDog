@@ -99,6 +99,14 @@ public class Foundation implements Parcelable {
         this.cn = cn;
     }
 
+    private String se = ""; //state
+    public String getSe() {
+        return se;
+    }
+    public void setSe(String se) {
+        this.se = se;
+    }
+
     private String ct = ""; //city
     public String getCt() {
         return ct;

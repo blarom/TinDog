@@ -30,9 +30,4 @@
         android:orderInCategory="98"
         app:showAsAction="never"
         android:title="@string/sign_in"/>
-    <item
-        android:id="@+id/action_signout"
-        android:orderInCategory="99"
-        app:showAsAction="never"
-        android:title="@string/sign_out"/>
 </menu>

@@ -1,9 +1,11 @@
 package com.tindog.resources;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,11 +15,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -30,6 +34,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.BuildConfig;
@@ -48,6 +53,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -403,9 +409,11 @@ public class Utilities {
 
         Utilities.setAppPreferenceUserHasNotRefusedSignIn(activity, false);
 
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build());
+        //List<AuthUI.IdpConfig> providers = Arrays.asList(
+        //        new AuthUI.IdpConfig.EmailBuilder().build(),
+        //        new AuthUI.IdpConfig.GoogleBuilder().build());
+
+        List<AuthUI.IdpConfig> providers = Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().build());
 
         activity.startActivityForResult(
                 AuthUI.getInstance()
@@ -413,6 +421,15 @@ public class Utilities {
                         .setAvailableProviders(providers)
                         .build(),
                 Utilities.FIREBASE_SIGN_IN_KEY);
+    }
+    public static void updateSignInMenuItem(Menu menu, Context context, boolean signedIn) {
+        if (signedIn) {
+            menu.findItem(R.id.action_signin).setTitle(context.getString(R.string.sign_out));
+        }
+        else {
+            menu.findItem(R.id.action_signin).setTitle(context.getString(R.string.sign_in));
+        }
+
     }
 
 
@@ -464,7 +481,7 @@ public class Utilities {
         }
         return null;
     }
-    public static String getAddressStringFromComponents(String stN, String st, String ct, String cn) {
+    public static String getAddressStringFromComponents(String stN, String st, String ct, String se, String cn) {
         StringBuilder builder = new StringBuilder("");
         if (!TextUtils.isEmpty(stN)) {
             builder.append(stN);
@@ -478,14 +495,48 @@ public class Utilities {
             builder.append(ct);
             if (!TextUtils.isEmpty(cn)) builder.append(", ");
         }
+        if (!TextUtils.isEmpty(se)) {
+            builder.append(se);
+            if (!TextUtils.isEmpty(se)) builder.append(", ");
+        }
         if (!TextUtils.isEmpty(cn)) {
             builder.append(cn);
         }
         return builder.toString();
     }
-
+    public static double[] getGeoCoordinatesFromAddressString(Context context, String address) {
+        Geocoder geocoder = new Geocoder(context);
+        List<Address> addresses;
+        try {
+            addresses = geocoder.getFromLocationName(address, 1);
+            if(addresses.size() > 0) {
+                double latitude= addresses.get(0).getLatitude();
+                double longitude= addresses.get(0).getLongitude();
+                return new double[]{latitude, longitude};
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return null;
+    }
+    public static boolean checkLocationPermission(Context context) {
+        if (context!=null && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+        else return false;
+    }
 
     //Database utilities
+    private static FirebaseDatabase mDatabase;
+    public static FirebaseDatabase getDatabase() {
+        //inspired by: https://github.com/firebase/quickstart-android/issues/15
+        if (mDatabase == null) {
+            mDatabase = FirebaseDatabase.getInstance();
+            mDatabase.setPersistenceEnabled(true);
+        }
+        return mDatabase;
+    }
     public static int getSmallestWidth(Context context) {
         Configuration config = context.getResources().getConfiguration();
         return config.smallestScreenWidthDp;

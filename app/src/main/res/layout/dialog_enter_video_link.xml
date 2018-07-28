@@ -8,7 +8,7 @@
     android:padding="?dialogPreferredPadding">
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/dialog_input_text_old_parent"
+        android:id="@+id/dialog_user_info_input_text_old_parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:hint="@string/please_paste_a_full_http_link_here">

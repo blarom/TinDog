@@ -1,4 +1,4 @@
-package com.tindog;
+package com.tindog.ui;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -12,12 +12,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
 import android.widget.RemoteViews;
+
+import com.tindog.R;
+import com.tindog.services.WidgetUpdateJobIntentService;
 import com.tindog.data.Dog;
 import com.tindog.resources.Utilities;
 
-import java.io.File;
 import java.io.IOException;
 
 /**

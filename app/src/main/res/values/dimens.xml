@@ -3,5 +3,18 @@
 
     <dimen name="widget_margin">8dp</dimen>
     <dimen name="layout_width_for_large_screens">500dp</dimen>
+    <dimen name="fab_button_size">56dp</dimen>
+    <dimen name="fab_button_standard_margin">24dp</dimen>
+    <dimen name="fab_button_extra_margin">56dp</dimen>
+    <dimen name="fab_button_default_elevation">6dp</dimen>
+    <dimen name="fab_button_default_translation">6dp</dimen>
+    <dimen name="max_input_text_length">140</dimen>
+    <dimen name="main_image_landscape_width">400dp</dimen>
+    <dimen name="standard_margin">8dp</dimen>
+    <dimen name="double_margin">16dp</dimen>
+    <dimen name="list_text_size">14sp</dimen>
+    <dimen name="spinner_text_size">16sp</dimen>
+    <dimen name="large_list_text_size">16sp</dimen>
+    <dimen name="title_text_size">18sp</dimen>
 
 </resources>

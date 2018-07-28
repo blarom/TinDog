@@ -3,18 +3,18 @@
     android:id="@+id/root"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="?dialogPreferredPadding">
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/dialog_input_text_old_parent"
+        android:id="@+id/dialog_user_info_input_text_old_parent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:hint="hint">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/input_text_old"
+            android:id="@+id/dialog_user_info_input_text_old"
             android:inputType="textPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -23,13 +23,13 @@
 
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/dialog_input_text_new_parent"
+        android:id="@+id/dialog_user_info_input_text_new_parent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:hint="hint">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/input_text_new"
+            android:id="@+id/dialog_user_info_input_text_new"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 

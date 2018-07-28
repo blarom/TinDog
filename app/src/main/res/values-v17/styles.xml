@@ -1,44 +1,44 @@
 <resources>
 
     <style name="TitleStyle">
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginTop">16dp</item>
-        <item name="android:layout_marginEnd">8dp</item>
-        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginStart">@dimen/standard_margin</item>
+        <item name="android:layout_marginLeft">@dimen/standard_margin</item>
+        <item name="android:layout_marginTop">@dimen/double_margin</item>
+        <item name="android:layout_marginEnd">@dimen/standard_margin</item>
+        <item name="android:layout_marginRight">@dimen/standard_margin</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">@dimen/title_text_size</item>
     </style>
 
     <style name="ProfileSubtitleStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginStart">@dimen/standard_margin</item>
+        <item name="android:layout_marginLeft">@dimen/standard_margin</item>
+        <item name="android:layout_marginTop">@dimen/double_margin</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/large_list_text_size</item>
     </style>
 
     <style name="ProfileListSubtitleStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginStart">@dimen/standard_margin</item>
+        <item name="android:layout_marginLeft">@dimen/standard_margin</item>
+        <item name="android:layout_marginTop">@dimen/standard_margin</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/large_list_text_size</item>
     </style>
 
     <style name="ListCheckBoxCheckableStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginStart">@dimen/double_margin</item>
+        <item name="android:layout_marginLeft">@dimen/double_margin</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">@dimen/list_text_size</item>
     </style>
 
     <style name="ListCheckBoxNonCheckableStyle" parent="@style/ListCheckBoxCheckableStyle">
@@ -49,7 +49,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">@dimen/list_text_size</item>
     </style>
 
     <style name="GridCheckBoxNonCheckableStyle" parent="@style/GridCheckBoxCheckableStyle">
@@ -59,44 +59,44 @@
     <style name="ProfileValueStyle">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginEnd">8dp</item>
-        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginStart">@dimen/standard_margin</item>
+        <item name="android:layout_marginLeft">@dimen/standard_margin</item>
+        <item name="android:layout_marginEnd">@dimen/standard_margin</item>
+        <item name="android:layout_marginRight">@dimen/standard_margin</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/large_list_text_size</item>
     </style>
 
-    <style name="SpinerTitleStyle">
+    <style name="SpinnerTitleStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginStart">@dimen/standard_margin</item>
+        <item name="android:layout_marginLeft">@dimen/standard_margin</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/spinner_text_size</item>
     </style>
 
     <style name="SpinnerStyle">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginEnd">8dp</item>
-        <item name="android:layout_marginRight">8dp</item>
-        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginStart">@dimen/standard_margin</item>
+        <item name="android:layout_marginLeft">@dimen/standard_margin</item>
+        <item name="android:layout_marginEnd">@dimen/standard_margin</item>
+        <item name="android:layout_marginRight">@dimen/standard_margin</item>
+        <item name="android:layout_marginTop">@dimen/standard_margin</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/spinner_text_size</item>
     </style>
 
     <style name="PreferencesValueStyle">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginEnd">8dp</item>
-        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginStart">@dimen/standard_margin</item>
+        <item name="android:layout_marginLeft">@dimen/standard_margin</item>
+        <item name="android:layout_marginEnd">@dimen/standard_margin</item>
+        <item name="android:layout_marginRight">@dimen/standard_margin</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/large_list_text_size</item>
         <item name="android:gravity">start</item>
     </style>
 
