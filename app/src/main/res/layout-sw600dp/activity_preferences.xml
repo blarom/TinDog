@@ -18,11 +18,11 @@
             android:id="@+id/preferences_email_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:textSize="16sp"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginLeft="@dimen/standard_margin"
+            android:layout_marginRight="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_margin"
+            android:textSize="@dimen/large_list_text_size"
             android:gravity="start"
             android:text="@string/no_email_available"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_change_email"
@@ -35,8 +35,6 @@
             style="@style/SpinnerTitleStyle"
             android:text="@string/email"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_change_email"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/preferences_change_email"/>
 
@@ -45,8 +43,6 @@
             style="@style/SpinnerTitleStyle"
             android:text="@string/name"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_change_name"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/preferences_change_name"/>
 
@@ -73,8 +69,6 @@
             style="@style/SpinnerTitleStyle"
             android:text="@string/password"
             app:layout_constraintBottom_toBottomOf="@+id/preferences_change_password"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/preferences_change_password"/>
 
@@ -82,9 +76,9 @@
             android:id="@+id/preferences_change_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginRight="@dimen/standard_margin"
+            android:layout_marginTop="@dimen/double_margin"
             android:contentDescription="@string/edit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/preferences_change_email"
@@ -94,9 +88,9 @@
             android:id="@+id/preferences_change_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginRight="@dimen/standard_margin"
+            android:layout_marginTop="@dimen/double_margin"
             android:contentDescription="@string/edit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/preferences_change_name"
@@ -106,9 +100,9 @@
             android:id="@+id/preferences_change_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginRight="@dimen/standard_margin"
+            android:layout_marginTop="@dimen/triple_margin"
             android:contentDescription="@string/edit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/preferences_title_who_am_i"
@@ -177,16 +171,14 @@
             style="@style/TitleStyle"
             android:text="@string/i_want_my_doggy_to_be"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/preferences_change_password"/>
 
         <Spinner
             android:id="@+id/preferences_age_spinner"
             style="@style/SpinnerStyle"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/double_margin"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.955"
             app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
             app:layout_constraintTop_toBottomOf="@+id/preferences_title_want_doggy_be"/>
 
@@ -215,7 +207,6 @@
             android:id="@+id/preferences_behavior_spinner"
             style="@style/SpinnerStyle"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.955"
             app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
             app:layout_constraintTop_toBottomOf="@+id/preferences_race_spinner"/>
 
@@ -226,30 +217,16 @@
             app:layout_constraintStart_toEndOf="@+id/preferences_interactions_title"
             app:layout_constraintTop_toBottomOf="@+id/preferences_behavior_spinner"/>
 
-        <Button
-            android:id="@+id/preferences_find"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/find_my_perfect_friend"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/preferences_search_country_only_checkbox"/>
-
         <CheckBox
             android:id="@+id/preferences_search_country_only_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:textSize="14sp"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginLeft="@dimen/standard_margin"
+            android:layout_marginRight="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_margin"
+            android:layout_marginTop="@dimen/double_margin"
+            android:textSize="@dimen/list_text_size"
             android:checked="true"
             android:text="@string/search_only_in_my_country"
             app:layout_constraintEnd_toEndOf="parent"

@@ -115,7 +115,7 @@
     </style>
 
     <style name="TextInputEditTextParametersStyle">
-        <item name="android:maxLength">@dimen/max_input_text_length</item>
+        <item name="android:maxLength">@integer/max_input_text_length</item>
         <item name="android:maxLines">1</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>

@@ -1,4 +1,4 @@
-package com.tindog;
+package com.tindog.ui;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -10,7 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.tindog.data.FirebaseDao;
+import com.tindog.R;
 import com.tindog.resources.Utilities;
 
 public class SplashScreenActivity extends AppCompatActivity {
@@ -47,7 +47,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 SplashScreenActivity.this.startActivity(intent);
                 SplashScreenActivity.this.finish();
             }
-        }, SPLASH_DISPLAY_LENGTH);
+        }, getResources().getInteger(R.integer.splashscreen_display_time));
     }
 
     private void createNotificationChannel() {

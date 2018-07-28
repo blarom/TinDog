@@ -12,13 +12,12 @@
         android:id="@+id/update_my_foundation_scroll_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="8dp">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,13 +30,11 @@
                 android:hint="@string/foundation_name_required"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="@dimen/standard_margin">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_foundation_value_name"
-                    android:maxLength="140"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -46,13 +43,11 @@
                 android:hint="@string/website"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="@dimen/standard_margin">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_foundation_value_website"
-                    android:maxLength="140"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -61,13 +56,11 @@
                 android:hint="@string/contact_phone"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="@dimen/standard_margin">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_foundation_value_contact_phone"
-                    android:maxLength="140"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -75,13 +68,11 @@
                 android:hint="@string/contact_email"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="@dimen/standard_margin">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_foundation_value_contact_email"
-                    android:maxLength="140"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle" />
             </android.support.design.widget.TextInputLayout>
 
 
@@ -89,25 +80,19 @@
                 android:id="@+id/update_my_foundation_container_country"
                 android:hint="@string/country_required"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_foundation_value_country"
-                    android:maxLength="140"
-                    android:inputType="textCapWords"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/update_my_foundation_container_state"
                 android:hint="@string/state_if_relevant"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_foundation_value_state"
@@ -119,16 +104,12 @@
                 android:id="@+id/update_my_foundation_container_city"
                 android:hint="@string/city_required"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_foundation_value_city"
-                    android:maxLength="140"
-                    android:inputType="textCapWords"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
             </android.support.design.widget.TextInputLayout>
 
 
@@ -136,32 +117,24 @@
                 android:id="@+id/update_my_foundation_container_street"
                 android:hint="@string/street"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_foundation_value_street"
-                    android:maxLength="140"
-                    android:inputType="textCapWords"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="textCapWords"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/update_my_foundation_container_street_number"
                 android:hint="@string/street_number"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="159dp">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/update_my_foundation_value_street_number"
-                    android:maxLength="140"
-                    android:inputType="number"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    style="@style/TextInputEditTextParametersStyle"
+                    android:inputType="number"/>
             </android.support.design.widget.TextInputLayout>
 
 

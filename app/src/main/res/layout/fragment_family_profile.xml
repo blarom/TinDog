@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout android:id="@+id/frameLayout"
-                                             xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent"
-                                             tools:context=".FamilyProfileFragment">
+<android.support.constraint.ConstraintLayout
+    android:id="@+id/frameLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.FamilyProfileFragment">
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -13,8 +14,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -24,13 +24,13 @@
             <com.santalu.aspectratioimageview.AspectRatioImageView
                 android:id="@+id/family_profile_main_image"
                 style="@style/MainImageStyle"
+                android:contentDescription="@string/family_main_image"
                 app:ari_aspect="height"
                 app:ari_ratio="0.75"
-                app:srcCompat="@drawable/ic_image_not_available"
-                android:contentDescription="@string/family_main_image"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_image_not_available"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/family_profile_recyclerview_images"
@@ -74,10 +74,10 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/standard_margin"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/double_margin"
                 android:orientation="vertical"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/family_profile_value_experience">
 
@@ -85,8 +85,8 @@
                     android:id="@+id/family_profile_title_how_want_help"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:text="@string/how_we_want_to_help"/>
+                    android:text="@string/how_we_want_to_help"
+                    android:textSize="@dimen/large_list_text_size"/>
 
                 <TextView
                     android:id="@+id/family_profile_title_providing_a_home"
@@ -111,24 +111,24 @@
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp">
+                    android:layout_marginLeft="@dimen/double_margin"
+                    android:layout_marginStart="@dimen/double_margin">
 
                     <TextView
                         android:id="@+id/family_profile_title_foster_period"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        app:layout_constraintTop_toTopOf="parent"
+                        android:text="@string/foster_period"
+                        android:textSize="@dimen/large_list_text_size"
                         app:layout_constraintStart_toStartOf="parent"
-                        android:text="@string/foster_period"/>
+                        app:layout_constraintTop_toTopOf="parent"/>
 
                     <TextView
                         android:id="@+id/family_profile_value_foster_period"
                         style="@style/ProfileValueStyle"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/family_profile_title_foster_period"
-                        app:layout_constraintEnd_toEndOf="parent"/>
+                        app:layout_constraintTop_toTopOf="parent"/>
                 </android.support.constraint.ConstraintLayout>
 
                 <TextView
@@ -170,19 +170,19 @@
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginLeft="24dp"
-                    android:layout_marginRight="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="@dimen/double_margin"
+                    android:layout_marginEnd="@dimen/double_margin"
+                    android:layout_marginLeft="@dimen/triple_margin"
+                    android:layout_marginRight="@dimen/double_margin"
+                    android:layout_marginStart="@dimen/triple_margin"
+                    android:layout_marginTop="@dimen/standard_margin">
 
                     <TextView
                         android:id="@+id/family_profile_title_where_dogwalking"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
                         android:text="@string/where"
+                        android:textSize="@dimen/large_list_text_size"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"/>
@@ -191,20 +191,21 @@
                         android:id="@+id/family_profile_value_where_dogwalking"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:textSize="16sp"
+                        android:layout_marginLeft="@dimen/standard_margin"
+                        android:layout_marginStart="@dimen/standard_margin"
+                        android:textSize="@dimen/large_list_text_size"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintLeft_toLeftOf="@id/family_profile_title_where_dogwalking"
-                        app:layout_constraintStart_toEndOf="@id/family_profile_title_where_dogwalking"/>
+                        app:layout_constraintStart_toEndOf="@id/family_profile_title_where_dogwalking"
+                        app:layout_constraintTop_toTopOf="parent"/>
 
                     <TextView
                         android:id="@+id/family_profile_title_when_dogwalking"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:textSize="16sp"
+                        android:layout_marginTop="@dimen/standard_margin"
                         android:text="@string/when"
+                        android:textSize="@dimen/large_list_text_size"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/family_profile_value_where_dogwalking"/>
@@ -212,11 +213,11 @@
                     <GridLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginTop="8dp"
-                        android:columnCount="2"
-                        android:rowCount="2"
+                        android:layout_marginLeft="@dimen/standard_margin"
+                        android:layout_marginStart="@dimen/standard_margin"
+                        android:layout_marginTop="@dimen/standard_margin"
+                        android:columnCount="@integer/checkbox_grid_col_count"
+                        android:rowCount="@integer/checkbox_grid_row_count"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintLeft_toLeftOf="@id/family_profile_title_when_dogwalking"
                         app:layout_constraintRight_toRightOf="parent"
@@ -255,11 +256,11 @@
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/family_profile_share_fab"
         style="@style/DefaultFabStyle"
-        android:elevation="6dp"
-        app:srcCompat="@drawable/ic_share_24dp"
+        android:elevation="@dimen/fab_button_default_elevation"
         app:fabSize="normal"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:pressedTranslationZ="6dp"/> <!--translation 6dp added to initial elevation at 6dp-->
+        app:layout_constraintEnd_toEndOf="parent"
+        app:pressedTranslationZ="@dimen/fab_button_default_translation"
+        app:srcCompat="@drawable/ic_share_24dp"/> <!--translation 6dp added to initial elevation at 6dp-->
 
 </android.support.constraint.ConstraintLayout>

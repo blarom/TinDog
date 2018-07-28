@@ -1,9 +1,33 @@
 package com.tindog.data;
 
-public class MapMarker {
+import android.os.Parcel;
+import android.os.Parcelable;
 
+public class MapMarker implements Parcelable {
 
     public MapMarker() {}
+
+    protected MapMarker(Parcel in) {
+        lg = in.readString();
+        lt = in.readString();
+        tt = in.readString();
+        sn = in.readString();
+        cl = in.readString();
+        uI = in.readString();
+        oI = in.readString();
+    }
+
+    public static final Creator<MapMarker> CREATOR = new Creator<MapMarker>() {
+        @Override
+        public MapMarker createFromParcel(Parcel in) {
+            return new MapMarker(in);
+        }
+
+        @Override
+        public MapMarker[] newArray(int size) {
+            return new MapMarker[size];
+        }
+    };
 
     private String lg = ""; //longitude
     public String getLg() {
@@ -59,5 +83,21 @@ public class MapMarker {
     }
     public void setOI(String oI) {
         this.oI = oI;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(lg);
+        parcel.writeString(lt);
+        parcel.writeString(tt);
+        parcel.writeString(sn);
+        parcel.writeString(cl);
+        parcel.writeString(uI);
+        parcel.writeString(oI);
     }
 }

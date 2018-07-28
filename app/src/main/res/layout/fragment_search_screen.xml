@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent"
-                                             tools:context=".SearchScreenFragment">
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.SearchScreenFragment">
 
     <ImageView
         android:id="@+id/search_screen_magnifying_glass_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:srcCompat="@drawable/ic_image_not_available"
+        android:layout_width="@dimen/magnifying_glass_size"
+        android:layout_height="@dimen/magnifying_glass_size"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginLeft="@dimen/standard_margin"
+        android:layout_marginRight="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:contentDescription="@string/magnifying_glass"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="@string/magnifying_glass"/>
+        app:srcCompat="@drawable/ic_image_not_available"/>
 
     <LinearLayout
         android:id="@+id/search_screen_distance_layout"
@@ -35,17 +36,17 @@
             android:id="@+id/search_screen_text_distance_from_me"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginRight="@dimen/standard_margin"
             android:text="@string/distance_from_me"
-            android:textSize="18sp"/>
+            android:textSize="@dimen/title_text_size"/>
 
         <EditText
             android:id="@+id/search_screen_distance_edittext"
-            android:layout_width="64dp"
+            android:layout_width="@dimen/distance_number_edittext_width"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginRight="@dimen/standard_margin"
             android:gravity="start"
             android:hint="@string/zero"
             android:inputType="numberSigned"
@@ -56,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/unit_km"
-            android:textSize="18sp"/>
+            android:textSize="@dimen/title_text_size"/>
     </LinearLayout>
 
 
@@ -65,8 +66,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/show_results_on_the_map"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_screen_distance_layout"
         />
 
@@ -74,12 +75,11 @@
         android:id="@+id/search_screen_profile_selection_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:elevation="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="@dimen/standard_panel_elevation"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_screen_show_in_map_button"
-        />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_screen_show_in_map_button"/>
 
     <ProgressBar
         android:id="@+id/search_screen_loading_indicator"
@@ -88,8 +88,8 @@
         android:layout_gravity="center"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_screen_distance_layout"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_screen_distance_layout"/>
 
 </android.support.constraint.ConstraintLayout>

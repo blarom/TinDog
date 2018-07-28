@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout android:id="@+id/frameLayout2"
-                                             xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent"
-                                             tools:context=".FoundationProfileFragment">
+<android.support.constraint.ConstraintLayout
+    android:id="@+id/frameLayout2"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.FoundationProfileFragment">
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -13,25 +14,24 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/double_margin"
             android:orientation="vertical">
 
             <com.santalu.aspectratioimageview.AspectRatioImageView
                 android:id="@+id/foundation_profile_main_image"
                 style="@style/MainImageStyle"
+                android:contentDescription="@string/foundation_main_image"
                 app:ari_aspect="height"
                 app:ari_ratio="0.75"
-                app:srcCompat="@drawable/ic_image_not_available"
-                android:contentDescription="@string/foundation_main_image"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_image_not_available"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/foundation_profile_recyclerview_images"
@@ -75,14 +75,12 @@
             <TextView
                 android:id="@+id/foundation_profile_website"
                 style="@style/TitleStyle"
+                android:layout_marginBottom="@dimen/double_margin"
                 android:text="@string/no_website_available"
-                android:layout_marginBottom="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/foundation_profile_email"/>
-
-
 
         </android.support.constraint.ConstraintLayout>
 
@@ -91,11 +89,11 @@
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/foundation_profile_share_fab"
         style="@style/DefaultFabStyle"
-        android:elevation="6dp"
-        app:srcCompat="@drawable/ic_share_24dp"
+        android:elevation="@dimen/fab_button_default_elevation"
         app:fabSize="normal"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:pressedTranslationZ="6dp"/> <!--translation 6dp added to initial elevation at 6dp-->
+        app:layout_constraintEnd_toEndOf="parent"
+        app:pressedTranslationZ="@dimen/fab_button_default_translation"
+        app:srcCompat="@drawable/ic_share_24dp"/> <!--translation 6dp added to initial elevation at 6dp-->
 
 </android.support.constraint.ConstraintLayout>

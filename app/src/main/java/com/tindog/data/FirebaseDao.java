@@ -131,324 +131,180 @@ public class FirebaseDao {
         }
 
     }
-    public void getUniqueObjectFromFirebaseDbOrCreateIt(Object object) {
+    public void getUniqueObjectFromFirebaseDbOrCreateIt(Object object, boolean onlyOnce) {
 
         DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference reference = null;
 
         if (object instanceof Dog) {
             Dog dog = (Dog) object;
-            DatabaseReference reference = firebaseDbReference.child("dogsList").child(dog.getUI());
+            reference = firebaseDbReference.child("dogsList").child(dog.getUI());
             mEventListenerGetUniqueObject = createListenerForUniqueObject(new Dog());
-            reference.addValueEventListener(mEventListenerGetUniqueObject);
         }
         else if (object instanceof Family) {
             Family family = (Family) object;
-            DatabaseReference reference = firebaseDbReference.child("familiesList").child(family.getUI());
+            reference = firebaseDbReference.child("familiesList").child(family.getUI());
             mEventListenerGetUniqueObject = createListenerForUniqueObject(new Family());
-            reference.addValueEventListener(mEventListenerGetUniqueObject);
         }
         else if (object instanceof Foundation) {
             Foundation foundation = (Foundation) object;
-            DatabaseReference reference = firebaseDbReference.child("foundationsList").child(foundation.getUI());
+            reference = firebaseDbReference.child("foundationsList").child(foundation.getUI());
             mEventListenerGetUniqueObject = createListenerForUniqueObject(new Foundation());
-            reference.addValueEventListener(mEventListenerGetUniqueObject);
         }
         else if (object instanceof TinDogUser) {
             TinDogUser user = (TinDogUser) object;
-            DatabaseReference reference = firebaseDbReference.child("usersList").child(user.getUI());
+            reference = firebaseDbReference.child("usersList").child(user.getUI());
             mEventListenerGetUniqueObject = createListenerForUniqueObject(new TinDogUser());
-            reference.addValueEventListener(mEventListenerGetUniqueObject);
         }
         else if (object instanceof MapMarker) {
             MapMarker marker = (MapMarker) object;
-            DatabaseReference reference = firebaseDbReference.child("markersList").child(marker.getUI());
+            reference = firebaseDbReference.child("markersList").child(marker.getUI());
             mEventListenerGetUniqueObject = createListenerForUniqueObject(new MapMarker());
-            reference.addValueEventListener(mEventListenerGetUniqueObject);
+        }
+
+        if (reference!=null) {
+            if (onlyOnce) reference.addListenerForSingleValueEvent(mEventListenerGetUniqueObject);
+            else reference.addValueEventListener(mEventListenerGetUniqueObject);
         }
 
     }
-    public void getObjectsByKeyValuePairFromFirebaseDb(Object object, String key, String value) {
+    public void getObjectsByKeyValuePairFromFirebaseDb(Object object, String key, String value, boolean onlyOnce) {
 
         DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference reference = null;
 
         if (object instanceof Dog) {
-            DatabaseReference reference = firebaseDbReference.child("dogsList");
-            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
+            reference = firebaseDbReference.child("dogsList");
             mEventListenerGetObjectByValuePair = createListenerForObjectList(new Dog());
-            objectWithKeyQuery.addValueEventListener(mEventListenerGetObjectByValuePair);
         }
         else if (object instanceof Family) {
-            DatabaseReference reference = firebaseDbReference.child("familiesList");
-            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
+            reference = firebaseDbReference.child("familiesList");
             mEventListenerGetObjectByValuePair = createListenerForObjectList(new Family());
-            objectWithKeyQuery.addValueEventListener(mEventListenerGetObjectByValuePair);
         }
         else if (object instanceof Foundation) {
-            DatabaseReference reference = firebaseDbReference.child("foundationsList");
-            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
+            reference = firebaseDbReference.child("foundationsList");
             mEventListenerGetObjectByValuePair = createListenerForObjectList(new Foundation());
-            objectWithKeyQuery.addValueEventListener(mEventListenerGetObjectByValuePair);
         }
         else if (object instanceof TinDogUser) {
-            DatabaseReference reference = firebaseDbReference.child("usersList");
-            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
+            reference = firebaseDbReference.child("usersList");
             mEventListenerGetObjectByValuePair = createListenerForObjectList(new TinDogUser());
-            objectWithKeyQuery.addValueEventListener(mEventListenerGetObjectByValuePair);
         }
         else if (object instanceof MapMarker) {
-            DatabaseReference reference = firebaseDbReference.child("markersList");
-            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
+            reference = firebaseDbReference.child("markersList");
             mEventListenerGetObjectByValuePair = createListenerForObjectList(new MapMarker());
-            objectWithKeyQuery.addValueEventListener(mEventListenerGetObjectByValuePair);
+        }
+
+        if (reference!=null) {
+            Query objectWithKeyQuery = reference.orderByChild(key).equalTo(value);
+            if (onlyOnce) objectWithKeyQuery.addListenerForSingleValueEvent(mEventListenerGetObjectByValuePair);
+            else objectWithKeyQuery.addValueEventListener(mEventListenerGetObjectByValuePair);
         }
 
     }
-    public void getFullObjectsListFromFirebaseDb(Object object) {
+    public void getFullObjectsListFromFirebaseDb(Object object, boolean onlyOnce) {
 
         DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference reference = null;
 
         if (object instanceof Dog) {
-            DatabaseReference reference = firebaseDbReference.child("dogsList");
+            reference = firebaseDbReference.child("dogsList");
             mEventListenerGetFullObjectsList = createListenerForObjectList(new Dog());
-            reference.addValueEventListener(mEventListenerGetFullObjectsList);
         }
         else if (object instanceof Family) {
-            DatabaseReference reference = firebaseDbReference.child("familiesList");
+            reference = firebaseDbReference.child("familiesList");
             mEventListenerGetFullObjectsList = createListenerForObjectList(new Family());
-            reference.addValueEventListener(mEventListenerGetFullObjectsList);
         }
         else if (object instanceof Foundation) {
-            DatabaseReference reference = firebaseDbReference.child("foundationsList");
+            reference = firebaseDbReference.child("foundationsList");
             mEventListenerGetFullObjectsList = createListenerForObjectList(new Foundation());
-            reference.addValueEventListener(mEventListenerGetFullObjectsList);
         }
         else if (object instanceof TinDogUser) {
-            DatabaseReference reference = firebaseDbReference.child("usersList");
+            reference = firebaseDbReference.child("usersList");
             mEventListenerGetFullObjectsList = createListenerForObjectList(new TinDogUser());
-            reference.addValueEventListener(mEventListenerGetFullObjectsList);
         }
         else if (object instanceof MapMarker) {
-            DatabaseReference reference = firebaseDbReference.child("markersList");
+            reference = firebaseDbReference.child("markersList");
             mEventListenerGetFullObjectsList = createListenerForObjectList(new MapMarker());
-            reference.addValueEventListener(mEventListenerGetFullObjectsList);
+        }
+
+        if (reference!=null) {
+            if (onlyOnce) reference.addListenerForSingleValueEvent(mEventListenerGetFullObjectsList);
+            else reference.addValueEventListener(mEventListenerGetFullObjectsList);
         }
 
     }
-    private void updateObjectKeyValuePairInFirebaseDb(Object object, final String key, final Object value) {
+    private void updateObjectKeyValuePairInFirebaseDb(Object object, final String key, final Object value, boolean onlyOnce) {
 
         final DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference reference = null;
 
         if (object instanceof Dog) {
-            final Dog dog = (Dog) object;
-            final DatabaseReference reference = firebaseDbReference.child("dogsList");
-            mEventListenerUpdateKeyValuePair = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(dog.getUI())) {
-                        reference.child(dog.getUI()).child(key).setValue(value);
-                    }
-                    else {
-                        Log.i(DEBUG_TAG,"TinDog: Firebase error - tried to update non-existent object!");
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {}
-            };
+            Dog dog = (Dog) object;
+            reference = firebaseDbReference.child("dogsList");
+            mEventListenerUpdateKeyValuePair = createListenerForUpdatingObjectKeyValuePair(dog.getUI(), key, value, reference);
             reference.addValueEventListener(mEventListenerUpdateKeyValuePair);
         }
         else if (object instanceof Family) {
-            final Family family = (Family) object;
-            final DatabaseReference reference = firebaseDbReference.child("familiesList");
-            mEventListenerUpdateKeyValuePair = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(family.getUI())) {
-                        reference.child(family.getUI()).child(key).setValue(value);
-                    }
-                    else {
-                        Log.i(DEBUG_TAG,"TinDog: Firebase error - tried to update non-existent object!");
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {}
-            };
-            reference.addValueEventListener(mEventListenerUpdateKeyValuePair);
-            firebaseDbReference.child("familiesList").child(family.getUI()).child(key).setValue(value);
+            Family family = (Family) object;
+            reference = firebaseDbReference.child("familiesList");
+            mEventListenerUpdateKeyValuePair = createListenerForUpdatingObjectKeyValuePair(family.getUI(), key, value, reference);
+            //firebaseDbReference.child("familiesList").child(family.getUI()).child(key).setValue(value);
         }
         else if (object instanceof Foundation) {
-            final Foundation foundation = (Foundation) object;
-            final DatabaseReference reference = firebaseDbReference.child("foundationsList");
-            mEventListenerUpdateKeyValuePair = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(foundation.getUI())) {
-                        reference.child(foundation.getUI()).child(key).setValue(value);
-                    }
-                    else {
-                        Log.i(DEBUG_TAG,"TinDog: Firebase error - tried to update non-existent object!");
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {}
-            };
-            reference.addValueEventListener(mEventListenerUpdateKeyValuePair);
+            Foundation foundation = (Foundation) object;
+            reference = firebaseDbReference.child("foundationsList");
+            mEventListenerUpdateKeyValuePair = createListenerForUpdatingObjectKeyValuePair(foundation.getUI(), key, value, reference);
         }
         else if (object instanceof TinDogUser) {
-            final TinDogUser user = (TinDogUser) object;
-            final DatabaseReference reference = firebaseDbReference.child("usersList");
-            mEventListenerUpdateKeyValuePair = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(user.getUI())) {
-                        reference.child(user.getUI()).child(key).setValue(value);
-                    }
-                    else {
-                        Log.i(DEBUG_TAG,"TinDog: Firebase error - tried to update non-existent object!");
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {}
-            };
-            reference.addValueEventListener(mEventListenerUpdateKeyValuePair);
+            TinDogUser user = (TinDogUser) object;
+            reference = firebaseDbReference.child("usersList");
+            mEventListenerUpdateKeyValuePair = createListenerForUpdatingObjectKeyValuePair(user.getUI(), key, value, reference);
         }
         else if (object instanceof MapMarker) {
-            final MapMarker marker = (MapMarker) object;
-            final DatabaseReference reference = firebaseDbReference.child("markersList");
-            mEventListenerUpdateKeyValuePair = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(marker.getUI())) {
-                        reference.child(marker.getUI()).child(key).setValue(value);
-                    }
-                    else {
-                        Log.i(DEBUG_TAG,"TinDog: Firebase error - tried to update non-existent object!");
-                    }
-                }
+            MapMarker marker = (MapMarker) object;
+            reference = firebaseDbReference.child("markersList");
+            mEventListenerUpdateKeyValuePair = createListenerForUpdatingObjectKeyValuePair(marker.getUI(), key, value, reference);
+        }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {}
-            };
-            reference.addValueEventListener(mEventListenerUpdateKeyValuePair);
+        if (reference!=null) {
+            if (onlyOnce) reference.addListenerForSingleValueEvent(mEventListenerUpdateKeyValuePair);
+            else reference.addValueEventListener(mEventListenerUpdateKeyValuePair);
         }
     }
-    public void updateObjectOrCreateItInFirebaseDb(Object object) {
+    public void updateObjectOrCreateItInFirebaseDb(Object object, boolean onlyOnce) {
 
         final DatabaseReference firebaseDbReference = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference reference = null;
 
         if (object instanceof Dog) {
-            final Dog dog = (Dog) object;
-            final DatabaseReference reference = firebaseDbReference.child("dogsList");
-            mEventListenerUpdateObject = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(dog.getUI())) {
-                        reference.child(dog.getUI()).setValue(dog);
-                    }
-                    else {
-                        addObjectToFirebaseDb(dog);
-                        Log.i(DEBUG_TAG,"TinDog: Firebase event - tried to update non-existent object, creating it instead");
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    addObjectToFirebaseDb(dog);}
-            };
-            reference.addValueEventListener(mEventListenerUpdateObject);
+            Dog dog = (Dog) object;
+            reference = firebaseDbReference.child("dogsList");
+            mEventListenerUpdateObject = createListenerForUpdatingObject(dog.getUI(), dog, reference);
         }
         else if (object instanceof Family) {
-            final Family family = (Family) object;
-            final DatabaseReference reference = firebaseDbReference.child("familiesList");
-            mEventListenerUpdateObject = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(family.getUI())) {
-                        reference.child(family.getUI()).setValue(family);
-                    }
-                    else {
-                        addObjectToFirebaseDb(family);
-                        Log.i(DEBUG_TAG,"TinDog: Firebase event - tried to update non-existent object, creating it instead");
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    addObjectToFirebaseDb(family);}
-            };
-            reference.addValueEventListener(mEventListenerUpdateObject);
+            Family family = (Family) object;
+            reference = firebaseDbReference.child("familiesList");
+            mEventListenerUpdateObject = createListenerForUpdatingObject(family.getUI(), family, reference);
         }
         else if (object instanceof Foundation) {
-            final Foundation foundation = (Foundation) object;
-            final DatabaseReference reference = firebaseDbReference.child("foundationsList");
-            mEventListenerUpdateObject = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(foundation.getUI())) {
-                        reference.child(foundation.getUI()).setValue(foundation);
-                    }
-                    else {
-                        addObjectToFirebaseDb(foundation);
-                        Log.i(DEBUG_TAG,"TinDog: Firebase event - tried to update non-existent object, creating it instead");
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    addObjectToFirebaseDb(foundation);}
-            };
-            reference.addValueEventListener(mEventListenerUpdateObject);
+            Foundation foundation = (Foundation) object;
+            reference = firebaseDbReference.child("foundationsList");
+            mEventListenerUpdateObject = createListenerForUpdatingObject(foundation.getUI(), foundation, reference);
         }
         else if (object instanceof TinDogUser) {
-            final TinDogUser user = (TinDogUser) object;
-            final DatabaseReference reference = firebaseDbReference.child("usersList");
-            mEventListenerUpdateObject = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(user.getUI())) {
-                        reference.child(user.getUI()).setValue(user);
-                    }
-                    else {
-                        addObjectToFirebaseDb(user);
-                        Log.i(DEBUG_TAG,"TinDog: Firebase error - tried to update non-existent object!");
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    addObjectToFirebaseDb(user);
-                }
-
-
-            };
-            reference.addValueEventListener(mEventListenerUpdateObject);
+            TinDogUser user = (TinDogUser) object;
+            reference = firebaseDbReference.child("usersList");
+            mEventListenerUpdateObject = createListenerForUpdatingObject(user.getUI(), user, reference);
         }
         else if (object instanceof MapMarker) {
-            final MapMarker marker = (MapMarker) object;
-            final DatabaseReference reference = firebaseDbReference.child("markersList");
-            mEventListenerUpdateObject = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild(marker.getUI())) {
-                        reference.child(marker.getUI()).setValue(marker);
-                    }
-                    else {
-                        addObjectToFirebaseDb(marker);
-                        Log.i(DEBUG_TAG,"TinDog: Firebase error - tried to update non-existent object!");
-                    }
-                }
+            MapMarker marker = (MapMarker) object;
+            reference = firebaseDbReference.child("markersList");
+            mEventListenerUpdateObject = createListenerForUpdatingObject(marker.getUI(), marker, reference);
+        }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    addObjectToFirebaseDb(marker);
-                }
-
-
-            };
-            reference.addValueEventListener(mEventListenerUpdateObject);
+        if (reference!=null) {
+            if (onlyOnce) reference.addListenerForSingleValueEvent(mEventListenerUpdateObject);
+            else reference.addValueEventListener(mEventListenerUpdateObject);
         }
     }
     private void updateObjectsOrCreateThemInFirebaseDb(Object objectsData) {
@@ -457,7 +313,7 @@ public class FirebaseDao {
             List<Object> objectsList = (List<Object>) objectsData;
             for (int i = 0; i < objectsList.size(); i++) {
                 Object object = objectsList.get(i);
-                if (object != null) updateObjectOrCreateItInFirebaseDb(object);
+                if (object != null) updateObjectOrCreateItInFirebaseDb(object, true);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -579,7 +435,44 @@ public class FirebaseDao {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 //If the object was not found, then try to update it. If that fails, then the object is truly missing so create it
-                updateObjectOrCreateItInFirebaseDb(object);
+                updateObjectOrCreateItInFirebaseDb(object, true);
+            }
+        };
+        return eventListener;
+    }
+    private ValueEventListener createListenerForUpdatingObjectKeyValuePair(final String uniqueId, final String key, final Object value, final DatabaseReference reference) {
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(uniqueId)) {
+                    reference.child(uniqueId).child(key).setValue(value);
+                }
+                else {
+                    Log.i(DEBUG_TAG,"TinDog: Firebase error - tried to update non-existent object!");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        };
+        return eventListener;
+    }
+    private ValueEventListener createListenerForUpdatingObject(final String uniqueId, final Object object, final DatabaseReference reference) {
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(uniqueId)) {
+                    reference.child(uniqueId).setValue(object);
+                }
+                else {
+                    addObjectToFirebaseDb(object);
+                    Log.i(DEBUG_TAG,"TinDog: Firebase event - tried to update non-existent object, creating it instead");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                addObjectToFirebaseDb(object);
             }
         };
         return eventListener;
@@ -736,7 +629,7 @@ public class FirebaseDao {
                                 case "image4": finalUploadTimes.set(4,String.valueOf(currentTime)); break;
                                 case "image5": finalUploadTimes.set(5,String.valueOf(currentTime)); break;
                             }
-                            updateObjectKeyValuePairInFirebaseDb(object, "iut", finalUploadTimes);
+                            updateObjectKeyValuePairInFirebaseDb(object, "iut", finalUploadTimes, true);
                             mOnOperationPerformedHandler.onImageUploaded(finalUploadTimes);
                         }
                     }

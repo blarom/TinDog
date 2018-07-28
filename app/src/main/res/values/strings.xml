@@ -365,4 +365,7 @@
     <string name="remove">Remove</string>
     <string name="map">Map</string>
     <string name="warning_multiple_users">Warning! Multiple users found for your entered email.</string>
+    <string name="map_activity_got_map_markers">map_activity_got_map_markers</string>
+    <string name="map_activity_bounds">map_activity_bounds</string>
+    <string name="map_activity_map_markers">map_activity_map_markers</string>
 </resources>

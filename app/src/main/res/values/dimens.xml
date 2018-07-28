@@ -8,13 +8,25 @@
     <dimen name="fab_button_extra_margin">56dp</dimen>
     <dimen name="fab_button_default_elevation">6dp</dimen>
     <dimen name="fab_button_default_translation">6dp</dimen>
-    <dimen name="max_input_text_length">140</dimen>
     <dimen name="main_image_landscape_width">400dp</dimen>
     <dimen name="standard_margin">8dp</dimen>
     <dimen name="double_margin">16dp</dimen>
+    <dimen name="triple_margin">24dp</dimen>
     <dimen name="list_text_size">14sp</dimen>
     <dimen name="spinner_text_size">16sp</dimen>
     <dimen name="large_list_text_size">16sp</dimen>
     <dimen name="title_text_size">18sp</dimen>
+    <dimen name="dialog_text_size">18sp</dimen>
+    <dimen name="standard_panel_elevation">4dp</dimen>
+    <dimen name="magnifying_glass_size">100dp</dimen>
+    <dimen name="list_item_image_height">100dp</dimen>
+    <dimen name="list_item_image_standard_margin">2dp</dimen>
+    <dimen name="list_item_image_double_margin">4dp</dimen>
+    <dimen name="distance_number_edittext_width">64dp</dimen>
+    <dimen name="list_item_profile_name_text_size">20sp</dimen>
+    <dimen name="list_item_profile_details_text_size">20sp</dimen>
+    <dimen name="list_item_texts_padding">4dp</dimen>
+    <dimen name="widget_text_height">32dp</dimen>
+    <dimen name="widget_text_size">24sp</dimen>
 
 </resources>

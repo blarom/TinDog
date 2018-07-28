@@ -41,6 +41,7 @@ dependencies {
     implementation "com.android.support:support-v4:${supportLibVersion}"
     //implementation "com.android.support:support-compat:${supportLibVersion}"
     implementation "com.android.support:recyclerview-v7:${supportLibVersion}"
+    implementation "com.android.support:design:${supportLibVersion}"
     implementation 'com.android.support:multidex:1.0.3'
 
     //Google dependencies
@@ -54,18 +55,19 @@ dependencies {
     //Test dependencies
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     //3rd party library dependencies
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.jakewharton:butterknife:8.8.1'
-    implementation 'com.google.android.exoplayer:exoplayer:2.8.1'
+    //implementation 'com.google.android.exoplayer:exoplayer:2.8.1' //Not implementing exoplayer for now, since the app's main purpose is not to be a media player (the user can use other apps in the phone for that)
     implementation 'com.github.santalu:aspect-ratio-imageview:1.0.4'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.+'
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
-    implementation 'com.android.support:design:27.1.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

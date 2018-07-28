@@ -16,7 +16,7 @@
         <android.support.design.widget.TextInputEditText
             android:id="@+id/input_text_video_link"
             style="@style/TextInputEditTextParametersStyle"
-            android:maxLength="2000"
+            android:maxLength="@integer/max_website_length"
             android:inputType="text"/>
 
     </android.support.design.widget.TextInputLayout>
