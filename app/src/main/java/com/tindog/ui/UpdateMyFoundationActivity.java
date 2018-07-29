@@ -203,6 +203,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         outState.putString(getString(R.string.saved_firebase_email), mEmailFromFirebase);
         outState.putString(getString(R.string.saved_firebase_name), mNameFromFirebase);
         outState.putString(getString(R.string.saved_firebase_id), mFirebaseUid);
+        outState.putBoolean(getString(R.string.critical_parameters_set), mFoundationCriticalParametersSet);
         updateFoundationWithUserInput();
         outState.putParcelable(getString(R.string.saved_profile), mFoundation);
         super.onSaveInstanceState(outState);
@@ -219,6 +220,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             mEmailFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_email));
             mNameFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_name));
             mFirebaseUid = savedInstanceState.getString(getString(R.string.saved_firebase_id));
+            mFoundationCriticalParametersSet = savedInstanceState.getBoolean(getString(R.string.critical_parameters_set));
 
             mScrollViewContainer.setScrollY(mScrollPosition);
             updateProfileFieldsOnScreen();
@@ -443,7 +445,10 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
             Toast.makeText(getBaseContext(), "Your foundation doesn't exist yet, press DONE to create a new foundation.", Toast.LENGTH_SHORT).show();
         }
 
-        if (mSavedInstanceState==null) updateProfileFieldsOnScreen();
+        if (mSavedInstanceState==null) {
+            updateProfileFieldsOnScreen();
+            updateFoundationWithUserInput();
+        }
         mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFoundation);
     }
     @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {

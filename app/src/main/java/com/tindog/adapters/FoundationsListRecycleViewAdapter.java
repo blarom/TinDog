@@ -2,14 +2,15 @@ package com.tindog.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
 import com.tindog.R;
 import com.tindog.data.Foundation;
 import com.tindog.resources.Utilities;
@@ -24,6 +25,7 @@ public class FoundationsListRecycleViewAdapter extends RecyclerView.Adapter<Foun
     private final Context mContext;
     private List<Foundation> mFoundations;
     final private FoundationsListItemClickHandler mOnClickHandler;
+    private int mSelectedProfileIndex;
 
     public FoundationsListRecycleViewAdapter(Context context, FoundationsListItemClickHandler listener, List<Foundation> foundations) {
         this.mContext = context;
@@ -39,6 +41,7 @@ public class FoundationsListRecycleViewAdapter extends RecyclerView.Adapter<Foun
     @Override public void onBindViewHolder(@NonNull FoundationViewHolder holder, int position) {
         updateItemDescription(holder, position);
         updateItemImage(holder, position);
+        updateBackground(holder, position);
     }
     private void updateItemDescription(FoundationViewHolder holder, int position) {
         Foundation foundation = mFoundations.get(position);
@@ -50,6 +53,23 @@ public class FoundationsListRecycleViewAdapter extends RecyclerView.Adapter<Foun
     }
     private void updateItemImage(final FoundationViewHolder holder, int position) {
         Utilities.displayObjectImageInImageView(mContext, mFoundations.get(position), "mainImage", holder.imageInRecycleView);
+    }
+    private void updateBackground(FoundationViewHolder holder, int position) {
+        if (position== mSelectedProfileIndex) {
+            holder.container.setBackgroundColor(mContext.getResources().getColor(R.color.selected_item_background_color));
+        }
+        else {
+            //Use the default android background color
+            TypedValue typedValue = new TypedValue();
+            mContext.getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true);
+            holder.container.setBackgroundColor(typedValue.data);
+        }
+    }
+    public void setSelectedProfile(int selectedProfileIndex) {
+        if (mSelectedProfileIndex != selectedProfileIndex) {
+            mSelectedProfileIndex = selectedProfileIndex;
+            this.notifyDataSetChanged();
+        }
     }
 
     @Override public int getItemCount() {
@@ -68,6 +88,7 @@ public class FoundationsListRecycleViewAdapter extends RecyclerView.Adapter<Foun
         @BindView(R.id.list_item_profiles_name) TextView nameInRecycleView;
         @BindView(R.id.list_item_profiles_details) TextView detailsInRecycleView;
         @BindView(R.id.list_item_profiles_image) ImageView imageInRecycleView;
+        @BindView(R.id.list_item_profiles_container) ConstraintLayout container;
 
         FoundationViewHolder(View itemView) {
             super(itemView);

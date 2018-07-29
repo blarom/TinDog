@@ -46,7 +46,6 @@ import com.tindog.data.TinDogUser;
 import com.tindog.resources.ImageSyncAsyncTaskLoader;
 import com.tindog.resources.TinDogLocationListener;
 import com.tindog.resources.Utilities;
-import com.tindog.ui.MapActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -107,6 +106,7 @@ public class SearchScreenFragment extends Fragment implements
     private String mRequestedFoundationProfileUI;
     private boolean mFoundResults;
     private ImageSyncAsyncTaskLoader mImageSyncAsyncTaskLoader;
+    private int mSelectedProfileIndex;
     //endregion
 
 
@@ -162,6 +162,7 @@ public class SearchScreenFragment extends Fragment implements
             mRequestedDogProfileUI = getArguments().getString(getString(R.string.requested_specific_dog_profile));
             mRequestedFamilyProfileUI = getArguments().getString(getString(R.string.requested_specific_family_profile));
             mRequestedFoundationProfileUI = getArguments().getString(getString(R.string.requested_specific_foundation_profile));
+            mSelectedProfileIndex = getArguments().getInt(getString(R.string.selected_profile_index));
         }
     }
     private void initializeParameters() {
@@ -283,14 +284,17 @@ public class SearchScreenFragment extends Fragment implements
         if (mProfileType.equals(getString(R.string.dog_profile))) {
             if (mDogsListRecycleViewAdapter==null) mDogsListRecycleViewAdapter = new DogsListRecycleViewAdapter(getContext(), this, null);
             mRecyclerViewProfileSelection.setAdapter(mDogsListRecycleViewAdapter);
+            mDogsListRecycleViewAdapter.setSelectedProfile(mSelectedProfileIndex);
         }
         else if (mProfileType.equals(getString(R.string.family_profile))) {
             if (mFamiliesListRecycleViewAdapter==null) mFamiliesListRecycleViewAdapter = new FamiliesListRecycleViewAdapter(getContext(), this, null);
             mRecyclerViewProfileSelection.setAdapter(mFamiliesListRecycleViewAdapter);
+            mFamiliesListRecycleViewAdapter.setSelectedProfile(mSelectedProfileIndex);
         }
         else if (mProfileType.equals(getString(R.string.foundation_profile))) {
             if (mFoundationsListRecycleViewAdapter==null) mFoundationsListRecycleViewAdapter = new FoundationsListRecycleViewAdapter(getContext(), this, null);
             mRecyclerViewProfileSelection.setAdapter(mFoundationsListRecycleViewAdapter);
+            mFoundationsListRecycleViewAdapter.setSelectedProfile(mSelectedProfileIndex);
         }
     }
     private void getListsFromFirebase() {
@@ -356,6 +360,19 @@ public class SearchScreenFragment extends Fragment implements
     private void createFakeDogsForTesting() {
         //*********Special code designed to create dogs near the user, used for testing purposes only************
         mFirebaseDao.populateFirebaseDbWithDummyData(getContext(), mUserLatitude, mUserLongitude);
+    }
+    public void updateProfileIndicator(int selectedProfileIndex) {
+        if (getContext()==null) return;
+        mSelectedProfileIndex = selectedProfileIndex;
+        if (mProfileType.equals(getString(R.string.dog_profile))) {
+            if (mDogsListRecycleViewAdapter!=null) mDogsListRecycleViewAdapter.setSelectedProfile(mSelectedProfileIndex);
+        }
+        else if (mProfileType.equals(getString(R.string.family_profile))) {
+            if (mFamiliesListRecycleViewAdapter!=null) mFamiliesListRecycleViewAdapter.setSelectedProfile(mSelectedProfileIndex);
+        }
+        else if (mProfileType.equals(getString(R.string.foundation_profile))) {
+            if (mFoundationsListRecycleViewAdapter!=null) mFoundationsListRecycleViewAdapter.setSelectedProfile(mSelectedProfileIndex);
+        }
     }
 
 
@@ -496,12 +513,15 @@ public class SearchScreenFragment extends Fragment implements
     //Communication with RecyclerView adapters
     @Override public void onDogsListItemClick(int clickedItemIndex) {
         onSearchScreenOperationsHandler.onProfileSelected(clickedItemIndex);
+        updateProfileIndicator(clickedItemIndex);
     }
     @Override public void onFamiliesListItemClick(int clickedItemIndex) {
         onSearchScreenOperationsHandler.onProfileSelected(clickedItemIndex);
+        updateProfileIndicator(clickedItemIndex);
     }
     @Override public void onFoundationsListItemClick(int clickedItemIndex) {
         onSearchScreenOperationsHandler.onProfileSelected(clickedItemIndex);
+        updateProfileIndicator(clickedItemIndex);
     }
 
     //Communication with Firebase Dao handler

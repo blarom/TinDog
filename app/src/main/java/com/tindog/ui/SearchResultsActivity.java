@@ -42,7 +42,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
         SearchScreenFragment.OnSearchScreenOperationsHandler,
         DogProfileFragment.OnDogProfileFragmentOperationsHandler,
         FamilyProfileFragment.OnFamilyProfileFragmentOperationsHandler,
-        FoundationProfileFragment.OnFoundationProfileFragmentOperationsHandler{
+        FoundationProfileFragment.OnFoundationProfileFragmentOperationsHandler, ViewPager.OnPageChangeListener {
 
     //region Parameters
     @BindView(R.id.master_fragment_container) FrameLayout mMasterFragmentContainer;
@@ -182,7 +182,10 @@ public class SearchResultsActivity extends AppCompatActivity implements
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(getString(R.string.search_results_profile_fragment_rv_position), mStoredImagesRecyclerViewPosition);
-        if (mPager!=null) mSelectedProfileIndex = mPager.getCurrentItem();
+        if (mPager!=null) {
+            mSelectedProfileIndex = mPager.getCurrentItem();
+            mPager.setAdapter(null);
+        }
         outState.putInt(getString(R.string.search_results_selected_profile), mSelectedProfileIndex);
         outState.putBoolean(getString(R.string.search_results_activated_detail_fragment), mActivatedDetailFragment);
     }
@@ -195,6 +198,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
             setFragmentLayouts(mSelectedProfileIndex);
         }
         mStoredImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.search_results_profile_fragment_rv_position));
+        mFragmentManager = getSupportFragmentManager();
     }
 
 
@@ -246,6 +250,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
         if (Utilities.getSmallestWidth(this) < getResources().getInteger(R.integer.tablet_smallest_width_threshold)) {
             if (!mActivatedDetailFragment) {
                 setupSearchScreenFragment();
+                mSearchScreenFragment.updateProfileIndicator(mSelectedProfileIndex);
                 removePager();
                 mMasterFragmentContainer.setVisibility(View.VISIBLE);
                 mPager.setVisibility(View.GONE);
@@ -258,10 +263,12 @@ public class SearchResultsActivity extends AppCompatActivity implements
             }
         } else {
             setupSearchScreenFragment();
+            mSearchScreenFragment.updateProfileIndicator(mSelectedProfileIndex);
             setupProfilesPager(selectedProfileIndex);
             mMasterFragmentContainer.setVisibility(View.VISIBLE);
             mPager.setVisibility(View.VISIBLE);
         }
+
     }
     private void setupSearchScreenFragment() {
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
@@ -269,6 +276,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
 
         Bundle bundle = new Bundle();
         bundle.putString(getString(R.string.profile_type), mProfileType);
+        bundle.putInt(getString(R.string.selected_profile_index), mSelectedProfileIndex);
         if (!TextUtils.isEmpty(mRequestedDogProfileUI))
             bundle.putString(getString(R.string.requested_specific_dog_profile), mRequestedDogProfileUI);
         else if (!TextUtils.isEmpty(mRequestedFamilyProfileUI))
@@ -283,6 +291,10 @@ public class SearchResultsActivity extends AppCompatActivity implements
     private void setupProfilesPager(final int selectedProfileIndex) {
         mPagerAdapter = new ProfilesPagerAdapter(mFragmentManager);
         mPager.setAdapter(mPagerAdapter);
+        mPager.addOnPageChangeListener(this);
+        displaySelectedProfile(selectedProfileIndex);
+    }
+    private void displaySelectedProfile(final int selectedProfileIndex) {
 
         mPager.setCurrentItem(selectedProfileIndex);
         //inspired by: https://stackoverflow.com/questions/19316729/android-viewpager-setcurrentitem-not-working-after-onresume
@@ -290,10 +302,13 @@ public class SearchResultsActivity extends AppCompatActivity implements
             @Override
             public void run() {
                 //Setting the current item again after a delay since all the fragment may not have yet been loaded
+
                 mPagerAdapter.notifyDataSetChanged();
                 mPager.setCurrentItem(selectedProfileIndex);
+                mPagerAdapter.notifyDataSetChanged();
             }
         });
+
     }
     private void removeSearchScreenFragment() {
         mSearchScreenFragment = null;
@@ -347,6 +362,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
             if (mProfileType.equals(getString(R.string.dog_profile))) {
                 bundle.putParcelable(getString(R.string.profile_parcelable), mDogs.get(position));
                 mDogProfileFragment = new DogProfileFragment();
+                mDogProfileFragment.setRetainInstance(false);
                 mDogProfileFragment.setArguments(bundle);
                 mDogProfileFragment.setImagesRecyclerViewPosition(mStoredImagesRecyclerViewPosition);
                 return mDogProfileFragment;
@@ -354,6 +370,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
             else if (mProfileType.equals(getString(R.string.family_profile))) {
                 bundle.putParcelable(getString(R.string.profile_parcelable), mFamilies.get(position));
                 mFamilyProfileFragment = new FamilyProfileFragment();
+                mFamilyProfileFragment.setRetainInstance(false);
                 mFamilyProfileFragment.setArguments(bundle);
                 mFamilyProfileFragment.setImagesRecyclerViewPosition(mStoredImagesRecyclerViewPosition);
                 return mFamilyProfileFragment;
@@ -361,6 +378,7 @@ public class SearchResultsActivity extends AppCompatActivity implements
             else if (mProfileType.equals(getString(R.string.foundation_profile))) {
                 bundle.putParcelable(getString(R.string.profile_parcelable), mFoundations.get(position));
                 mFoundationProfileFragment = new FoundationProfileFragment();
+                mFoundationProfileFragment.setRetainInstance(false);
                 mFoundationProfileFragment.setArguments(bundle);
                 mFoundationProfileFragment.setImagesRecyclerViewPosition(mStoredImagesRecyclerViewPosition);
                 return mFoundationProfileFragment;
@@ -427,4 +445,15 @@ public class SearchResultsActivity extends AppCompatActivity implements
         mStoredImagesRecyclerViewPosition = imagesRecyclerViewPosition;
     }
 
+    //Communication with Pager
+    @Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+    @Override public void onPageSelected(int position) {
+        mSelectedProfileIndex = position;
+        if (mSearchScreenFragment!=null) mSearchScreenFragment.updateProfileIndicator(position);
+    }
+    @Override public void onPageScrollStateChanged(int state) {
+
+    }
 }

@@ -310,7 +310,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
                 mAlreadyRequestedUserProfile = true;
             }
         }
-        if (mCurrentFirebaseUser != null) {
+        if (mCurrentFirebaseUser == null) {
             Toast.makeText(getApplicationContext(), R.string.please_sign_in_to_see_preferences, Toast.LENGTH_SHORT).show();
         }
     }
@@ -478,7 +478,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         else if (usersList.size()>1) {
             mUser = usersList.get(0);
             mUserFound = true;
-            Toast.makeText(getBaseContext(), R.string.warning_multiple_users, Toast.LENGTH_SHORT).show();
+            Log.i(DEBUG_TAG, getString(R.string.warning_multiple_users));
         }
         else {
             mUser = new TinDogUser(mFirebaseUid);

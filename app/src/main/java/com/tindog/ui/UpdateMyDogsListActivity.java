@@ -237,7 +237,7 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         dialog.show();
     }
     private void getListsFromFirebase() {
-        mFirebaseDao.getObjectsByKeyValuePairFromFirebaseDb(new Dog(), "afid", mFirebaseUid, false);
+        mFirebaseDao.getObjectsByKeyValuePairFromFirebaseDb(new Dog(), "afid", mFirebaseUid, true);
     }
     private void getFoundationFirebaseId() {
         if (mCurrentFirebaseUser != null) {

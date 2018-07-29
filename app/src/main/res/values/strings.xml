@@ -318,7 +318,7 @@
     <string name="interactions_spinner_position">preferences_interactions_spinner_position</string>
     <string name="preferences_limit_to_country_state">preferences_limit_to_country_state</string>
     <string name="error_processing_request">Error while trying to process request, please try again</string>
-    <string name="first_time_preferences">Since this is your first time using the app, how about setting your preferences?</string>
+    <string name="first_time_preferences">Since this is your first time using the app with this account, how about setting your preferences?</string>
     <string name="dog_finder">Dog Finder</string>
     <string name="family_finder">Family Finder</string>
     <string name="foundation_finder">Foundation Finder</string>
@@ -368,4 +368,5 @@
     <string name="map_activity_got_map_markers">map_activity_got_map_markers</string>
     <string name="map_activity_bounds">map_activity_bounds</string>
     <string name="map_activity_map_markers">map_activity_map_markers</string>
+    <string name="critical_parameters_set">critical_parameters_set</string>
 </resources>

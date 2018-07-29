@@ -222,6 +222,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         outState.putString(getString(R.string.saved_firebase_email), mEmailFromFirebase);
         outState.putString(getString(R.string.saved_firebase_name), mNameFromFirebase);
         outState.putString(getString(R.string.saved_firebase_id), mFirebaseUid);
+        outState.putBoolean(getString(R.string.critical_parameters_set), mFamilyCriticalParametersSet);
         updateFamilyWithUserInput();
         outState.putParcelable(getString(R.string.saved_profile), mFamily);
         super.onSaveInstanceState(outState);
@@ -238,6 +239,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             mEmailFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_email));
             mNameFromFirebase = savedInstanceState.getString(getString(R.string.saved_firebase_name));
             mFirebaseUid = savedInstanceState.getString(getString(R.string.saved_firebase_id));
+            mFamilyCriticalParametersSet = savedInstanceState.getBoolean(getString(R.string.critical_parameters_set));
 
             mScrollViewContainer.setScrollY(mScrollPosition);
             updateProfileFieldsOnScreen();
@@ -501,7 +503,10 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
             Toast.makeText(getBaseContext(), "Your family doesn't exist yet, press DONE to create your family.", Toast.LENGTH_SHORT).show();
         }
 
-        if (mSavedInstanceState==null) updateProfileFieldsOnScreen();
+        if (mSavedInstanceState==null) {
+            updateProfileFieldsOnScreen();
+            updateFamilyWithUserInput();
+        }
         mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mFamily);
     }
     @Override public void onFoundationsListFound(List<Foundation> foundationsList) {

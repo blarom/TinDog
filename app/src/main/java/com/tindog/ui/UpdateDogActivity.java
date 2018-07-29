@@ -239,6 +239,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         outState.putString(getString(R.string.saved_foundation_country), mFoundationCountry);
         outState.putString(getString(R.string.saved_foundation_street), mFoundationStreet);
         outState.putString(getString(R.string.saved_foundation_street_number), mFoundationStreetNumber);
+        outState.putBoolean(getString(R.string.critical_parameters_set), mDogCriticalParametersSet);
         updateDogWithUserInput();
         outState.putParcelable(getString(R.string.saved_profile), mDog);
         super.onSaveInstanceState(outState);
@@ -258,6 +259,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
             mFoundationStreetNumber = savedInstanceState.getString(getString(R.string.saved_foundation_street_number));
             mDog = savedInstanceState.getParcelable(getString(R.string.saved_profile));
             mScrollPosition = savedInstanceState.getInt(getString(R.string.scroll_position));
+            mDogCriticalParametersSet = savedInstanceState.getBoolean(getString(R.string.critical_parameters_set));
 
             mScrollViewContainer.setScrollY(mScrollPosition);
             updateProfileFieldsWithFoundationData();
@@ -634,7 +636,10 @@ public class UpdateDogActivity extends AppCompatActivity implements
             Toast.makeText(getBaseContext(), "No dog found for your foundation, press DONE to create a new dog.", Toast.LENGTH_SHORT).show();
         }
 
-        if (mSavedInstanceState==null) updateProfileFieldsOnScreen();
+        if (mSavedInstanceState==null) {
+            updateProfileFieldsOnScreen();
+            updateDogWithUserInput();
+        }
         mFirebaseDao.getAllObjectImagesFromFirebaseStorage(mDog);
     }
     @Override public void onFamiliesListFound(List<Family> familiesList) {

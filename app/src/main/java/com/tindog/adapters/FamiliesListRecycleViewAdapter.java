@@ -2,14 +2,15 @@ package com.tindog.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
 import com.tindog.R;
 import com.tindog.data.Family;
 import com.tindog.resources.Utilities;
@@ -24,6 +25,7 @@ public class FamiliesListRecycleViewAdapter extends RecyclerView.Adapter<Familie
     private final Context mContext;
     private List<Family> mFamilies;
     final private FamiliesListItemClickHandler mOnClickHandler;
+    private int mSelectedProfileIndex;
 
     public FamiliesListRecycleViewAdapter(Context context, FamiliesListItemClickHandler listener, List<Family> families) {
         this.mContext = context;
@@ -41,6 +43,7 @@ public class FamiliesListRecycleViewAdapter extends RecyclerView.Adapter<Familie
     @Override public void onBindViewHolder(@NonNull FamilyViewHolder holder, int position) {
         updateItemDescription(holder, position);
         updateItemImage(holder, position);
+        updateBackground(holder, position);
     }
     private void updateItemDescription(FamilyViewHolder holder, int position) {
         Family family = mFamilies.get(position);
@@ -52,6 +55,23 @@ public class FamiliesListRecycleViewAdapter extends RecyclerView.Adapter<Familie
     }
     private void updateItemImage(final FamilyViewHolder holder, int position) {
         Utilities.displayObjectImageInImageView(mContext, mFamilies.get(position), "mainImage", holder.imageInRecycleView);
+    }
+    private void updateBackground(FamilyViewHolder holder, int position) {
+        if (position== mSelectedProfileIndex) {
+            holder.container.setBackgroundColor(mContext.getResources().getColor(R.color.selected_item_background_color));
+        }
+        else {
+            //Use the default android background color
+            TypedValue typedValue = new TypedValue();
+            mContext.getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true);
+            holder.container.setBackgroundColor(typedValue.data);
+        }
+    }
+    public void setSelectedProfile(int selectedProfileIndex) {
+        if (mSelectedProfileIndex != selectedProfileIndex) {
+            mSelectedProfileIndex = selectedProfileIndex;
+            this.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -71,6 +91,7 @@ public class FamiliesListRecycleViewAdapter extends RecyclerView.Adapter<Familie
         @BindView(R.id.list_item_profiles_name) TextView nameInRecycleView;
         @BindView(R.id.list_item_profiles_details) TextView detailsInRecycleView;
         @BindView(R.id.list_item_profiles_image) ImageView imageInRecycleView;
+        @BindView(R.id.list_item_profiles_container) ConstraintLayout container;
 
         FamilyViewHolder(View itemView) {
             super(itemView);

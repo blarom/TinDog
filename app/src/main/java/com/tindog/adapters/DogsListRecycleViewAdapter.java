@@ -2,7 +2,9 @@ package com.tindog.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,7 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
     private final Context mContext;
     private List<Dog> mDogs;
     final private DogsListItemClickHandler mOnClickHandler;
+    private int mSelectedProfileIndex;
 
     public DogsListRecycleViewAdapter(Context context, DogsListItemClickHandler listener, List<Dog> dogs) {
         this.mContext = context;
@@ -38,6 +41,7 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
     @Override public void onBindViewHolder(@NonNull DogViewHolder holder, int position) {
         updateItemDescription(holder, position);
         updateItemImage(holder, position);
+        updateBackground(holder, position);
     }
     private void updateItemDescription(DogViewHolder holder, int position) {
         Dog dog = mDogs.get(position);
@@ -49,6 +53,23 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
     }
     private void updateItemImage(final DogViewHolder holder, int position) {
         Utilities.displayObjectImageInImageView(mContext, mDogs.get(position), "mainImage", holder.imageInRecycleView);
+    }
+    private void updateBackground(DogViewHolder holder, int position) {
+        if (position== mSelectedProfileIndex) {
+            holder.container.setBackgroundColor(mContext.getResources().getColor(R.color.selected_item_background_color));
+        }
+        else {
+            //Use the default android background color
+            TypedValue typedValue = new TypedValue();
+            mContext.getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true);
+            holder.container.setBackgroundColor(typedValue.data);
+        }
+    }
+    public void setSelectedProfile(int selectedProfileIndex) {
+        if (mSelectedProfileIndex != selectedProfileIndex) {
+            mSelectedProfileIndex = selectedProfileIndex;
+            this.notifyDataSetChanged();
+        }
     }
 
     @Override public int getItemCount() {
@@ -67,6 +88,7 @@ public class DogsListRecycleViewAdapter extends RecyclerView.Adapter<DogsListRec
         @BindView(R.id.list_item_profiles_name) TextView nameInRecycleView;
         @BindView(R.id.list_item_profiles_details) TextView detailsInRecycleView;
         @BindView(R.id.list_item_profiles_image) ImageView imageInRecycleView;
+        @BindView(R.id.list_item_profiles_container) ConstraintLayout container;
 
         DogViewHolder(View itemView) {
             super(itemView);

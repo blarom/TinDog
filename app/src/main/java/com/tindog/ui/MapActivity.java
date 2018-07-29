@@ -83,9 +83,8 @@ public class MapActivity extends AppCompatActivity implements
     private FirebaseAuth mFirebaseAuth;
     private String mFirebaseUid;
     private Menu mMenu;
-    private boolean mGotMapMarkersFromFirebase;
+    private boolean mAlreadyShowingMapMarkersFromFirebase;
     private LatLngBounds mBounds;
-    private LatLng mMarkerLatLngs;
     private Bundle mSavedInstanceState;
     //endregion
 
@@ -105,7 +104,7 @@ public class MapActivity extends AppCompatActivity implements
     }
     @Override protected void onResume() {
         super.onResume();
-        if (!mGotMapMarkersFromFirebase) getMapMarkersFromFirebase();
+        if (!mAlreadyShowingMapMarkersFromFirebase) getMapMarkersFromFirebase();
     }
     @Override protected void onDestroy() {
         super.onDestroy();
@@ -160,13 +159,13 @@ public class MapActivity extends AppCompatActivity implements
     }
     @Override protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(getString(R.string.map_activity_got_map_markers), mGotMapMarkersFromFirebase);
+        outState.putBoolean(getString(R.string.map_activity_got_map_markers), mAlreadyShowingMapMarkersFromFirebase);
         outState.putParcelableArrayList(getString(R.string.map_activity_map_markers), new ArrayList<>(mMapMarkerList));
     }
     @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState!=null) {
-            mGotMapMarkersFromFirebase = savedInstanceState.getBoolean(getString(R.string.map_activity_got_map_markers));
+            mAlreadyShowingMapMarkersFromFirebase = savedInstanceState.getBoolean(getString(R.string.map_activity_got_map_markers));
             mMapMarkerList = savedInstanceState.getParcelableArrayList(getString(R.string.map_activity_map_markers));
 
         }
@@ -181,7 +180,7 @@ public class MapActivity extends AppCompatActivity implements
         addUserLocationMarkerToMap();
         addObjectLocationMarkersToMap();
 
-        if (mGotMapMarkersFromFirebase && mSavedInstanceState!=null) {
+        if (mSavedInstanceState!=null) {
             addMapMarkersToMap(mMapMarkerList);
             readjustMapBoundsToIncludeMarkers();
         }
@@ -266,6 +265,7 @@ public class MapActivity extends AppCompatActivity implements
 
         mUserCoordinates = new double[]{Utilities.getAppPreferenceUserLatitude(this), Utilities.getAppPreferenceUserLongitude(this)};
         mMapMarkerList = new ArrayList<>();
+        mAlreadyShowingMapMarkersFromFirebase = false;
 
         mBinding = ButterKnife.bind(this);
 
@@ -305,7 +305,7 @@ public class MapActivity extends AppCompatActivity implements
             // Add a marker for the user coordinates and center the map on them
             if (markerCoordinates!=null && !(markerCoordinates[0]==0.0 && markerCoordinates[1]==0.0)) {
 
-                //Creatign the marker
+                //Creating the marker
                 LatLng userCoords = new LatLng(markerCoordinates[0], markerCoordinates[1]);
                 MarkerOptions markerOptions = new MarkerOptions()
                         .position(userCoords)
@@ -318,7 +318,6 @@ public class MapActivity extends AppCompatActivity implements
                 Marker marker = mMap.addMarker(markerOptions);
                 marker.setTag(PLACE_TAG + markerOptions.getTitle());
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(userCoords));
-
 
                 //Creating the marker in Firebase
                 MapMarker mapMarker = new MapMarker();
@@ -436,8 +435,9 @@ public class MapActivity extends AppCompatActivity implements
         city.setText(""); city.setEnabled(true);
         street.setText(""); street.setEnabled(true);
 
-        if (mUserCoordinates!=null && !(mUserCoordinates[0]==0.0 && mUserCoordinates[1]==0.0)) {
-            String[] addressArray = Utilities.getExactAddressFromGeoCoordinates(this, mUserCoordinates[0], mUserCoordinates[1]);
+        LatLng currentMapCenter = mMap.getCameraPosition().target;
+        if (currentMapCenter!=null) {
+            String[] addressArray = Utilities.getExactAddressFromGeoCoordinates(this, currentMapCenter.latitude, currentMapCenter.longitude);
 
             if (addressArray!=null) {
                 country.setText(addressArray[3]);
@@ -635,7 +635,8 @@ public class MapActivity extends AppCompatActivity implements
 
     }
     @Override public void onMapMarkerListFound(List<MapMarker> mapMarkerList) {
-        addMapMarkersToMap(mapMarkerList);
+        if (!mAlreadyShowingMapMarkersFromFirebase) addMapMarkersToMap(mapMarkerList);
+        mAlreadyShowingMapMarkersFromFirebase = true;
 
         //TODO: make the following lists merge more efficient
         boolean found = false;
@@ -650,7 +651,6 @@ public class MapActivity extends AppCompatActivity implements
             if (!found) extrasList.add(fbMapMarker);
         }
         mMapMarkerList.addAll(extrasList);
-        mGotMapMarkersFromFirebase = true;
     }
     @Override public void onImageAvailable(android.net.Uri imageUri, String imageName) {
 

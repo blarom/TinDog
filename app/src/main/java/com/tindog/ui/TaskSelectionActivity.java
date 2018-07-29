@@ -25,6 +25,7 @@ package com.tindog.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -46,7 +47,15 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tindog.R;
+import com.tindog.data.Dog;
+import com.tindog.data.Family;
+import com.tindog.data.FirebaseDao;
+import com.tindog.data.Foundation;
+import com.tindog.data.MapMarker;
+import com.tindog.data.TinDogUser;
 import com.tindog.resources.Utilities;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,8 +63,9 @@ import butterknife.Unbinder;
 
 import static butterknife.internal.Utils.arrayOf;
 
-public class TaskSelectionActivity extends AppCompatActivity {
+public class TaskSelectionActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler {
 
+    //region Parameters
     private static final String DEBUG_TAG = "Tindog Firebase";
     public static final int APP_PERMISSIONS_REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 555;
     private static final int APP_PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 123;
@@ -71,6 +81,10 @@ public class TaskSelectionActivity extends AppCompatActivity {
     private Unbinder mBinding;
     private InterstitialAd mInterstitialAd;
     private Menu mMenu;
+    private FirebaseDao mFirebaseDao;
+    private TinDogUser mUser;
+    private String mFirebaseUid;
+    //endregion
 
 
     //Lifecycle methods
@@ -115,6 +129,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
         setupFirebaseAuthentication();
         hasStoragePermissions = checkStoragePermission();
         hasLocationPermissions = checkLocationPermission();
+        if (hasStoragePermissions && hasLocationPermissions) checkIfUserHasATinDogUserProfile();
     }
     @Override protected void onResume() {
         super.onResume();
@@ -142,6 +157,7 @@ public class TaskSelectionActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (hasStoragePermissions && hasLocationPermissions) checkIfUserHasATinDogUserProfile();
                 Utilities.updateSignInMenuItem(mMenu, this, true);
             } else {
                 Utilities.updateSignInMenuItem(mMenu, this, false);
@@ -227,7 +243,8 @@ public class TaskSelectionActivity extends AppCompatActivity {
             } else {
                 hasLocationPermissions = false;
             }
-            doThisIfFirstTimeUsingApp();
+
+            checkIfUserHasATinDogUserProfile();
         }
     }
 
@@ -323,20 +340,73 @@ public class TaskSelectionActivity extends AppCompatActivity {
         }
     }
     private void removeListeners() {
+        mFirebaseDao.removeListeners();
         if (mButtonFindDog!=null) mButtonFindDog.setOnClickListener(null);
         if (mButtonFindFamily!=null) mButtonFindFamily.setOnClickListener(null);
         if (mButtonFindFoundation!=null) mButtonFindFoundation.setOnClickListener(null);
         if (mButtonUpdateMap!=null) mButtonUpdateMap.setOnClickListener(null);
     }
-    private void doThisIfFirstTimeUsingApp() {
-        boolean firstTime = Utilities.getAppPreferenceFirstTimeUsingApp(this);
-        if (firstTime) {
-            Toast.makeText(this, R.string.first_time_preferences, Toast.LENGTH_LONG).show();
-            Utilities.setAppPreferenceFirstTimeUsingApp(this, false);
-            Intent intent = new Intent(this, PreferencesActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
+    private void checkIfUserHasATinDogUserProfile() {
+        mFirebaseDao = new FirebaseDao(getBaseContext(), this);
+        if (mCurrentFirebaseUser != null) {
+            mFirebaseUid = mCurrentFirebaseUser.getUid();
+            mUser = new TinDogUser();
+            mUser.setUI(mFirebaseUid);
+            mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mUser, false);
         }
     }
+    private void createUserAndOpenPreferencesActivity() {
 
+        mFirebaseDao.updateObjectOrCreateItInFirebaseDb(mUser, true);
+
+        //Since this is the first time that the user's TinDogUser profile was created, we send him/her to the Preferences activity
+
+        Toast.makeText(this, R.string.first_time_preferences, Toast.LENGTH_LONG).show();
+
+        Intent intent = new Intent(this, PreferencesActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
+
+
+    //Communication with other activities/fragments:
+
+    //Communication with Firebase Dao handler
+    @Override public void onDogsListFound(List<Dog> dogsList) {
+
+    }
+    @Override public void onFamiliesListFound(List<Family> familiesList) {
+
+    }
+    @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
+
+    }
+    @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
+
+        if (usersList.size()==1) {
+            if (usersList.get(0) != null) {
+                mUser = usersList.get(0);
+            }
+            else {
+                createUserAndOpenPreferencesActivity();
+            }
+        }
+        else if (usersList.size()>1) {
+            mUser = usersList.get(0);
+            Log.i(DEBUG_TAG, getString(R.string.warning_multiple_users));
+        }
+        else {
+            mUser = new TinDogUser(mFirebaseUid);
+            createUserAndOpenPreferencesActivity();
+        }
+    }
+    @Override public void onMapMarkerListFound(List<MapMarker> markersList) {
+
+    }
+    @Override public void onImageAvailable(Uri imageUri, String imageName) {
+
+    }
+    @Override public void onImageUploaded(List<String> uploadTimes) {
+
+    }
 }

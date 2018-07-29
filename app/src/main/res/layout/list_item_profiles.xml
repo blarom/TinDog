@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/recipes_recyclerView_item_layout"
+    android:id="@+id/list_item_profiles_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -17,8 +17,10 @@
         app:ari_ratio="0.75"
         android:layout_margin="@dimen/list_item_image_standard_margin"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/list_item_profiles_guideline"
+        app:layout_constraintLeft_toRightOf="@id/list_item_profiles_guideline"
         android:contentDescription="@string/profile_image"
         app:srcCompat="@drawable/ic_image_not_available"/>
 
@@ -41,9 +43,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="@dimen/list_item_image_double_margin"
         android:layout_marginLeft="@dimen/list_item_image_double_margin"
-        app:layout_constraintStart_toStartOf="@+id/list_item_profiles_guideline"
         android:layout_marginStart="@dimen/list_item_image_double_margin"
-        app:layout_goneMarginLeft="@dimen/list_item_image_double_margin"
+        app:layout_constraintStart_toStartOf="@+id/list_item_profiles_guideline"
+        app:layout_constraintLeft_toLeftOf="@+id/list_item_profiles_guideline"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
@@ -56,7 +58,9 @@
         android:textSize="@dimen/list_item_profile_details_text_size"
         app:layout_constraintBottom_toBottomOf="@+id/list_item_profiles_image"
         app:layout_constraintEnd_toEndOf="@id/list_item_profiles_name"
+        app:layout_constraintRight_toRightOf="@id/list_item_profiles_name"
         app:layout_constraintStart_toStartOf="@id/list_item_profiles_name"
+        app:layout_constraintLeft_toLeftOf="@id/list_item_profiles_name"
         app:layout_constraintTop_toBottomOf="@id/list_item_profiles_name"/>
 
 </android.support.constraint.ConstraintLayout>
