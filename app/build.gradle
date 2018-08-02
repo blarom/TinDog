@@ -6,6 +6,11 @@ ext {
 
 android {
     compileSdkVersion 27
+    signingConfigs {
+        config {
+            storeFile file("$rootDir/tindog-keystore.jks")
+        }
+    }
     defaultConfig {
         applicationId "com.tindog"
         minSdkVersion 16
@@ -27,15 +32,32 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
 
 }
 
-dependencies {
+//Signing gitignore method inspired by: https://gist.github.com/SleeplessByte/89c90f702c0f2fdc2b12
+File signingPropertiesFile = file("$rootDir/signing.properties")
+if (signingPropertiesFile.exists()) {
+    Properties properties = new Properties()
+    properties.load(new FileInputStream(signingPropertiesFile))
 
+    if (properties.containsKey('STORE_PASSWORD') && properties.containsKey('KEY_ALIAS') && properties.containsKey('KEY_PASSWORD')) {
+        android.signingConfigs.config.storePassword = properties['STORE_PASSWORD']
+        android.signingConfigs.config.keyAlias = properties['KEY_ALIAS']
+        android.signingConfigs.config.keyPassword = properties['KEY_PASSWORD']
+    } else {
+        android.buildTypes.release.signingConfig = null
+    }
+} else {
+    android.buildTypes.release.signingConfig = null
+}
+
+dependencies {
     //Android dependencies
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "com.android.support:appcompat-v7:${supportLibVersion}"
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation "com.android.support:support-v4:${supportLibVersion}"

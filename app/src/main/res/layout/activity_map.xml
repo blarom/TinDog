@@ -25,6 +25,7 @@
         android:elevation="@dimen/fab_button_default_elevation"
         app:fabSize="normal"
         app:pressedTranslationZ="@dimen/fab_button_default_translation"
+        android:contentDescription="@string/add_marker_to_map"
         app:srcCompat="@drawable/ic_add_24dp"/> <!--translation 6dp added to initial elevation at 6dp-->
 
 </FrameLayout>

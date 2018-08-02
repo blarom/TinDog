@@ -2,16 +2,15 @@ package com.tindog.ui;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -19,10 +18,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -40,11 +37,11 @@ import com.tindog.resources.ImageSyncAsyncTaskLoader;
 import com.tindog.resources.Utilities;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class UpdateMyDogsListActivity extends AppCompatActivity implements
@@ -59,7 +56,6 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
     private static final int DOGS_LIST_MAIN_IMAGES_SYNC_LOADER = 9512;
     @BindView(R.id.update_my_dogs_results_list) RecyclerView mRecyclerViewProfileSelection;
     @BindView(R.id.update_my_dogs_user_input) TextInputEditText mEditTextUserInput;
-    @BindView(R.id.update_my_dogs_add_fab) FloatingActionButton mFabAddDog;
     private DogsListRecycleViewAdapter mDogsListRecycleViewAdapter;
     private DatabaseReference mFirebaseDbReference;
     private FirebaseDao mFirebaseDao;
@@ -188,12 +184,6 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mFirebaseAuth = FirebaseAuth.getInstance();
 
-        mFabAddDog.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openDogProfile(new Dog());
-            }
-        });
     }
     private void setupRecyclerView() {
         mRecyclerViewProfileSelection.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -322,6 +312,12 @@ public class UpdateMyDogsListActivity extends AppCompatActivity implements
             mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
             getLoaderManager().destroyLoader(DOGS_LIST_MAIN_IMAGES_SYNC_LOADER);
         }
+    }
+
+
+    //View click listeners
+    @OnClick(R.id.update_my_dogs_add_fab) public void onAddDogFabClick() {
+        openDogProfile(new Dog());
     }
 
 

@@ -51,6 +51,7 @@
         app:fabSize="normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:contentDescription="@string/add_a_new_dog_to_the_list"
         app:pressedTranslationZ="@dimen/fab_button_default_translation"/> <!--translation 6dp added to initial elevation at 6dp-->
 
 </android.support.constraint.ConstraintLayout>

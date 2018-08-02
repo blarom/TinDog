@@ -50,6 +50,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class UpdateDogActivity extends AppCompatActivity implements
@@ -134,7 +135,6 @@ public class UpdateDogActivity extends AppCompatActivity implements
         setupVideoLinksRecyclerView();
         setupDogImagesRecyclerView();
         Utilities.displayObjectImageInImageView(getApplicationContext(), mDog, "mainImage", mImageViewMain);
-        setButtonBehaviors();
     }
     @Override public void onStart() {
         super.onStart();
@@ -270,7 +270,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
     }
 
 
-    //Structural methods
+    //Functional methods
     private void getExtras() {
         Intent intent = getIntent();
         if (getIntent().hasExtra(getString(R.string.selected_dog_id))) {
@@ -414,50 +414,6 @@ public class UpdateDogActivity extends AppCompatActivity implements
         mDogImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, uris);
         mRecyclerViewDogImages.setAdapter(mDogImagesRecycleViewAdapter);
     }
-    private void setButtonBehaviors() {
-        mButtonChooseMainPic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mDogCriticalParametersSet && !TextUtils.isEmpty(mDog.getUI())) {
-                    mImageName = "mainImage";
-                    performImageCaptureAndCrop();
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        mButtonUploadPics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mDogCriticalParametersSet && !TextUtils.isEmpty(mDog.getUI())) {
-
-                    List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
-                    if (uris.size() == 5) {
-                        Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        mImageName = Utilities.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mDog);
-                        if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
-                        else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-        mButtonAddVideoLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showVideoLinkDialog();
-            }
-        });
-    }
     private void showVideoLinkDialog() {
 
         //Get the dialog view
@@ -593,6 +549,39 @@ public class UpdateDogActivity extends AppCompatActivity implements
     }
 
 
+    //View click listeners
+    @OnClick(R.id.update_dog_button_choose_main_pic) public void onChooseMainPicButtonClick() {
+        if (mDogCriticalParametersSet && !TextUtils.isEmpty(mDog.getUI())) {
+            mImageName = "mainImage";
+            performImageCaptureAndCrop();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
+        }
+    }
+    @OnClick(R.id.update_dog_button_upload_pics) public void onUploadPicsButtonClick() {
+        if (mDogCriticalParametersSet && !TextUtils.isEmpty(mDog.getUI())) {
+
+            List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mDog, true);
+            if (uris.size() == 5) {
+                Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
+            }
+            else {
+                mImageName = Utilities.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mDog);
+                if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
+                else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
+            }
+
+        }
+        else {
+            Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
+        }
+    }
+    @OnClick(R.id.update_dog_button_add_video_link) public void onAddVideosButtonClick() {
+        showVideoLinkDialog();
+    }
+
+
     //Communication with other activities/fragments:
 
     //Communication with ImagesRecyclerView adapter
@@ -633,7 +622,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
             Log.i(DEBUG_TAG, "Warning! Multiple dogs found with the same characteristics.");
         }
         else {
-            Toast.makeText(getBaseContext(), "No dog found for your foundation, press DONE to create a new dog.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), R.string.no_dog_found_press_done_to_create, Toast.LENGTH_SHORT).show();
         }
 
         if (mSavedInstanceState==null) {

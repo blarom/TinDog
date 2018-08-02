@@ -23,6 +23,7 @@
         android:background="@color/colorPrimary"
         android:gravity="center"
         android:text="@string/appwidget_text"
+        android:contentDescription="@string/dog_name"
         android:textColor="#ffffff"
         android:textSize="@dimen/widget_text_size"
         android:textStyle="bold|italic"/>

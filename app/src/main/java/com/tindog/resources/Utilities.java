@@ -200,7 +200,7 @@ public class Utilities {
 
             if (bitmap==null) {
                 //TODO: fix decoding of large images
-                Toast.makeText(context, "The image you chose is too large, try a smaller image.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.image_too_large, Toast.LENGTH_SHORT).show();
                 return false;
             }
 
@@ -759,10 +759,10 @@ public class Utilities {
                 //Website is valid, do nothing.
             }
             else if (url.length()>6 && url.substring(0,6).equals("ftp://")) {
-                Toast.makeText(context,"Sorry, we cannot open ftp links in this app", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.cannot_open_ftp, Toast.LENGTH_SHORT).show();
             }
             else if (url.length()>7 && url.substring(0,7).equals("smtp://")) {
-                Toast.makeText(context,"Sorry, we cannot open smtp links in this app", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.cannot_open_smtp, Toast.LENGTH_SHORT).show();
             }
             else {
                 url = "http://" + url;

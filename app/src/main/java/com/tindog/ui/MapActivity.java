@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Build;
-import android.support.design.widget.FloatingActionButton;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -46,8 +45,8 @@ import com.tindog.resources.Utilities;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class MapActivity extends AppCompatActivity implements
@@ -66,7 +65,6 @@ public class MapActivity extends AppCompatActivity implements
     private static final String FOUNDATION_TAG = "found--";
     private static final String PLACE_TAG = "place--";
     private static final int MAP_ZOOM_IN_PADDING_IN_PIXELS = 200;
-    @BindView(R.id.map_add_fab) FloatingActionButton mFabAddMarker;
     private GoogleMap mMap;
     private double[] mUserCoordinates;
     private ArrayList<Dog> mDogsArrayList;
@@ -276,13 +274,6 @@ public class MapActivity extends AppCompatActivity implements
         mCurrentFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mCurrentFirebaseUser!=null) mFirebaseUid = mCurrentFirebaseUser.getUid();
 
-        mFabAddMarker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showMarkerCreationDialog();
-            }
-        });
-
         startListeningForUserLocation();
     }
     private void addUserLocationMarkerToMap() {
@@ -412,66 +403,6 @@ public class MapActivity extends AppCompatActivity implements
             }
         }
     }
-    private void showMarkerCreationDialog() {
-
-        //Get the dialog view
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View dialogView = inflater.inflate(R.layout.dialog_enter_marker_info, null);
-        final EditText title = dialogView.findViewById(R.id.dialog_marker_info_input_text_title);
-        final EditText subtitle = dialogView.findViewById(R.id.dialog_marker_info_input_text_subtitle);
-        final EditText country = dialogView.findViewById(R.id.dialog_marker_info_input_text_country);
-        final EditText state = dialogView.findViewById(R.id.dialog_marker_info_input_text_state);
-        final EditText city = dialogView.findViewById(R.id.dialog_marker_info_input_text_city);
-        final EditText street = dialogView.findViewById(R.id.dialog_marker_info_input_text_street);
-
-        //Building the dialog
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-
-        builder.setTitle(R.string.please_enter_marker_info);
-        title.setText(""); title.setEnabled(true);
-        subtitle.setText(""); subtitle.setEnabled(true);
-        country.setText(""); country.setEnabled(true);
-        state.setText(""); state.setEnabled(true);
-        city.setText(""); city.setEnabled(true);
-        street.setText(""); street.setEnabled(true);
-
-        LatLng currentMapCenter = mMap.getCameraPosition().target;
-        if (currentMapCenter!=null) {
-            String[] addressArray = Utilities.getExactAddressFromGeoCoordinates(this, currentMapCenter.latitude, currentMapCenter.longitude);
-
-            if (addressArray!=null) {
-                country.setText(addressArray[3]);
-                state.setText(addressArray[2]);
-                city.setText(addressArray[1]);
-                street.setText(addressArray[0]);
-            }
-        }
-
-        final String address = Utilities.getAddressStringFromComponents(
-                null,
-                street.getText().toString(),
-                city.getText().toString(),
-                state.getText().toString(),
-                country.getText().toString());
-
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                addNewMarkerToMap(title.getText().toString(), subtitle.getText().toString(), address);
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-            }
-        });
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) builder.setView(dialogView);
-        else builder.setMessage(R.string.device_version_too_low);
-
-        android.app.AlertDialog dialog = builder.create();
-        dialog.show();
-    }
     private void showMarkerInfoDialog(final Marker marker) {
 
         //Get the dialog view
@@ -595,7 +526,69 @@ public class MapActivity extends AppCompatActivity implements
     }
     private void removeListeners() {
         mFirebaseDao.removeListeners();
-        mFabAddMarker.setOnClickListener(null);
+    }
+
+
+    //View click listeners
+    @OnClick(R.id.map_add_fab) public void showMarkerCreationDialog() {
+
+        //Get the dialog view
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_enter_marker_info, null);
+        final EditText title = dialogView.findViewById(R.id.dialog_marker_info_input_text_title);
+        final EditText subtitle = dialogView.findViewById(R.id.dialog_marker_info_input_text_subtitle);
+        final EditText country = dialogView.findViewById(R.id.dialog_marker_info_input_text_country);
+        final EditText state = dialogView.findViewById(R.id.dialog_marker_info_input_text_state);
+        final EditText city = dialogView.findViewById(R.id.dialog_marker_info_input_text_city);
+        final EditText street = dialogView.findViewById(R.id.dialog_marker_info_input_text_street);
+
+        //Building the dialog
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+
+        builder.setTitle(R.string.please_enter_marker_info);
+        title.setText(""); title.setEnabled(true);
+        subtitle.setText(""); subtitle.setEnabled(true);
+        country.setText(""); country.setEnabled(true);
+        state.setText(""); state.setEnabled(true);
+        city.setText(""); city.setEnabled(true);
+        street.setText(""); street.setEnabled(true);
+
+        LatLng currentMapCenter = mMap.getCameraPosition().target;
+        if (currentMapCenter!=null) {
+            String[] addressArray = Utilities.getExactAddressFromGeoCoordinates(this, currentMapCenter.latitude, currentMapCenter.longitude);
+
+            if (addressArray!=null) {
+                country.setText(addressArray[3]);
+                state.setText(addressArray[2]);
+                city.setText(addressArray[1]);
+                street.setText(addressArray[0]);
+            }
+        }
+
+        final String address = Utilities.getAddressStringFromComponents(
+                null,
+                street.getText().toString(),
+                city.getText().toString(),
+                state.getText().toString(),
+                country.getText().toString());
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                addNewMarkerToMap(title.getText().toString(), subtitle.getText().toString(), address);
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) builder.setView(dialogView);
+        else builder.setMessage(R.string.device_version_too_low);
+
+        android.app.AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -23,7 +22,6 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.R;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
-import com.tindog.data.Dog;
 import com.tindog.data.Family;
 import com.tindog.resources.ImageSyncAsyncTaskLoader;
 import com.tindog.resources.Utilities;
@@ -33,6 +31,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 
@@ -62,7 +61,6 @@ public class FamilyProfileFragment extends Fragment implements
     @BindView(R.id.family_profile_checkbox_dogwalking_evening) CheckBox mCheckBoxDogWalkingEvening;
     @BindView(R.id.family_profile_checkbox_dogwalking_morning) CheckBox mCheckBoxDogWalkingMorning;
     @BindView(R.id.family_profile_checkbox_dogwalking_noon) CheckBox mCheckBoxDogWalkingNoon;
-    @BindView(R.id.family_profile_share_fab) FloatingActionButton mFabShare;
     private ImagesRecycleViewAdapter mImagesRecycleViewAdapter;
     private Unbinder mBinding;
     private Family mFamily;
@@ -71,11 +69,6 @@ public class FamilyProfileFragment extends Fragment implements
     private ImageSyncAsyncTaskLoader mImageSyncAsyncTaskLoader;
     private boolean mAlreadyLoadedImages;
     //endregion
-
-
-    public FamilyProfileFragment() {
-        // Required empty public constructor
-    }
 
 
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -119,12 +112,6 @@ public class FamilyProfileFragment extends Fragment implements
         mBinding = ButterKnife.bind(this, rootView);
         mClickedImageUriString = Utilities.getImageUriForObjectWithFileProvider(getContext(), mFamily, "mainImage").toString();
         setupImagesRecyclerView();
-        mFabShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                shareProfile();
-            }
-        });
     }
     private void setupImagesRecyclerView() {
         mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -173,25 +160,6 @@ public class FamilyProfileFragment extends Fragment implements
             onFamilyProfileFragmentOperationsHandler.onFamilyLayoutParametersCalculated(imagesRecyclerViewPosition);
         }
     }
-    private void shareProfile() {
-
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-
-        StringBuilder builder = new StringBuilder("");
-        builder.append(mFamily.getPn());
-        builder.append("\n");
-        builder.append(Utilities.getAddressStringFromComponents(null, mFamily.getSt(), mFamily.getCt(), mFamily.getSe(), null));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, builder.toString());
-
-        Uri imageUri = Utilities.getImageUriForObjectWithFileProvider(getContext(), mFamily, Utilities.getImageNameFromUri(mClickedImageUriString));
-        shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-        shareIntent.setType("image/*");
-
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(shareIntent, "Share images..."));
-
-    }
     private void startImageSyncThread() {
 
         mAlreadyLoadedImages = false;
@@ -209,6 +177,28 @@ public class FamilyProfileFragment extends Fragment implements
                 loaderManager.restartLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER, null, this);
             }
         }
+
+    }
+
+
+    //View click listeners
+    @OnClick(R.id.dog_profile_share_fab) public void shareProfile() {
+
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+
+        StringBuilder builder = new StringBuilder("");
+        builder.append(mFamily.getPn());
+        builder.append("\n");
+        builder.append(Utilities.getAddressStringFromComponents(null, mFamily.getSt(), mFamily.getCt(), mFamily.getSe(), null));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, builder.toString());
+
+        Uri imageUri = Utilities.getImageUriForObjectWithFileProvider(getContext(), mFamily, Utilities.getImageNameFromUri(mClickedImageUriString));
+        shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+        shareIntent.setType("image/*");
+
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(shareIntent, "Share images..."));
 
     }
 

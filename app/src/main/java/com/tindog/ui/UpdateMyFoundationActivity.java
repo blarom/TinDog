@@ -3,19 +3,17 @@ package com.tindog.ui;
 import android.content.Intent;
 import android.location.Address;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -38,14 +36,13 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class UpdateMyFoundationActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler, ImagesRecycleViewAdapter.ImageClickHandler {
     
     //region Parameters
     private static final String DEBUG_TAG = "TinDog Update";
-    @BindView(R.id.update_my_foundation_button_choose_main_pic) Button mButtonChooseMainPic;
-    @BindView(R.id.update_my_foundation_button_upload_pics) Button mButtonUploadPics;
     @BindView(R.id.update_my_foundation_value_name) TextInputEditText mEditTextName;
     @BindView(R.id.update_my_foundation_value_contact_phone) TextInputEditText mEditTextContactPhone;
     @BindView(R.id.update_my_foundation_value_contact_email) TextInputEditText mEditTextContactEmail;
@@ -90,7 +87,6 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         getFoundationProfileFromFirebase();
         setupFoundationImagesRecyclerView();
         Utilities.displayObjectImageInImageView(getApplicationContext(), mFoundation, "mainImage", mImageViewMain);
-        setButtonBehaviors();
     }
     @Override public void onStart() {
         super.onStart();
@@ -230,7 +226,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     }
 
 
-    //Structural methods
+    //Functional methods
     private void initializeParameters() {
         if (getSupportActionBar()!=null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -285,45 +281,6 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
         mFoundationImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, uris);
         mRecyclerViewFoundationImages.setAdapter(mFoundationImagesRecycleViewAdapter);
-    }
-    private void setButtonBehaviors() {
-        mButtonChooseMainPic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mFoundationCriticalParametersSet && !TextUtils.isEmpty(mFoundation.getUI())) {
-                    mImageName = "mainImage";
-                    performImageCaptureAndCrop();
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        mButtonUploadPics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mFoundationCriticalParametersSet && !TextUtils.isEmpty(mFoundation.getUI())) {
-
-                    List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
-                    if (uris.size() == 5) {
-                        Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        mImageName = Utilities.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFoundation);
-                        if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
-                        else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
-                }
-
-
-            }
-        });
     }
     private void performImageCaptureAndCrop() {
         // start source picker (camera, gallery, etc..) to get image for cropping and then use the image in cropping activity
@@ -408,6 +365,36 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
     }
 
 
+    //View click listeners
+    @OnClick(R.id.update_my_foundation_button_choose_main_pic) public void onChooseMainPicButtonClick() {
+        if (mFoundationCriticalParametersSet && !TextUtils.isEmpty(mFoundation.getUI())) {
+            mImageName = "mainImage";
+            performImageCaptureAndCrop();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
+        }
+    }
+    @OnClick(R.id.update_my_foundation_button_upload_pics) public void onUploadPicsButtonClick() {
+        if (mFoundationCriticalParametersSet && !TextUtils.isEmpty(mFoundation.getUI())) {
+
+            List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFoundation, true);
+            if (uris.size() == 5) {
+                Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
+            }
+            else {
+                mImageName = Utilities.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFoundation);
+                if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
+                else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
+            }
+
+        }
+        else {
+            Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     //Communication with other activities/fragments:
 
     //Communication with RecyclerView adapters
@@ -442,7 +429,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         }
         else {
             mFoundation = new Foundation(mFirebaseUid);
-            Toast.makeText(getBaseContext(), "Your foundation doesn't exist yet, press DONE to create a new foundation.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), R.string.foundation_not_found_press_done_to_create, Toast.LENGTH_SHORT).show();
         }
 
         if (mSavedInstanceState==null) {

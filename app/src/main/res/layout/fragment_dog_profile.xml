@@ -180,6 +180,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:pressedTranslationZ="@dimen/fab_button_default_translation"
+        android:contentDescription="@string/share_this_dog_profile"
         app:srcCompat="@drawable/ic_share_24dp"/> <!--translation 6dp added to initial elevation at 6dp-->
 
 </android.support.constraint.ConstraintLayout>

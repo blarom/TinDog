@@ -31,7 +31,7 @@
     <string name="family_s_pseudonym">Family\'s name</string>
     <string name="default_experience">No experience yet…</string>
     <string name="default_address">Street, City, Country</string>
-    <string name="magnifying_glass">Magnifying glass</string>
+    <string name="magnifying_glass">Refresh the search</string>
     <string name="dogs">Dogs</string>
     <string name="families">Families</string>
     <string name="foundations">Foundations</string>
@@ -369,4 +369,18 @@
     <string name="map_activity_bounds">map_activity_bounds</string>
     <string name="map_activity_map_markers">map_activity_map_markers</string>
     <string name="critical_parameters_set">critical_parameters_set</string>
+    <string name="add_marker_to_map">Add marker to map</string>
+    <string name="add_a_new_dog_to_the_list">Add a new dog to the list</string>
+    <string name="share_this_dog_profile">Share this dog profile</string>
+    <string name="share_this_family_profile">Share this family profile</string>
+    <string name="share_this_organization_s_profile">Share this organization\'s profile</string>
+    <string name="dog_name">Dog name</string>
+    <string name="error_when_getting_preferences">Sorry, an error occurred while fetching your preferences. Searches may be incorrect.</string>
+    <string name="no_user_press_done_to_create">No user found for your entered email, press DONE to create a new user.</string>
+    <string name="no_dog_found_press_done_to_create">No dog found for your foundation, press DONE to create a new dog.</string>
+    <string name="family_not_found_press_done_to_create">Your family doesn\'t exist yet, press DONE to create your family.</string>
+    <string name="foundation_not_found_press_done_to_create">Your foundation doesn\'t exist yet, press DONE to create a new foundation.</string>
+    <string name="image_too_large">The image you chose is too large, try a smaller image.</string>
+    <string name="cannot_open_ftp">Sorry, we cannot open ftp links in this app</string>
+    <string name="cannot_open_smtp">Sorry, we cannot open smtp links in this app</string>
 </resources>

@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -42,14 +41,13 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class UpdateMyFamilyActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler, ImagesRecycleViewAdapter.ImageClickHandler, AdapterView.OnItemSelectedListener {
 
     //region Parameters
     private static final String DEBUG_TAG = "TinDog UpdateMyFamily";
-    @BindView(R.id.update_my_family_button_choose_main_pic) Button mButtonChooseMainPic;
-    @BindView(R.id.update_my_family_button_upload_pics) Button mButtonUploadPics;
     @BindView(R.id.update_my_family_value_username) TextInputEditText mEditTextUsername;
     @BindView(R.id.update_my_family_value_pseudonym) TextInputEditText mEditTextPseudonym;
     @BindView(R.id.update_my_family_value_cell) TextInputEditText mEditTextCell;
@@ -110,7 +108,6 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         getFamilyProfileFromFirebase();
         setupPetImagesRecyclerView();
         Utilities.displayObjectImageInImageView(getApplicationContext(), mFamily, "mainImage", mImageViewMain);
-        setButtonBehaviors();
     }
     @Override public void onStart() {
         super.onStart();
@@ -249,7 +246,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     }
 
 
-    //Structural methods
+    //Functional methods
     private void initializeParameters() {
         if (getSupportActionBar()!=null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -333,46 +330,6 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
         mPetImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(this, this, uris);
         mRecyclerViewPetImages.setAdapter(mPetImagesRecycleViewAdapter);
-    }
-    private void setButtonBehaviors() {
-        mButtonChooseMainPic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mFamilyCriticalParametersSet && !TextUtils.isEmpty(mFamily.getUI())) {
-                    mImageName = "mainImage";
-                    performImageCaptureAndCrop();
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        mButtonUploadPics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mFamilyCriticalParametersSet && !TextUtils.isEmpty(mFamily.getUI())) {
-
-                    List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
-                    if (uris.size() == 5) {
-                        Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        mImageName = Utilities.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFamily);
-                        if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
-                        else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
-                }
-
-
-            }
-        });
     }
     private void performImageCaptureAndCrop() {
         // start source picker (camera, gallery, etc..) to get image for cropping and then use the image in cropping activity
@@ -468,6 +425,36 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
     }
 
 
+    //View click listeners
+    @OnClick(R.id.update_my_family_button_choose_main_pic) public void onChooseMainPicButtonClick() {
+        if (mFamilyCriticalParametersSet && !TextUtils.isEmpty(mFamily.getUI())) {
+            mImageName = "mainImage";
+            performImageCaptureAndCrop();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
+        }
+    }
+    @OnClick(R.id.update_my_family_button_upload_pics) public void onUploadPicsButtonClick() {
+        if (mFamilyCriticalParametersSet && !TextUtils.isEmpty(mFamily.getUI())) {
+
+            List<Uri> uris = Utilities.getExistingImageUriListForObject(getApplicationContext(), mFamily, true);
+            if (uris.size() == 5) {
+                Toast.makeText(getApplicationContext(), R.string.reached_max_images, Toast.LENGTH_SHORT).show();
+            }
+            else {
+                mImageName = Utilities.getNameOfFirstAvailableImageInImagesList(getApplicationContext(), mFamily);
+                if (!TextUtils.isEmpty(mImageName)) performImageCaptureAndCrop();
+                else Toast.makeText(getApplicationContext(), R.string.error_processing_request, Toast.LENGTH_SHORT).show();
+            }
+
+        }
+        else {
+            Toast.makeText(getApplicationContext(), R.string.must_save_profile_first, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     //Communication with other activities/fragments:
 
     //Communication with RecyclerView adapters
@@ -496,11 +483,11 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         else if (familiesList.size()>1) {
             mFamily = familiesList.get(0);
             mFamilyFound = true;
-            Log.i(DEBUG_TAG, "Warning! Multiple users found for your entered email.");
+            Log.i(DEBUG_TAG, "Warning! Multiple users found for the current profile id.");
         }
         else {
             mFamily = new Family(mFirebaseUid);
-            Toast.makeText(getBaseContext(), "Your family doesn't exist yet, press DONE to create your family.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), R.string.family_not_found_press_done_to_create, Toast.LENGTH_SHORT).show();
         }
 
         if (mSavedInstanceState==null) {

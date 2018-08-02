@@ -22,21 +22,23 @@ package com.tindog.ui;
 //TODO: update the preference activity options with better dog characteristics
 //TODO: make menu "sign in" Title change after menu has exited, not before
 
+////Long term - from Udacity review
+//TODO: ensure optimal content descriptions and similar parameters to improve the app's accessibility
+//TODO: switch to a repository pattern for data storage, see https://commonsware.com/AndroidArch/previews/the-repository-pattern
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.IdpResponse;
@@ -57,8 +59,8 @@ import com.tindog.resources.Utilities;
 
 import java.util.List;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 import static butterknife.internal.Utils.arrayOf;
@@ -74,10 +76,6 @@ public class TaskSelectionActivity extends AppCompatActivity implements Firebase
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private boolean hasStoragePermissions;
     private boolean hasLocationPermissions;
-    @BindView(R.id.task_selection_find_dog) Button mButtonFindDog;
-    @BindView(R.id.task_selection_find_family) Button mButtonFindFamily;
-    @BindView(R.id.task_selection_find_foundation) Button mButtonFindFoundation;
-    @BindView(R.id.task_selection_update_map) Button mButtonUpdateMap;
     private Unbinder mBinding;
     private InterstitialAd mInterstitialAd;
     private Menu mMenu;
@@ -97,34 +95,6 @@ public class TaskSelectionActivity extends AppCompatActivity implements Firebase
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mBinding =  ButterKnife.bind(this);
-
-        mButtonFindDog.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showInterstitialAd();
-                startSearchResultsActivity(getString(R.string.dog_profile));
-            }
-        });
-        mButtonFindFamily.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showInterstitialAd();
-                startSearchResultsActivity(getString(R.string.family_profile));
-            }
-        });
-        mButtonFindFoundation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showInterstitialAd();
-                startSearchResultsActivity(getString(R.string.foundation_profile));
-            }
-        });
-        mButtonUpdateMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goToMapScreen();
-            }
-        });
 
         setupFirebaseAuthentication();
         hasStoragePermissions = checkStoragePermission();
@@ -276,10 +246,6 @@ public class TaskSelectionActivity extends AppCompatActivity implements Firebase
         intent.putExtra(getString(R.string.profile_type), profileType);
         startActivity(intent);
     }
-    private void goToMapScreen() {
-        Intent intent = new Intent(this, MapActivity.class);
-        startActivity(intent);
-    }
     private void setupFirebaseAuthentication() {
         // Check if user is signed in (non-null) and update UI accordingly.
         mCurrentFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -341,10 +307,6 @@ public class TaskSelectionActivity extends AppCompatActivity implements Firebase
     }
     private void removeListeners() {
         mFirebaseDao.removeListeners();
-        if (mButtonFindDog!=null) mButtonFindDog.setOnClickListener(null);
-        if (mButtonFindFamily!=null) mButtonFindFamily.setOnClickListener(null);
-        if (mButtonFindFoundation!=null) mButtonFindFoundation.setOnClickListener(null);
-        if (mButtonUpdateMap!=null) mButtonUpdateMap.setOnClickListener(null);
     }
     private void checkIfUserHasATinDogUserProfile() {
         mFirebaseDao = new FirebaseDao(getBaseContext(), this);
@@ -369,7 +331,26 @@ public class TaskSelectionActivity extends AppCompatActivity implements Firebase
     }
 
 
-    //Communication with other activities/fragments:
+    //View click listeners
+    @OnClick(R.id.task_selection_find_dog) public void onFindDogButtonClick() {
+        showInterstitialAd();
+        startSearchResultsActivity(getString(R.string.dog_profile));
+    }
+    @OnClick(R.id.task_selection_find_family) public void onFindFamilyButtonClick() {
+        showInterstitialAd();
+        startSearchResultsActivity(getString(R.string.family_profile));
+    }
+    @OnClick(R.id.task_selection_find_foundation) public void onFindFoundationButtonClick() {
+        showInterstitialAd();
+        startSearchResultsActivity(getString(R.string.foundation_profile));
+    }
+    @OnClick(R.id.task_selection_update_map) public void onUpdateMapButtonClick() {
+        Intent intent = new Intent(this, MapActivity.class);
+        startActivity(intent);
+    }
+
+
+    //Communication with other classes:
 
     //Communication with Firebase Dao handler
     @Override public void onDogsListFound(List<Dog> dogsList) {

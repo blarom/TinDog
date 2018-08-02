@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -20,24 +19,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.URLUtil;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tindog.R;
-import com.tindog.services.WidgetUpdateJobIntentService;
 import com.tindog.adapters.ImagesRecycleViewAdapter;
 import com.tindog.data.Dog;
 import com.tindog.resources.ImageSyncAsyncTaskLoader;
 import com.tindog.resources.Utilities;
+import com.tindog.services.WidgetUpdateJobIntentService;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class DogProfileFragment extends Fragment implements
@@ -57,8 +56,6 @@ public class DogProfileFragment extends Fragment implements
     @BindView(R.id.dog_profile_value_behavior) TextView mTextViewDogBehavior;
     @BindView(R.id.dog_profile_value_interactions) TextView mTextViewDogInteractions;
     @BindView(R.id.dog_profile_value_history) TextView mTextViewDogHistory;
-    @BindView(R.id.dog_profile_show_in_widget_button) Button mButtonShowInWidget;
-    @BindView(R.id.dog_profile_share_fab) FloatingActionButton mFabShare;
     private ImagesRecycleViewAdapter mImagesRecycleViewAdapter;
     private Unbinder mBinding;
     private Dog mDog;
@@ -67,11 +64,6 @@ public class DogProfileFragment extends Fragment implements
     private ImageSyncAsyncTaskLoader mImageSyncAsyncTaskLoader;
     private boolean mAlreadyLoadedImages;
     //endregion
-
-
-    public DogProfileFragment() {
-        // Required empty public constructor
-    }
 
 
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -115,18 +107,6 @@ public class DogProfileFragment extends Fragment implements
         mBinding = ButterKnife.bind(this, rootView);
         setupImagesRecyclerView();
         mClickedImageUriString = Utilities.getImageUriForObjectWithFileProvider(getContext(), mDog, "mainImage").toString();
-        mButtonShowInWidget.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDogImageWidgetWithCurrentDog();
-            }
-        });
-        mFabShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                shareProfile();
-            }
-        });
     }
     private void setupImagesRecyclerView() {
         mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -192,15 +172,29 @@ public class DogProfileFragment extends Fragment implements
             onDogProfileFragmentOperationsHandler.onDogLayoutParametersCalculated(imagesRecyclerViewPosition);
         }
     }
-    private void updateDogImageWidgetWithCurrentDog() {
-        Intent intent = new Intent(getContext(), WidgetUpdateJobIntentService.class);
-        intent.putExtra(getString(R.string.intent_extra_specific_dog), mDog);
-        intent.setAction(getString(R.string.action_update_widget_specific_dog));
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        //startService(intent);
-        WidgetUpdateJobIntentService.enqueueWork(getContext(), intent);
+    private void startImageSyncThread() {
+
+        mAlreadyLoadedImages = false;
+        if (getActivity()!=null) {
+            LoaderManager loaderManager = getActivity().getSupportLoaderManager();
+            Loader<String> imageSyncAsyncTaskLoader = loaderManager.getLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER);
+            if (imageSyncAsyncTaskLoader == null) {
+                loaderManager.initLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER, null, this);
+            }
+            else {
+                if (mImageSyncAsyncTaskLoader!=null) {
+                    mImageSyncAsyncTaskLoader.cancelLoadInBackground();
+                    mImageSyncAsyncTaskLoader = null;
+                }
+                loaderManager.restartLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER, null, this);
+            }
+        }
+
     }
-    private void shareProfile() {
+
+
+    //View click listeners
+    @OnClick(R.id.dog_profile_share_fab) public void shareProfile() {
 
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
@@ -224,24 +218,13 @@ public class DogProfileFragment extends Fragment implements
         startActivity(Intent.createChooser(shareIntent, "Share images..."));
 
     }
-    private void startImageSyncThread() {
-
-        mAlreadyLoadedImages = false;
-        if (getActivity()!=null) {
-            LoaderManager loaderManager = getActivity().getSupportLoaderManager();
-            Loader<String> imageSyncAsyncTaskLoader = loaderManager.getLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER);
-            if (imageSyncAsyncTaskLoader == null) {
-                loaderManager.initLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER, null, this);
-            }
-            else {
-                if (mImageSyncAsyncTaskLoader!=null) {
-                    mImageSyncAsyncTaskLoader.cancelLoadInBackground();
-                    mImageSyncAsyncTaskLoader = null;
-                }
-                loaderManager.restartLoader(SINGLE_OBJECT_IMAGES_SYNC_LOADER, null, this);
-            }
-        }
-
+    @OnClick(R.id.dog_profile_show_in_widget_button) public void updateDogImageWidgetWithCurrentDog() {
+        Intent intent = new Intent(getContext(), WidgetUpdateJobIntentService.class);
+        intent.putExtra(getString(R.string.intent_extra_specific_dog), mDog);
+        intent.setAction(getString(R.string.action_update_widget_specific_dog));
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        //startService(intent);
+        WidgetUpdateJobIntentService.enqueueWork(getContext(), intent);
     }
 
 

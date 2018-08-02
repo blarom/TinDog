@@ -21,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -54,6 +53,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 
@@ -74,7 +74,6 @@ public class SearchScreenFragment extends Fragment implements
     @BindView(R.id.search_screen_loading_indicator) ProgressBar mProgressBarLoadingIndicator;
     @BindView(R.id.search_screen_profile_selection_recycler_view) RecyclerView mRecyclerViewProfileSelection;
     @BindView(R.id.search_screen_distance_edittext) EditText mEditTextDistance;
-    @BindView(R.id.search_screen_show_in_map_button) Button mButtonShowInMap;
     private Unbinder mBinding;
     private TinDogUser mUser;
     private FirebaseDao mFirebaseDao;
@@ -108,11 +107,6 @@ public class SearchScreenFragment extends Fragment implements
     private ImageSyncAsyncTaskLoader mImageSyncAsyncTaskLoader;
     private int mSelectedProfileIndex;
     //endregion
-
-
-    public SearchScreenFragment() {
-        // Required empty public constructor
-    }
 
 
     //Lifecycle methods
@@ -197,30 +191,6 @@ public class SearchScreenFragment extends Fragment implements
                 return false;
             }
         });
-        mButtonShowInMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mFoundResults) {
-
-                    Intent intent = new Intent(getContext(), MapActivity.class);
-                    if (mDogsAtDistance!=null && mProfileType.equals(getString(R.string.dog_profile))) {
-                        intent.putParcelableArrayListExtra(getString(R.string.search_results_dogs_list), new ArrayList<>(mDogsAtDistance));
-                        startActivity(intent);
-                    }
-                    else if (mFamiliesAtDistance!=null && mProfileType.equals(getString(R.string.family_profile))) {
-                        intent.putParcelableArrayListExtra(getString(R.string.search_results_families_list), new ArrayList<>(mFamiliesAtDistance));
-                        startActivity(intent);
-                    }
-                    else if (mFoundationsAtDistance!=null && mProfileType.equals(getString(R.string.foundation_profile))) {
-                        intent.putParcelableArrayListExtra(getString(R.string.search_results_foundations_list), new ArrayList<>(mFoundationsAtDistance));
-                        startActivity(intent);
-                    }
-                }
-                else {
-                    Toast.makeText(getContext(), R.string.please_wait_while_results_loaded, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
 
         Uri imageUri = Uri.fromFile(new File("//android_asset/magnifying_glass.png"));
         Picasso.with(getContext())
@@ -228,12 +198,6 @@ public class SearchScreenFragment extends Fragment implements
                 .error(R.drawable.ic_image_not_available)
                 .into(mImageViewMagnifyingGlass);
 
-        mImageViewMagnifyingGlass.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getListsFromFirebase();
-            }
-        });
     }
     private void showLoadingIndicator() {
         if (mProgressBarLoadingIndicator!=null) mProgressBarLoadingIndicator.setVisibility(View.VISIBLE);
@@ -373,6 +337,33 @@ public class SearchScreenFragment extends Fragment implements
         else if (mProfileType.equals(getString(R.string.foundation_profile))) {
             if (mFoundationsListRecycleViewAdapter!=null) mFoundationsListRecycleViewAdapter.setSelectedProfile(mSelectedProfileIndex);
         }
+    }
+
+
+    //View click listeners
+    @OnClick(R.id.search_screen_show_in_map_button) public void onShowInMapButtonClick() {
+        if (mFoundResults) {
+
+            Intent intent = new Intent(getContext(), MapActivity.class);
+            if (mDogsAtDistance!=null && mProfileType.equals(getString(R.string.dog_profile))) {
+                intent.putParcelableArrayListExtra(getString(R.string.search_results_dogs_list), new ArrayList<>(mDogsAtDistance));
+                startActivity(intent);
+            }
+            else if (mFamiliesAtDistance!=null && mProfileType.equals(getString(R.string.family_profile))) {
+                intent.putParcelableArrayListExtra(getString(R.string.search_results_families_list), new ArrayList<>(mFamiliesAtDistance));
+                startActivity(intent);
+            }
+            else if (mFoundationsAtDistance!=null && mProfileType.equals(getString(R.string.foundation_profile))) {
+                intent.putParcelableArrayListExtra(getString(R.string.search_results_foundations_list), new ArrayList<>(mFoundationsAtDistance));
+                startActivity(intent);
+            }
+        }
+        else {
+            Toast.makeText(getContext(), R.string.please_wait_while_results_loaded, Toast.LENGTH_SHORT).show();
+        }
+    }
+    @OnClick(R.id.search_screen_magnifying_glass_image) public void onMagnifyingGlassButtonClick() {
+        getListsFromFirebase();
     }
 
 
@@ -594,7 +585,7 @@ public class SearchScreenFragment extends Fragment implements
             Log.i(DEBUG_TAG, "Warning! Multiple users found for the same Uid.");
         }
         else {
-            Toast.makeText(getContext(), "Sorry, an error occurred while fetching your preferences. Searches may be incorrect.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.error_when_getting_preferences, Toast.LENGTH_SHORT).show();
         }
 
     }

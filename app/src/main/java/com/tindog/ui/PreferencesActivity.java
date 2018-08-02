@@ -41,6 +41,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class PreferencesActivity extends AppCompatActivity implements FirebaseDao.FirebaseOperationsHandler, AdapterView.OnItemSelectedListener {
@@ -241,25 +242,6 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         mSpinnerInteractions.setAdapter(mSpinnerAdapterInteractions);
         mSpinnerInteractions.setOnItemSelectedListener(this);
 
-        mImageViewChangeName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showUserInfoUpdateDialog("name");
-            }
-        });
-        mImageViewChangeEmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showUserInfoUpdateDialog("email");
-            }
-        });
-        mImageViewChangePassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showUserInfoUpdateDialog("password");
-            }
-        });
-
         mCheckBoxLimitToCountry.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -453,6 +435,18 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
     }
 
 
+    //View click listeners
+    @OnClick(R.id.preferences_change_name) public void onPreferenceNameChangeButtonClick() {
+        showUserInfoUpdateDialog("name");
+    }
+    @OnClick(R.id.preferences_change_email) public void onPreferenceEmailChangeButtonClick() {
+        showUserInfoUpdateDialog("email");
+    }
+    @OnClick(R.id.preferences_change_password) public void onPreferencePasswordChangeButtonClick() {
+        showUserInfoUpdateDialog("password");
+    }
+
+
     //Communication with other activities/fragments:
 
     //Communication with Firebase Dao handler
@@ -482,7 +476,7 @@ public class PreferencesActivity extends AppCompatActivity implements FirebaseDa
         }
         else {
             mUser = new TinDogUser(mFirebaseUid);
-            //Toast.makeText(getBaseContext(), "No user found for your entered email, press DONE to create a new user.", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getBaseContext(), R.string.no_user_press_done_to_create, Toast.LENGTH_SHORT).show();
         }
 
         updateUserInfoShownToUser();
