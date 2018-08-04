@@ -228,7 +228,7 @@ public class UpdateDogActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
     @Override public void onSaveInstanceState(Bundle outState) {
-        mStoredDogImagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewDogImages);
+        mStoredDogImagesRecyclerViewPosition = Utilities.getLinearRecyclerViewPosition(mRecyclerViewDogImages);
         mScrollPosition = mScrollViewContainer.getScrollY();
         outState.putInt(getString(R.string.scroll_position),mScrollPosition);
         outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredDogImagesRecyclerViewPosition);

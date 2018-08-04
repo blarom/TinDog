@@ -244,14 +244,14 @@ public class MapActivity extends AppCompatActivity implements
     private void getExtras() {
 
         Intent intent = getIntent();
-        if (intent.hasExtra(getString(R.string.search_results_dogs_list))) {
-            mDogsArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_dogs_list));
+        if (intent.hasExtra(getString(R.string.search_results_dogs_at_distance_list))) {
+            mDogsArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_dogs_at_distance_list));
         }
-        if (intent.hasExtra(getString(R.string.search_results_families_list))) {
-            mFamiliesArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_families_list));
+        if (intent.hasExtra(getString(R.string.search_results_families_at_distance_list))) {
+            mFamiliesArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_families_at_distance_list));
         }
-        if (intent.hasExtra(getString(R.string.search_results_foundations_list))) {
-            mFoundationsArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_foundations_list));
+        if (intent.hasExtra(getString(R.string.search_results_foundations_at_distance_list))) {
+            mFoundationsArrayList = intent.getParcelableArrayListExtra(getString(R.string.search_results_foundations_at_distance_list));
         }
     }
     private void initializeParameters() {

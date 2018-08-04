@@ -182,7 +182,7 @@
     <string name="profile_update_image_name">profile_update_image_name</string>
     <string name="no_internet_bad_results_warning">Warning: Internet is unavailable, the displayed results may not be up to date.</string>
     <string name="contact_details">Contact details</string>
-    <string name="search_results_profile_fragment_rv_position">search_results_profile_fragment_rv_position</string>
+    <string name="search_results_profile_fragment_images_rv_position">search_results_profile_fragment_rv_position</string>
     <string name="search_results_selected_profile">search_results_selected_profile</string>
     <string name="search_results_activated_detail_fragment">search_results_activated_detail_fragment</string>
     <string name="remove_a_dog">Remove a dog</string>
@@ -335,9 +335,9 @@
     <string name="please_wait_while_results_loaded">Please wait while the results are loaded</string>
     <string name="search_results_objects_list">search_results_objects_list</string>
     <string name="search_results_map_user_coordinates">search_results_map_user_coordinates</string>
-    <string name="search_results_dogs_list">search_results_dogs_list</string>
-    <string name="search_results_families_list">search_results_families_list</string>
-    <string name="search_results_foundations_list">search_results_foundations_list</string>
+    <string name="search_results_dogs_at_distance_list">search_results_dogs_at_distance_list</string>
+    <string name="search_results_families_at_distance_list">search_results_families_at_distance_list</string>
+    <string name="search_results_foundations_at_distance_list">search_results_foundations_at_distance_list</string>
     <string name="saved_foundation_street">saved_foundation_street</string>
     <string name="saved_foundation_street_number">saved_foundation_street_number</string>
     <string name="requested_specific_family_profile">requested_specific_family_profile</string>
@@ -383,4 +383,18 @@
     <string name="image_too_large">The image you chose is too large, try a smaller image.</string>
     <string name="cannot_open_ftp">Sorry, we cannot open ftp links in this app</string>
     <string name="cannot_open_smtp">Sorry, we cannot open smtp links in this app</string>
+    <string name="search_results_dogs_list">search_screen_fragment_dogs_list</string>
+    <string name="search_results_families_list">search_screen_fragment_families_list</string>
+    <string name="search_results_foundations_list">search_screen_fragment_foundations_list</string>
+    <string name="search_screen_fragment_rv_position">search_screen_fragment_rv_position</string>
+    <string name="saved_profile_state">saved_profile_state</string>
+    <string name="saved_profile_scroll_position">saved_profile_scroll_position</string>
+    <string name="saved_profile_images_rv_position">saved_profile_images_rv_position</string>
+    <string name="saved_profile_id">saved_profile_id</string>
+    <string name="saved_profile_images_loaded_state">saved_profile_images_loaded_state</string>
+    <string name="search_results_dogs_at_distance">search_results_dogs_at_distance</string>
+    <string name="search_results_families_at_distance">search_results_families_at_distance</string>
+    <string name="search_results_foundations_at_distance">search_results_foundations_at_distance</string>
+    <string name="couldnt_find_relevant_results">Couldn\'t find relevant results</string>
+    <string name="no_results_found">No results found</string>
 </resources>

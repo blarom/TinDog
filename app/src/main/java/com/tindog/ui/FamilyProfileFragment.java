@@ -9,8 +9,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +63,7 @@ public class FamilyProfileFragment extends Fragment implements
     @BindView(R.id.family_profile_checkbox_dogwalking_evening) CheckBox mCheckBoxDogWalkingEvening;
     @BindView(R.id.family_profile_checkbox_dogwalking_morning) CheckBox mCheckBoxDogWalkingMorning;
     @BindView(R.id.family_profile_checkbox_dogwalking_noon) CheckBox mCheckBoxDogWalkingNoon;
+    @BindView(R.id.family_profile_scroll_container) NestedScrollView mScrollContainer;
     private ImagesRecycleViewAdapter mImagesRecycleViewAdapter;
     private Unbinder mBinding;
     private Family mFamily;
@@ -68,6 +71,8 @@ public class FamilyProfileFragment extends Fragment implements
     private String mClickedImageUriString;
     private ImageSyncAsyncTaskLoader mImageSyncAsyncTaskLoader;
     private boolean mAlreadyLoadedImages;
+    private int mScrollPosition;
+    private int mImagesRecyclerViewPosition;
     //endregion
 
 
@@ -80,24 +85,35 @@ public class FamilyProfileFragment extends Fragment implements
         View rootView = inflater.inflate(R.layout.fragment_family_profile, container, false);
 
         initializeViews(rootView);
-        startImageSyncThread();
+        if (savedInstanceState!=null) restoreFragmentParameters(savedInstanceState);
         updateProfileFieldsOnScreen();
+        displayImages();
+        restoreLayoutParameters();
+        if (savedInstanceState==null) startImageSyncThread();
 
         return rootView;
     }
     @Override public void onAttach(Context context) {
         super.onAttach(context);
-        onFamilyProfileFragmentOperationsHandler = (OnFamilyProfileFragmentOperationsHandler) context;
     }
-    @Override public void onDetach() {
-        super.onDetach();
-        storeFragmentLayout();
-        onFamilyProfileFragmentOperationsHandler = null;
-        if (mImageSyncAsyncTaskLoader!=null) mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
+    @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(getString(R.string.saved_profile_scroll_position), mScrollContainer.getScrollY());
+        outState.putParcelable(getString(R.string.saved_profile_state), mFamily);
+        if (mRecyclerViewImages!=null) {
+            mImagesRecyclerViewPosition = Utilities.getLinearRecyclerViewPosition(mRecyclerViewImages);
+            outState.putInt(getString(R.string.saved_profile_images_rv_position), mImagesRecyclerViewPosition);
+        }
+        outState.putBoolean(getString(R.string.saved_profile_images_loaded_state), mAlreadyLoadedImages);
     }
     @Override public void onDestroyView() {
         super.onDestroyView();
+        saveLayoutParameters();
         mBinding.unbind();
+        if (mImageSyncAsyncTaskLoader!=null) mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
+    }
+    @Override public void onDetach() {
+        super.onDetach();
         if (mImageSyncAsyncTaskLoader!=null) mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
     }
 
@@ -118,9 +134,45 @@ public class FamilyProfileFragment extends Fragment implements
         mRecyclerViewImages.setNestedScrollingEnabled(true);
         mImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(getContext(), this, null);
         mRecyclerViewImages.setAdapter(mImagesRecycleViewAdapter);
+        mRecyclerViewImages.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                mImagesRecyclerViewPosition = Utilities.getLinearRecyclerViewPosition(mRecyclerViewImages);
+            }
+        });
+    }
+    private void restoreFragmentParameters(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            mFamily = savedInstanceState.getParcelable(getString(R.string.saved_profile_state));
+            mAlreadyLoadedImages = savedInstanceState.getBoolean(getString(R.string.saved_profile_images_loaded_state));
+        }
+    }
+    private void restoreLayoutParameters() {
+        if (getContext()==null) return;
+        String savedId = Utilities.getAppPreferenceProfileId(getContext());
+        if (TextUtils.isEmpty(savedId) || !mFamily.getUI().equals(savedId)) return;
+
+        mScrollPosition = Utilities.getAppPreferenceProfileScrollPosition(getContext());
+        mImagesRecyclerViewPosition = Utilities.getAppPreferenceProfileImagesRvPosition(getContext());
+        if (mScrollContainer!=null) {
+            mScrollContainer.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mScrollContainer!=null) mScrollContainer.scrollTo(0, mScrollPosition);
+                }
+            });
+        }
+        if (mRecyclerViewImages!=null) {
+            mRecyclerViewImages.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mRecyclerViewImages!=null) mRecyclerViewImages.scrollToPosition(mImagesRecyclerViewPosition);
+                }
+            });
+        }
     }
     private void updateProfileFieldsOnScreen() {
-
 
         mTextViewFamilyPseudonym.setText(mFamily.getPn());
 
@@ -146,18 +198,28 @@ public class FamilyProfileFragment extends Fragment implements
         mCheckBoxDogWalkingAfternoon.setChecked(mFamily.setHDA());
         mCheckBoxDogWalkingEvening.setChecked(mFamily.getHDE());
 
-        displayImages();
+        mScrollContainer.scrollTo(0, mScrollPosition);
     }
     private void displayImages() {
         if (getContext()==null) return;
         Utilities.displayObjectImageInImageView(getContext(), mFamily, "mainImage", mImageViewMainImage);
         mDisplayedImageList = Utilities.getExistingImageUriListForObject(getContext(), mFamily, false);
         mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
-    }
-    private void storeFragmentLayout() {
+
         if (mRecyclerViewImages!=null) {
-            int imagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewImages);
-            onFamilyProfileFragmentOperationsHandler.onFamilyLayoutParametersCalculated(imagesRecyclerViewPosition);
+            mRecyclerViewImages.scrollToPosition(mImagesRecyclerViewPosition);
+        }
+    }
+    private void saveLayoutParameters() {
+        //SharedPreferences are used here instead of state restoration, because of the FragmentPager refresh that resets the parameters
+        mScrollPosition = mScrollContainer.getScrollY();
+        if (mRecyclerViewImages!=null)  mImagesRecyclerViewPosition = Utilities.getLinearRecyclerViewPosition(mRecyclerViewImages);
+        if (mScrollPosition>0) {
+            Utilities.setAppPreferenceProfileScrollPosition(getContext(), mScrollPosition);
+            Utilities.setAppPreferenceProfileId(getContext(), mFamily.getUI());
+        }
+        if (mImagesRecyclerViewPosition>0) {
+            Utilities.setAppPreferenceProfileImagesRvPosition(getContext(), mImagesRecyclerViewPosition);
         }
     }
     private void startImageSyncThread() {
@@ -182,7 +244,7 @@ public class FamilyProfileFragment extends Fragment implements
 
 
     //View click listeners
-    @OnClick(R.id.dog_profile_share_fab) public void shareProfile() {
+    @OnClick(R.id.family_profile_share_fab) public void shareProfile() {
 
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
@@ -210,7 +272,8 @@ public class FamilyProfileFragment extends Fragment implements
         mClickedImageUriString = mDisplayedImageList.get(clickedItemIndex).toString();
         Picasso.with(getContext())
                 .load(mClickedImageUriString)
-                .error(R.drawable.ic_image_not_available)
+                .placeholder(mImageViewMainImage.getDrawable()) //inspired by: https://github.com/square/picasso/issues/257
+                //.error(R.drawable.ic_image_not_available)
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .into(mImageViewMainImage);
     }
@@ -242,12 +305,4 @@ public class FamilyProfileFragment extends Fragment implements
         if (getContext()!=null) displayImages();
     }
 
-    //Communication with parent activity
-    private OnFamilyProfileFragmentOperationsHandler onFamilyProfileFragmentOperationsHandler;
-    public interface OnFamilyProfileFragmentOperationsHandler {
-        void onFamilyLayoutParametersCalculated(int imagesRecyclerViewPosition);
-    }
-    public void setImagesRecyclerViewPosition(int mStoredImagesRecyclerViewPosition) {
-        if (mRecyclerViewImages!=null) mRecyclerViewImages.scrollToPosition(mStoredImagesRecyclerViewPosition);
-    }
 }

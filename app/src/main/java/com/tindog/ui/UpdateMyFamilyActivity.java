@@ -211,7 +211,7 @@ public class UpdateMyFamilyActivity extends AppCompatActivity implements Firebas
         return super.onOptionsItemSelected(item);
     }
     @Override public void onSaveInstanceState(Bundle outState) {
-        mStoredPetImagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewPetImages);
+        mStoredPetImagesRecyclerViewPosition = Utilities.getLinearRecyclerViewPosition(mRecyclerViewPetImages);
         outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredPetImagesRecyclerViewPosition);
         outState.putString(getString(R.string.profile_update_image_name), mImageName);
         mScrollPosition = mScrollViewContainer.getScrollY();

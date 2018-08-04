@@ -9,6 +9,7 @@
     tools:context=".ui.FamilyProfileFragment">
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/family_profile_scroll_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,8 +30,7 @@
                 app:ari_ratio="0.75"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_image_not_available"/>
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/family_profile_recyclerview_images"

@@ -21,8 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/list_item_profiles_guideline"
         app:layout_constraintLeft_toRightOf="@id/list_item_profiles_guideline"
-        android:contentDescription="@string/profile_image"
-        app:srcCompat="@drawable/ic_image_not_available"/>
+        android:contentDescription="@string/profile_image"/>
 
     <android.support.constraint.Guideline
         android:id="@+id/list_item_profiles_guideline"

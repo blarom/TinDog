@@ -149,7 +149,7 @@ public class Utilities {
         File imageFile = new File(directory, fileName);
 
         //If somehow the the app was not able to get the uri (e.g. sometimes file is not "found"), then try up to 4 more times before giving up
-        int tries = 4;
+        int tries = 3;
         while (!(imageFile.exists() && imageFile.length()>0) && tries>0) {
             imageFile = new File(directory, fileName);
             tries--;
@@ -167,7 +167,8 @@ public class Utilities {
         Uri imageUri = Uri.fromFile(new File("//android_asset/splashscreen_intro_image.jpg"));
         Picasso.with(context)
                 .load(imageUri)
-                .error(R.drawable.ic_image_not_available)
+                .placeholder(image.getDrawable()) //inspired by: https://github.com/square/picasso/issues/257
+                //.error(R.drawable.ic_image_not_available)
                 .noFade()
                 .into(image);
     }
@@ -365,8 +366,9 @@ public class Utilities {
         if (uri!=null) {
             Picasso.with(context)
                     .load(uri.toString())
-                    .error(R.drawable.ic_image_not_available)
-                    .memoryPolicy(MemoryPolicy.NO_CACHE)
+                    .placeholder(imageView.getDrawable()) //inspired by: https://github.com/square/picasso/issues/257
+                    //.error(R.drawable.ic_image_not_available)
+                    .memoryPolicy(MemoryPolicy.NO_CACHE) //Prevents picasso from thinking that older images are valid, and forces it to load the new image
                     .noFade()
                     .into(imageView);
         }
@@ -384,6 +386,7 @@ public class Utilities {
         else return "mainImage";
     }
 
+
     //UI utilities
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =(InputMethodManager) activity.getBaseContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -391,7 +394,7 @@ public class Utilities {
             inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
         }
     }
-    public static int getImagesRecyclerViewPosition(RecyclerView recyclerView) {
+    public static int getLinearRecyclerViewPosition(RecyclerView recyclerView) {
         LinearLayoutManager layoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
         return layoutManager.findFirstVisibleItemPosition();
     }
@@ -432,7 +435,10 @@ public class Utilities {
         }
 
     }
-
+    public static void resetProfileScrollPositions(Context context) {
+        setAppPreferenceProfileScrollPosition(context, 0);
+        setAppPreferenceProfileImagesRvPosition(context, 0);
+    }
 
     //Location utlities
     public static Address getAddressObjectFromAddressString(Context context, String location) {
@@ -738,6 +744,7 @@ public class Utilities {
         return copiedImageUri;
     }
 
+
     //Internet utilities
     public static boolean internetIsAvailable(Context context) {
         //adapted from https://stackoverflow.com/questions/43315393/android-internet-connection-timeout
@@ -829,6 +836,42 @@ public class Utilities {
     public static boolean getAppPreferenceFirstTimeUsingApp(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
         return sharedPref.getBoolean(context.getString(R.string.first_time_using_app), true);
+    }
+    public static void setAppPreferenceProfileScrollPosition(Context context, int position) {
+        if (context != null) {
+            SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(context.getString(R.string.saved_profile_scroll_position), position);
+            editor.apply();
+        }
+    }
+    public static int getAppPreferenceProfileScrollPosition(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+        return sharedPref.getInt(context.getString(R.string.saved_profile_scroll_position), 0);
+    }
+    public static void setAppPreferenceProfileImagesRvPosition(Context context, int position) {
+        if (context != null) {
+            SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(context.getString(R.string.saved_profile_images_rv_position), position);
+            editor.apply();
+        }
+    }
+    public static int getAppPreferenceProfileImagesRvPosition(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+        return sharedPref.getInt(context.getString(R.string.saved_profile_images_rv_position), 0);
+    }
+    public static void setAppPreferenceProfileId(Context context, String id) {
+        if (context != null) {
+            SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(context.getString(R.string.saved_profile_id), id);
+            editor.apply();
+        }
+    }
+    public static String getAppPreferenceProfileId(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.app_preferences), Context.MODE_PRIVATE);
+        return sharedPref.getString(context.getString(R.string.saved_profile_id), "");
     }
 
 }

@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
@@ -56,6 +57,7 @@ public class DogProfileFragment extends Fragment implements
     @BindView(R.id.dog_profile_value_behavior) TextView mTextViewDogBehavior;
     @BindView(R.id.dog_profile_value_interactions) TextView mTextViewDogInteractions;
     @BindView(R.id.dog_profile_value_history) TextView mTextViewDogHistory;
+    @BindView(R.id.dog_profile_scroll_container) NestedScrollView mScrollContainer;
     private ImagesRecycleViewAdapter mImagesRecycleViewAdapter;
     private Unbinder mBinding;
     private Dog mDog;
@@ -63,6 +65,8 @@ public class DogProfileFragment extends Fragment implements
     private String mClickedImageUriString;
     private ImageSyncAsyncTaskLoader mImageSyncAsyncTaskLoader;
     private boolean mAlreadyLoadedImages;
+    private int mScrollPosition;
+    private int mImagesRecyclerViewPosition;
     //endregion
 
 
@@ -75,24 +79,35 @@ public class DogProfileFragment extends Fragment implements
         View rootView = inflater.inflate(R.layout.fragment_dog_profile, container, false);
 
         initializeViews(rootView);
-        startImageSyncThread();
+        if (savedInstanceState!=null) restoreFragmentParameters(savedInstanceState);
         updateProfileFieldsOnScreen();
+        displayImages();
+        restoreLayoutParameters();
+        if (savedInstanceState==null) startImageSyncThread();
 
         return rootView;
     }
     @Override public void onAttach(Context context) {
         super.onAttach(context);
-        onDogProfileFragmentOperationsHandler = (OnDogProfileFragmentOperationsHandler) context;
     }
-    @Override public void onDetach() {
-        super.onDetach();
-        storeFragmentLayout();
-        onDogProfileFragmentOperationsHandler = null;
-        if (mImageSyncAsyncTaskLoader!=null) mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
+    @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(getString(R.string.saved_profile_scroll_position), mScrollContainer.getScrollY());
+        outState.putParcelable(getString(R.string.saved_profile_state), mDog);
+        if (mRecyclerViewImages!=null) {
+            mImagesRecyclerViewPosition = Utilities.getLinearRecyclerViewPosition(mRecyclerViewImages);
+            outState.putInt(getString(R.string.saved_profile_images_rv_position), mImagesRecyclerViewPosition);
+        }
+        outState.putBoolean(getString(R.string.saved_profile_images_loaded_state), mAlreadyLoadedImages);
     }
     @Override public void onDestroyView() {
         super.onDestroyView();
+        saveLayoutParameters();
         mBinding.unbind();
+        if (mImageSyncAsyncTaskLoader!=null) mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
+    }
+    @Override public void onDetach() {
+        super.onDetach();
         if (mImageSyncAsyncTaskLoader!=null) mImageSyncAsyncTaskLoader.stopUpdatingImagesForObjects();
     }
 
@@ -108,11 +123,48 @@ public class DogProfileFragment extends Fragment implements
         setupImagesRecyclerView();
         mClickedImageUriString = Utilities.getImageUriForObjectWithFileProvider(getContext(), mDog, "mainImage").toString();
     }
+    private void restoreFragmentParameters(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            mDog = savedInstanceState.getParcelable(getString(R.string.saved_profile_state));
+            mAlreadyLoadedImages = savedInstanceState.getBoolean(getString(R.string.saved_profile_images_loaded_state));
+        }
+    }
+    private void restoreLayoutParameters() {
+        if (getContext()==null) return;
+        String savedId = Utilities.getAppPreferenceProfileId(getContext());
+        if (TextUtils.isEmpty(savedId) || !mDog.getUI().equals(savedId)) return;
+
+        mScrollPosition = Utilities.getAppPreferenceProfileScrollPosition(getContext());
+        mImagesRecyclerViewPosition = Utilities.getAppPreferenceProfileImagesRvPosition(getContext());
+        if (mScrollContainer!=null) {
+            mScrollContainer.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mScrollContainer!=null) mScrollContainer.scrollTo(0, mScrollPosition);
+                }
+            });
+        }
+        if (mRecyclerViewImages!=null) {
+            mRecyclerViewImages.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mRecyclerViewImages!=null) mRecyclerViewImages.scrollToPosition(mImagesRecyclerViewPosition);
+                }
+            });
+        }
+    }
     private void setupImagesRecyclerView() {
         mRecyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         mRecyclerViewImages.setNestedScrollingEnabled(true);
         mImagesRecycleViewAdapter = new ImagesRecycleViewAdapter(getContext(), this, null);
         mRecyclerViewImages.setAdapter(mImagesRecycleViewAdapter);
+        mRecyclerViewImages.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                mImagesRecyclerViewPosition = Utilities.getLinearRecyclerViewPosition(mRecyclerViewImages);
+            }
+        });
     }
     private void updateProfileFieldsOnScreen() {
 
@@ -127,7 +179,7 @@ public class DogProfileFragment extends Fragment implements
             mTextViewFoundation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    showFoundation();
+                    openFoundationProfile();
                 }
             });
         }
@@ -141,7 +193,8 @@ public class DogProfileFragment extends Fragment implements
         if (mDog.getHs().equals("")) mTextViewDogHistory.setText(R.string.no_history_available);
         else mTextViewDogHistory.setText(mDog.getHs());
 
-        displayImages();
+        mScrollContainer.scrollTo(0, mScrollPosition);
+
     }
     private void displayImages() {
         if (getContext()==null) return;
@@ -154,8 +207,12 @@ public class DogProfileFragment extends Fragment implements
             mDisplayedImageList.add(Uri.parse(videoUrl));
         }
         mImagesRecycleViewAdapter.setContents(mDisplayedImageList);
+
+        if (mRecyclerViewImages!=null) {
+            mRecyclerViewImages.scrollToPosition(mImagesRecyclerViewPosition);
+        }
     }
-    private void showFoundation() {
+    private void openFoundationProfile() {
         if (getContext()!=null) {
             Intent intent = new Intent(getContext(), SearchResultsActivity.class);
             intent.putExtra(getString(R.string.profile_type), getString(R.string.foundation_profile));
@@ -166,10 +223,16 @@ public class DogProfileFragment extends Fragment implements
     private void playVideoInBrowser(int clickedItemIndex) {
         Utilities.goToWebLink(getContext(), mDisplayedImageList.get(clickedItemIndex).toString());
     }
-    private void storeFragmentLayout() {
-        if (mRecyclerViewImages!=null) {
-            int imagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewImages);
-            onDogProfileFragmentOperationsHandler.onDogLayoutParametersCalculated(imagesRecyclerViewPosition);
+    private void saveLayoutParameters() {
+        //SharedPreferences are used here instead of state restoration, because of the FragmentPager refresh that resets the parameters
+        mScrollPosition = mScrollContainer.getScrollY();
+        if (mRecyclerViewImages!=null)  mImagesRecyclerViewPosition = Utilities.getLinearRecyclerViewPosition(mRecyclerViewImages);
+        if (mScrollPosition>0) {
+            Utilities.setAppPreferenceProfileScrollPosition(getContext(), mScrollPosition);
+            Utilities.setAppPreferenceProfileId(getContext(), mDog.getUI());
+        }
+        if (mImagesRecyclerViewPosition>0) {
+            Utilities.setAppPreferenceProfileImagesRvPosition(getContext(), mImagesRecyclerViewPosition);
         }
     }
     private void startImageSyncThread() {
@@ -239,7 +302,8 @@ public class DogProfileFragment extends Fragment implements
         else {
             Picasso.with(getContext())
                     .load(mClickedImageUriString)
-                    .error(R.drawable.ic_image_not_available)
+                    .placeholder(mImageViewMainImage.getDrawable()) //inspired by: https://github.com/square/picasso/issues/257
+                    //.error(R.drawable.ic_image_not_available)
                     .memoryPolicy(MemoryPolicy.NO_CACHE)
                     .into(mImageViewMainImage);
         }
@@ -272,12 +336,4 @@ public class DogProfileFragment extends Fragment implements
         if (getContext()!=null) displayImages();
     }
 
-    //Communication with parent activity
-    private OnDogProfileFragmentOperationsHandler onDogProfileFragmentOperationsHandler;
-    public interface OnDogProfileFragmentOperationsHandler {
-        void onDogLayoutParametersCalculated(int imagesRecyclerViewPosition);
-    }
-    public void setImagesRecyclerViewPosition(int mStoredImagesRecyclerViewPosition) {
-        if (mRecyclerViewImages!=null) mRecyclerViewImages.scrollToPosition(mStoredImagesRecyclerViewPosition);
-    }
 }

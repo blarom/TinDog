@@ -2,10 +2,12 @@ package com.tindog.ui;
 
 //Improvements to the app:
 //Short term
+//TODO: re-work the user interface, including flow change, using cards, etc..
+//TODO: remove dummy data (this could also speed up the app, since geo calls are not done on the main thread)
+//TODO: throw all geo calls to asynctasks to prevent stalling the app on the main thread
 //TODO: add button that allows people interested in dogs to ask for the contact info for a family, and the family can reply with the info through the app/other means
 //TODO: add a "who am I" edittext to edit family profile activity
 //TODO: In the edit profile screen, there's both "save" & "done", once again, very confusing, what's the difference? I would switch "done" with "cancel"
-//TODO: restore recyclerview positions and parameters on resume in all activities/fragments
 
 ////Long term
 //TODO: I would remove the top brown banner in the loading screen, it's confusing (the user might think he needs to click something)
@@ -23,7 +25,7 @@ package com.tindog.ui;
 //TODO: make menu "sign in" Title change after menu has exited, not before
 
 ////Long term - from Udacity review
-//TODO: ensure optimal content descriptions and similar parameters to improve the app's accessibility
+//TODO: ensure optimal content descriptions on all relevant views and similar parameters to improve the app's accessibility
 //TODO: switch to a repository pattern for data storage, see https://commonsware.com/AndroidArch/previews/the-repository-pattern
 
 import android.Manifest;
@@ -92,7 +94,6 @@ public class TaskSelectionActivity extends AppCompatActivity implements Firebase
 
         setupInterstitialAds();
 
-
         mFirebaseAuth = FirebaseAuth.getInstance();
         mBinding =  ButterKnife.bind(this);
 
@@ -104,6 +105,9 @@ public class TaskSelectionActivity extends AppCompatActivity implements Firebase
     @Override protected void onResume() {
         super.onResume();
         mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        //Resetting the profile scroll positions
+        Utilities.resetProfileScrollPositions(this);
     }
     @Override public void onStart() {
         super.onStart();
@@ -257,6 +261,7 @@ public class TaskSelectionActivity extends AppCompatActivity implements Firebase
                 if (mCurrentFirebaseUser != null) {
                     // TinDogUser is signed in
                     Utilities.setAppPreferenceUserHasNotRefusedSignIn(getApplicationContext(), true);
+                    Utilities.setAppPreferenceFirstTimeUsingApp(getApplicationContext(), false);
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_in:" + mCurrentFirebaseUser.getUid());
                 } else {
                     // TinDogUser is signed out

@@ -1,6 +1,8 @@
 package com.tindog.ui;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -10,7 +12,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -19,19 +20,20 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tindog.R;
-import com.tindog.services.WidgetUpdateJobIntentService;
 import com.tindog.data.Dog;
 import com.tindog.data.Family;
+import com.tindog.data.FirebaseDao;
 import com.tindog.data.Foundation;
+import com.tindog.data.MapMarker;
+import com.tindog.data.TinDogUser;
 import com.tindog.resources.Utilities;
+import com.tindog.services.WidgetUpdateJobIntentService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -40,9 +42,8 @@ import butterknife.Unbinder;
 
 public class SearchResultsActivity extends AppCompatActivity implements
         SearchScreenFragment.OnSearchScreenOperationsHandler,
-        DogProfileFragment.OnDogProfileFragmentOperationsHandler,
-        FamilyProfileFragment.OnFamilyProfileFragmentOperationsHandler,
-        FoundationProfileFragment.OnFoundationProfileFragmentOperationsHandler, ViewPager.OnPageChangeListener {
+        ViewPager.OnPageChangeListener,
+        FirebaseDao.FirebaseOperationsHandler {
 
     //region Parameters
     @BindView(R.id.master_fragment_container) FrameLayout mMasterFragmentContainer;
@@ -63,12 +64,24 @@ public class SearchResultsActivity extends AppCompatActivity implements
     private List<Family> mFamilies;
     private List<Foundation> mFoundations;
     private String mProfileType;
-    private int mStoredImagesRecyclerViewPosition;
     private int mSelectedProfileIndex;
     private String mRequestedDogProfileUI;
     private String mRequestedFamilyProfileUI;
     private String mRequestedFoundationProfileUI;
     private Menu mMenu;
+    private FirebaseDao mFirebaseDao;
+    private List<Dog> mDogsList;
+    private List<Family> mFamiliesList;
+    private List<Foundation> mFoundationsList;
+    private TinDogUser mUser;
+    private String mNameFromFirebase;
+    private String mEmailFromFirebase;
+    private Uri mPhotoUriFromFirebase;
+    private String mFirebaseUid;
+    private int mProfileSelectionRecyclerViewPosition;
+    private List<Dog> mDogsAtDistance;
+    private List<Family> mFamiliesAtDistance;
+    private List<Foundation> mFoundationsAtDistance;
     //endregion
 
 
@@ -82,15 +95,52 @@ public class SearchResultsActivity extends AppCompatActivity implements
         if (!Utilities.internetIsAvailable(this)) {
             Toast.makeText(this, R.string.no_internet_bad_results_warning, Toast.LENGTH_SHORT).show();
         }
-        if(savedInstanceState == null) setFragmentLayouts(0);
+    }
+    @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        mActivatedDetailFragment = savedInstanceState.getBoolean(getString(R.string.search_results_activated_detail_fragment), false);
+        mDogsList = savedInstanceState.getParcelableArrayList((getString(R.string.search_results_dogs_list)));
+        mFamiliesList = savedInstanceState.getParcelableArrayList((getString(R.string.search_results_families_list)));
+        mFoundationsList = savedInstanceState.getParcelableArrayList((getString(R.string.search_results_foundations_list)));
+        mDogsAtDistance = savedInstanceState.getParcelableArrayList(getString(R.string.search_results_dogs_at_distance));
+        mFamiliesAtDistance = savedInstanceState.getParcelableArrayList(getString(R.string.search_results_families_at_distance));
+        mFoundationsAtDistance = savedInstanceState.getParcelableArrayList(getString(R.string.search_results_foundations_at_distance));
+        mProfileSelectionRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.search_screen_fragment_rv_position));
+        mSelectedProfileIndex = savedInstanceState.getInt(getString(R.string.search_results_selected_profile));
     }
     @Override public void onStart() {
         super.onStart();
         setupFirebaseAuthentication();
     }
+    @Override protected void onResume() {
+        super.onResume();
+        setFragmentLayouts(mSelectedProfileIndex);
+        getListsFromFirebase();
+    }
     @Override protected void onStop() {
         super.onStop();
         if (mFirebaseAuth!=null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    }
+    @Override public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mPager!=null && mActivatedDetailFragment) {
+            mSelectedProfileIndex = mPager.getCurrentItem();
+            mPager.setAdapter(null);
+        }
+
+        if (mDogsAtDistance.size()==0) {
+            String a="";
+        }
+
+        outState.putInt(getString(R.string.search_results_selected_profile), mSelectedProfileIndex);
+        outState.putBoolean(getString(R.string.search_results_activated_detail_fragment), mActivatedDetailFragment);
+        outState.putParcelableArrayList(getString(R.string.search_results_dogs_list), new ArrayList<>(mDogsList));
+        outState.putParcelableArrayList(getString(R.string.search_results_families_list), new ArrayList<>(mFamiliesList));
+        outState.putParcelableArrayList(getString(R.string.search_results_foundations_list), new ArrayList<>(mFoundationsList));
+        outState.putParcelableArrayList(getString(R.string.search_results_dogs_at_distance), new ArrayList<>(mDogsAtDistance));
+        outState.putParcelableArrayList(getString(R.string.search_results_families_at_distance), new ArrayList<>(mFamiliesAtDistance));
+        outState.putParcelableArrayList(getString(R.string.search_results_foundations_at_distance), new ArrayList<>(mFoundationsAtDistance));
     }
     @Override protected void onDestroy() {
         super.onDestroy();
@@ -103,10 +153,9 @@ public class SearchResultsActivity extends AppCompatActivity implements
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
-                // Successfully signed in
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                mCurrentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 Utilities.updateSignInMenuItem(mMenu, this, true);
-                mSearchScreenFragment.reloadDataAfterSuccessfulSignIn();
+                reloadDataAfterSuccessfulSignIn();
             } else {
                 Utilities.updateSignInMenuItem(mMenu, this, false);
                 // Sign in failed. If response is null the user canceled the
@@ -176,29 +225,10 @@ public class SearchResultsActivity extends AppCompatActivity implements
         } else {
             mActivatedDetailFragment = false;
             setFragmentLayouts(mSelectedProfileIndex);
-        }
 
-    }
-    @Override public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(getString(R.string.search_results_profile_fragment_rv_position), mStoredImagesRecyclerViewPosition);
-        if (mPager!=null) {
-            mSelectedProfileIndex = mPager.getCurrentItem();
-            mPager.setAdapter(null);
         }
-        outState.putInt(getString(R.string.search_results_selected_profile), mSelectedProfileIndex);
-        outState.putBoolean(getString(R.string.search_results_activated_detail_fragment), mActivatedDetailFragment);
-    }
-    @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+        Utilities.resetProfileScrollPositions(this);
 
-        mActivatedDetailFragment = savedInstanceState.getBoolean(getString(R.string.search_results_activated_detail_fragment), false);
-        if (mActivatedDetailFragment && mPager !=null) {
-            mSelectedProfileIndex = savedInstanceState.getInt(getString(R.string.search_results_selected_profile));
-            setFragmentLayouts(mSelectedProfileIndex);
-        }
-        mStoredImagesRecyclerViewPosition = savedInstanceState.getInt(getString(R.string.search_results_profile_fragment_rv_position));
-        mFragmentManager = getSupportFragmentManager();
     }
 
 
@@ -231,7 +261,16 @@ public class SearchResultsActivity extends AppCompatActivity implements
         }
     }
     private void initializeParameters() {
+        mDogsList = new ArrayList<>();
+        mFamiliesList = new ArrayList<>();
+        mFoundationsList = new ArrayList<>();
+        mDogsAtDistance = new ArrayList<>();
+        mFamiliesAtDistance = new ArrayList<>();
+        mFoundationsAtDistance = new ArrayList<>();
+        mUser = new TinDogUser();
         mFirebaseAuth = FirebaseAuth.getInstance();
+        mCurrentFirebaseUser = mFirebaseAuth.getCurrentUser();
+        mFirebaseDao = new FirebaseDao(this, this);
         mFragmentManager = getSupportFragmentManager();
         if (getSupportActionBar()!=null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -243,56 +282,72 @@ public class SearchResultsActivity extends AppCompatActivity implements
 
         mBinding =  ButterKnife.bind(this);
         Utilities.hideSoftKeyboard(this);
-
     }
     private void setFragmentLayouts(int selectedProfileIndex) {
 
+        mFragmentManager = getSupportFragmentManager();
         if (Utilities.getSmallestWidth(this) < getResources().getInteger(R.integer.tablet_smallest_width_threshold)) {
+            setupSearchScreenFragment();
             if (!mActivatedDetailFragment) {
-                setupSearchScreenFragment();
-                mSearchScreenFragment.updateProfileIndicator(mSelectedProfileIndex);
                 removePager();
-                mMasterFragmentContainer.setVisibility(View.VISIBLE);
-                mPager.setVisibility(View.GONE);
+                showSearchScreenFragment();
+                if (mMasterFragmentContainer!=null) mMasterFragmentContainer.setVisibility(View.VISIBLE);
+                if (mPager!=null) mPager.setVisibility(View.GONE);
             }
             else {
-                setupProfilesPager(selectedProfileIndex);
-                removeSearchScreenFragment();
-                mMasterFragmentContainer.setVisibility(View.GONE);
-                mPager.setVisibility(View.VISIBLE);
+                setupAndShowProfilesPager(selectedProfileIndex);
+                if (mMasterFragmentContainer!=null) mMasterFragmentContainer.setVisibility(View.GONE);
+                if (mPager!=null) mPager.setVisibility(View.VISIBLE);
             }
         } else {
             setupSearchScreenFragment();
-            mSearchScreenFragment.updateProfileIndicator(mSelectedProfileIndex);
-            setupProfilesPager(selectedProfileIndex);
-            mMasterFragmentContainer.setVisibility(View.VISIBLE);
-            mPager.setVisibility(View.VISIBLE);
+            showSearchScreenFragment();
+            setupAndShowProfilesPager(selectedProfileIndex);
+            if (mMasterFragmentContainer!=null) mMasterFragmentContainer.setVisibility(View.VISIBLE);
+            if (mPager!=null) mPager.setVisibility(View.VISIBLE);
         }
 
     }
     private void setupSearchScreenFragment() {
+        if (mSearchScreenFragment==null) {
+            mSearchScreenFragment = new SearchScreenFragment();
+
+            Bundle bundle = new Bundle();
+            bundle.putString(getString(R.string.profile_type), mProfileType);
+            bundle.putInt(getString(R.string.selected_profile_index), mSelectedProfileIndex);
+            bundle.putInt(getString(R.string.search_screen_fragment_rv_position), mProfileSelectionRecyclerViewPosition);
+            bundle.putParcelableArrayList(getString(R.string.search_results_dogs_list), new ArrayList<>(mDogsList));
+            bundle.putParcelableArrayList(getString(R.string.search_results_families_list), new ArrayList<>(mFamiliesList));
+            bundle.putParcelableArrayList(getString(R.string.search_results_foundations_list), new ArrayList<>(mFoundationsList));
+            bundle.putParcelableArrayList(getString(R.string.search_results_dogs_at_distance), new ArrayList<>(mDogsAtDistance));
+            bundle.putParcelableArrayList(getString(R.string.search_results_families_at_distance), new ArrayList<>(mFamiliesAtDistance));
+            bundle.putParcelableArrayList(getString(R.string.search_results_foundations_at_distance), new ArrayList<>(mFoundationsAtDistance));
+            if (!TextUtils.isEmpty(mRequestedDogProfileUI))
+                bundle.putString(getString(R.string.requested_specific_dog_profile), mRequestedDogProfileUI);
+            else if (!TextUtils.isEmpty(mRequestedFamilyProfileUI))
+                bundle.putString(getString(R.string.requested_specific_family_profile), mRequestedFamilyProfileUI);
+            else if (!TextUtils.isEmpty(mRequestedFoundationProfileUI))
+                bundle.putString(getString(R.string.requested_specific_foundation_profile), mRequestedFoundationProfileUI);
+
+            mSearchScreenFragment.setArguments(bundle);
+        }
+        else {
+            mSearchScreenFragment.updateProfilesListParameters(mSelectedProfileIndex, mProfileSelectionRecyclerViewPosition);
+        }
+
+    }
+    private void showSearchScreenFragment() {
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        if (mSearchScreenFragment==null) mSearchScreenFragment = new SearchScreenFragment();
-
-        Bundle bundle = new Bundle();
-        bundle.putString(getString(R.string.profile_type), mProfileType);
-        bundle.putInt(getString(R.string.selected_profile_index), mSelectedProfileIndex);
-        if (!TextUtils.isEmpty(mRequestedDogProfileUI))
-            bundle.putString(getString(R.string.requested_specific_dog_profile), mRequestedDogProfileUI);
-        else if (!TextUtils.isEmpty(mRequestedFamilyProfileUI))
-            bundle.putString(getString(R.string.requested_specific_family_profile), mRequestedFamilyProfileUI);
-        else if (!TextUtils.isEmpty(mRequestedFoundationProfileUI))
-            bundle.putString(getString(R.string.requested_specific_foundation_profile), mRequestedFoundationProfileUI);
-
-        mSearchScreenFragment.setArguments(bundle);
         fragmentTransaction.replace(R.id.master_fragment_container, mSearchScreenFragment);
         fragmentTransaction.commit();
     }
-    private void setupProfilesPager(final int selectedProfileIndex) {
+    private void setupAndShowProfilesPager(final int selectedProfileIndex) {
         mPagerAdapter = new ProfilesPagerAdapter(mFragmentManager);
-        mPager.setAdapter(mPagerAdapter);
-        mPager.addOnPageChangeListener(this);
-        displaySelectedProfile(selectedProfileIndex);
+        if (mPager!=null) {
+            mPager.setAdapter(mPagerAdapter);
+            mPager.addOnPageChangeListener(this);
+            displaySelectedProfile(selectedProfileIndex);
+        }
     }
     private void displaySelectedProfile(final int selectedProfileIndex) {
 
@@ -303,15 +358,13 @@ public class SearchResultsActivity extends AppCompatActivity implements
             public void run() {
                 //Setting the current item again after a delay since all the fragment may not have yet been loaded
 
-                mPagerAdapter.notifyDataSetChanged();
-                mPager.setCurrentItem(selectedProfileIndex);
-                mPagerAdapter.notifyDataSetChanged();
+                if (mPagerAdapter!=null && mPager!=null) {
+                    mPagerAdapter.notifyDataSetChanged();
+                    mPager.setCurrentItem(selectedProfileIndex);
+                }
             }
         });
 
-    }
-    private void removeSearchScreenFragment() {
-        mSearchScreenFragment = null;
     }
     private void removePager() {
         mPagerAdapter = null;
@@ -330,23 +383,13 @@ public class SearchResultsActivity extends AppCompatActivity implements
                 } else {
                     // TinDogUser is signed out
                     Log.d(DEBUG_TAG, "onAuthStateChanged:signed_out");
-                    if (Utilities.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) showSignInScreen();
+                    if (Utilities.getAppPreferenceUserHasNotRefusedSignIn(getApplicationContext())) {
+                        Utilities.showSignInScreen(SearchResultsActivity.this);
+                    }
                 }
             }
         };
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-    private void showSignInScreen() {
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build());
-
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                Utilities.FIREBASE_SIGN_IN_KEY);
     }
     private class ProfilesPagerAdapter extends FragmentStatePagerAdapter {
 
@@ -356,31 +399,33 @@ public class SearchResultsActivity extends AppCompatActivity implements
 
         @Override
         public Fragment getItem(int position) {
+            if (getCount() == 0) {
+                Log.i(DEBUG_TAG, "Error in SearchResultsActivity/FragmentStatePagerAdapter - count is zero");
+                return new DogProfileFragment();
+            }
+
             Bundle bundle = new Bundle();
             bundle.putString(getString(R.string.profile_type), mProfileType);
 
             if (mProfileType.equals(getString(R.string.dog_profile))) {
-                bundle.putParcelable(getString(R.string.profile_parcelable), mDogs.get(position));
+                bundle.putParcelable(getString(R.string.profile_parcelable), mDogsAtDistance.get(position));
                 mDogProfileFragment = new DogProfileFragment();
                 mDogProfileFragment.setRetainInstance(false);
                 mDogProfileFragment.setArguments(bundle);
-                mDogProfileFragment.setImagesRecyclerViewPosition(mStoredImagesRecyclerViewPosition);
                 return mDogProfileFragment;
             }
             else if (mProfileType.equals(getString(R.string.family_profile))) {
-                bundle.putParcelable(getString(R.string.profile_parcelable), mFamilies.get(position));
+                bundle.putParcelable(getString(R.string.profile_parcelable), mFamiliesAtDistance.get(position));
                 mFamilyProfileFragment = new FamilyProfileFragment();
                 mFamilyProfileFragment.setRetainInstance(false);
                 mFamilyProfileFragment.setArguments(bundle);
-                mFamilyProfileFragment.setImagesRecyclerViewPosition(mStoredImagesRecyclerViewPosition);
                 return mFamilyProfileFragment;
             }
             else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-                bundle.putParcelable(getString(R.string.profile_parcelable), mFoundations.get(position));
+                bundle.putParcelable(getString(R.string.profile_parcelable), mFoundationsAtDistance.get(position));
                 mFoundationProfileFragment = new FoundationProfileFragment();
                 mFoundationProfileFragment.setRetainInstance(false);
                 mFoundationProfileFragment.setArguments(bundle);
-                mFoundationProfileFragment.setImagesRecyclerViewPosition(mStoredImagesRecyclerViewPosition);
                 return mFoundationProfileFragment;
             }
 
@@ -390,13 +435,13 @@ public class SearchResultsActivity extends AppCompatActivity implements
         @Override
         public int getCount() {
             if (mProfileType.equals(getString(R.string.dog_profile))) {
-                return (mDogs!=null) ? mDogs.size() : 0;
+                return (mDogsAtDistance!=null) ? mDogsAtDistance.size() : 0;
             }
             else if (mProfileType.equals(getString(R.string.family_profile))) {
-                return (mFamilies!=null) ? mFamilies.size() : 0;
+                return (mFamiliesAtDistance!=null) ? mFamiliesAtDistance.size() : 0;
             }
             else if (mProfileType.equals(getString(R.string.foundation_profile))) {
-                return (mFoundations!=null) ? mFoundations.size() : 0;
+                return (mFoundationsAtDistance!=null) ? mFoundationsAtDistance.size() : 0;
             }
             else return 0;
         }
@@ -413,6 +458,45 @@ public class SearchResultsActivity extends AppCompatActivity implements
             WidgetUpdateJobIntentService.enqueueWork(this, intent);
         }
     }
+    private void getListsFromFirebase() {
+
+        if(mCurrentFirebaseUser==null) {
+            Log.i(DEBUG_TAG, "Current Firebase user is null, cancelling database request. Did you sign in?");
+            return;
+        }
+
+        //Setting up the item lists (results are received through the FirebaseDao interface, see methods below)
+        if (mProfileType.equals(getString(R.string.dog_profile))) {
+            if (TextUtils.isEmpty(mRequestedDogProfileUI)) mFirebaseDao.getFullObjectsListFromFirebaseDb(new Dog(), true);
+            else mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(new Dog(mRequestedDogProfileUI), true);
+        }
+        else if (mProfileType.equals(getString(R.string.family_profile))) {
+            if (TextUtils.isEmpty(mRequestedFamilyProfileUI)) mFirebaseDao.getFullObjectsListFromFirebaseDb(new Family(), true);
+            else mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(new Family(mRequestedFamilyProfileUI), true);
+        }
+        else if (mProfileType.equals(getString(R.string.foundation_profile))) {
+            if (TextUtils.isEmpty(mRequestedFoundationProfileUI)) mFirebaseDao.getFullObjectsListFromFirebaseDb(new Foundation(), true);
+            else mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(new Foundation(mRequestedFoundationProfileUI), true);
+        }
+
+    }
+    private void getUserInfoFromFirebase() {
+        if (mCurrentFirebaseUser != null) {
+            // Name, email address, and profile photo Url
+            mNameFromFirebase = mCurrentFirebaseUser.getDisplayName();
+            mEmailFromFirebase = mCurrentFirebaseUser.getEmail();
+            mPhotoUriFromFirebase = mCurrentFirebaseUser.getPhotoUrl();
+
+            mFirebaseUid = mCurrentFirebaseUser.getUid();
+
+            mUser.setUI(mFirebaseUid);
+            mFirebaseDao.getUniqueObjectFromFirebaseDbOrCreateIt(mUser, true);
+        }
+    }
+    private void reloadDataAfterSuccessfulSignIn() {
+        getUserInfoFromFirebase();
+        getListsFromFirebase();
+    }
 
 
     //Communication with other classes
@@ -424,36 +508,119 @@ public class SearchResultsActivity extends AppCompatActivity implements
         setFragmentLayouts(mSelectedProfileIndex);
     }
     @Override public void onDogsFound(List<Dog> dogList) {
-        mDogs = dogList;
-        if (mPagerAdapter!=null) mPagerAdapter.notifyDataSetChanged();
+        mDogsAtDistance = dogList;
     }
     @Override public void onFamiliesFound(List<Family> familyList) {
-        mFamilies = familyList;
+        mFamiliesAtDistance = familyList;
+        if (mPagerAdapter!=null) mPagerAdapter.notifyDataSetChanged();
     }
     @Override public void onFoundationsFound(List<Foundation> foundationList) {
-        mFoundations = foundationList;
+        mFoundationsAtDistance = foundationList;
+        if (mPagerAdapter!=null) mPagerAdapter.notifyDataSetChanged();
     }
-
-    //Communication with Profile fragments
-    @Override public void onDogLayoutParametersCalculated(int imagesRecyclerViewPosition) {
-        mStoredImagesRecyclerViewPosition = imagesRecyclerViewPosition;
+    @Override public void onRequestListsRefresh() {
+        getListsFromFirebase();
     }
-    @Override public void onFamilyLayoutParametersCalculated(int imagesRecyclerViewPosition) {
-        mStoredImagesRecyclerViewPosition = imagesRecyclerViewPosition;
+    @Override public void onUserLocationFound(double latitude, double longitude) {
+        //*********Special code designed to create dogs near the user, used for testing purposes only************
+        mFirebaseDao.populateFirebaseDbWithDummyData(this, latitude, longitude);
     }
-    @Override public void onFoundationLayoutParametersCalculated(int imagesRecyclerViewPosition) {
-        mStoredImagesRecyclerViewPosition = imagesRecyclerViewPosition;
+    @Override public void onProfileSelectionListLayoutCalculated(int recyclerViewPosition) {
+        mProfileSelectionRecyclerViewPosition = recyclerViewPosition;
     }
 
     //Communication with Pager
     @Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
     }
     @Override public void onPageSelected(int position) {
         mSelectedProfileIndex = position;
-        if (mSearchScreenFragment!=null) mSearchScreenFragment.updateProfileIndicator(position);
+
+        //Resetting the profile scroll positions
+        Utilities.setAppPreferenceProfileScrollPosition(this, 0);
+        Utilities.setAppPreferenceProfileImagesRvPosition(this, 0);
+
+        if (mSearchScreenFragment!=null) mSearchScreenFragment.updateProfilesListParameters(position, mProfileSelectionRecyclerViewPosition);
     }
     @Override public void onPageScrollStateChanged(int state) {
+
+    }
+
+    //Communication with Firebase Dao handler
+    @Override public void onDogsListFound(List<Dog> dogsList) {
+        mDogsList = dogsList;
+
+        //If the user requested a dogs list, then show the list at the requested distance
+        if (TextUtils.isEmpty(mRequestedDogProfileUI) && mSearchScreenFragment!=null) {
+            mSearchScreenFragment.updateObjectsList(mDogsList);
+            mSearchScreenFragment.updateObjectListAccordingToDistance();
+        }
+
+        //If the user requested a specific dog, then update its index in the list for the parent activity.
+        else {
+            if (!TextUtils.isEmpty(mRequestedFamilyProfileUI)) mSelectedProfileIndex = 0;
+            if (mDogsList!=null && mDogsList.size()>0) {
+                if (mPagerAdapter!=null) mPagerAdapter.notifyDataSetChanged();
+                onProfileSelected(mSelectedProfileIndex);
+            }
+        }
+    }
+    @Override public void onFamiliesListFound(List<Family> familiesList) {
+        mFamiliesList = familiesList;
+
+        //If the user requested a family list, then show the list at the requested distance
+        if (TextUtils.isEmpty(mRequestedFamilyProfileUI) && mSearchScreenFragment!=null){
+            mSearchScreenFragment.updateObjectsList(mFamiliesList);
+            mSearchScreenFragment.updateObjectListAccordingToDistance();
+        }
+
+        //If the user requested a specific family, then update its index in the list for the parent activity.
+        else {
+            if (!TextUtils.isEmpty(mRequestedFamilyProfileUI)) mSelectedProfileIndex = 0;
+            if (mFamiliesList!=null && mFamiliesList.size()>0) {
+                if (mPagerAdapter!=null) mPagerAdapter.notifyDataSetChanged();
+                onProfileSelected(mSelectedProfileIndex);
+            }
+        }
+    }
+    @Override public void onFoundationsListFound(List<Foundation> foundationsList) {
+        mFoundationsList = foundationsList;
+
+        //If the user requested a foundations list, then show the list at the requested distance
+        if (TextUtils.isEmpty(mRequestedFoundationProfileUI) && mSearchScreenFragment!=null){
+            mSearchScreenFragment.updateObjectsList(mFoundationsList);
+            mSearchScreenFragment.updateObjectListAccordingToDistance();
+        }
+
+        //If the user requested a specific foundation, then update its index in the list for the parent activity.
+        else {
+            if (!TextUtils.isEmpty(mRequestedFamilyProfileUI)) mSelectedProfileIndex = 0;
+            if (mFoundationsList!=null && mFoundationsList.size()>0) {
+                if (mPagerAdapter!=null) mPagerAdapter.notifyDataSetChanged();
+                onProfileSelected(mSelectedProfileIndex);
+            }
+        }
+    }
+    @Override public void onTinDogUserListFound(List<TinDogUser> usersList) {
+        if (usersList.size()==1) {
+            if (usersList.get(0) != null) {
+                mUser = usersList.get(0);
+            }
+        }
+        else if (usersList.size()>1) {
+            mUser = usersList.get(0);
+            Log.i(DEBUG_TAG, "Warning! Multiple users found for the same Uid.");
+        }
+        else {
+            Toast.makeText(this, R.string.error_when_getting_preferences, Toast.LENGTH_SHORT).show();
+        }
+
+    }
+    @Override public void onMapMarkerListFound(List<MapMarker> markersList) {
+
+    }
+    @Override public void onImageAvailable(Uri imageUri, String currentImageName) {
+    }
+    @Override public void onImageUploaded(List<String> uploadTimes) {
 
     }
 }

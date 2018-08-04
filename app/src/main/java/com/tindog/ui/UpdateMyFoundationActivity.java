@@ -191,7 +191,7 @@ public class UpdateMyFoundationActivity extends AppCompatActivity implements Fir
         return super.onOptionsItemSelected(item);
     }
     @Override public void onSaveInstanceState(Bundle outState) {
-        mStoredFoundationImagesRecyclerViewPosition = Utilities.getImagesRecyclerViewPosition(mRecyclerViewFoundationImages);
+        mStoredFoundationImagesRecyclerViewPosition = Utilities.getLinearRecyclerViewPosition(mRecyclerViewFoundationImages);
         outState.putInt(getString(R.string.profile_update_pet_images_rv_position), mStoredFoundationImagesRecyclerViewPosition);
         outState.putString(getString(R.string.profile_update_image_name), mImageName);
         mScrollPosition = mScrollViewContainer.getScrollY();
